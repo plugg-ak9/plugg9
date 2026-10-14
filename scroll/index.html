@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Scrolla och svara · Plugg åk 9</title>
+<meta name="description" content="Svep mellan korta videor och frågor ur spelen.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#10141C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plugg åk 9">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../ikon-180.png">
+<link rel="icon" type="image/png" href="../ikon-192.png">
+<link rel="stylesheet" href="../fonter/fonter.css">
+<script src="../rost/rost.js" data-spel="scroll"></script>
+<style>
+/* Layout: helskärmskort som man sveper uppåt, som reels. Mörkt, stora knappar, lättläst. */
+:root{--bg:#0B0F18;--kort:#151B28;--text:#F2F5FA;--dov:#A9B3C6;--linje:#2A3346;--ratt:#3BBF7A;--fel:#E35D6A;--acc:#7EA6FF;--gul:#F2C14E;
+  --rubrik:"Lexend","Avenir Next","Segoe UI",sans-serif;--brod:"Atkinson Hyperlegible","Verdana",sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--brod);overflow:hidden}
+.topp{position:fixed;inset:0 0 auto 0;z-index:5;display:flex;gap:8px;align-items:center;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
+  background:linear-gradient(#0B0F18f0,#0B0F1800)}
+.topp a,.topp button{font:700 .95rem var(--rubrik);color:var(--text);background:#1E2638cc;border:1px solid var(--linje);border-radius:12px;padding:8px 12px;text-decoration:none;cursor:pointer;min-height:40px;white-space:nowrap}
+.chips{display:flex;gap:6px;overflow-x:auto;flex:1;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button[aria-pressed=true]{background:var(--acc);color:#0B0F18;border-color:var(--acc)}
+#flode{height:100%;overflow-y:scroll;scroll-snap-type:y mandatory;overscroll-behavior:contain}
+.sida{height:100dvh;height:100vh;scroll-snap-align:start;scroll-snap-stop:always;display:grid;place-items:center;padding:calc(64px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));position:relative}
+@supports(height:100dvh){.sida{height:100dvh}}
+.inre{width:100%;max-width:560px;display:grid;gap:14px}
+.etikett{font:700 .8rem var(--rubrik);letter-spacing:.06em;text-transform:uppercase;color:var(--gul);margin:0}
+.fraga{font:700 clamp(1.35rem,4.6vw,1.9rem)/1.25 var(--rubrik);margin:0;text-wrap:balance}
+.svar{display:grid;gap:10px}
+.svar button{font:600 1.08rem/1.35 var(--brod);text-align:left;color:var(--text);background:var(--kort);border:2px solid var(--linje);border-radius:16px;padding:14px 16px;min-height:56px;cursor:pointer}
+.svar button:disabled{cursor:default}
+.svar button.ratt{border-color:var(--ratt);background:#163826}
+.svar button.fel{border-color:var(--fel);background:#3A1A20}
+.svar button.blek{opacity:.55}
+.besked{margin:0;font:700 1.15rem var(--rubrik)}
+.besked.ratt{color:var(--ratt)} .besked.fel{color:var(--fel)}
+.facit{margin:0;color:var(--dov);font-size:1.02rem;line-height:1.5}
+.rad{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.liten{font:700 .9rem var(--rubrik);color:var(--acc);background:transparent;border:2px solid var(--acc);border-radius:12px;padding:7px 12px;cursor:pointer;text-decoration:none}
+.svep{position:absolute;bottom:calc(10px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;color:var(--dov);font-size:.9rem;opacity:0;transition:opacity .4s}
+.svep.syns{opacity:1}
+.video{width:100%;max-width:560px;display:grid;gap:10px;justify-items:center}
+.video video{max-width:100%;max-height:calc(100dvh - 190px);border-radius:16px;background:#000}
+.video .titel{font:700 1.1rem var(--rubrik);margin:0;text-align:center}
+.spela{position:absolute;inset:0;margin:auto;width:84px;height:84px;border-radius:50%;border:0;background:#000a;color:#fff;font-size:2rem;cursor:pointer}
+.vbox{position:relative;display:grid;place-items:center}
+.tom{color:var(--dov);text-align:center}
+dialog{background:var(--kort);color:var(--text);border:1px solid var(--linje);border-radius:20px;max-width:520px;width:calc(100% - 32px);padding:20px}
+dialog::backdrop{background:#000a}
+dialog h2{font:800 1.4rem var(--rubrik);margin:0 0 12px}
+dialog table{width:100%;border-collapse:collapse;font-size:1rem}
+dialog td,dialog th{padding:8px 4px;border-bottom:1px solid var(--linje);text-align:left}
+dialog td:not(:first-child),dialog th:not(:first-child){text-align:right}
+button:focus-visible,a:focus-visible{outline:3px solid var(--gul);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){#flode{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="topp">
+<a href="../index.html" aria-label="Till startsidan">‹ Hem</a>
+<div class="chips" id="chips" role="group" aria-label="Välj ämne"></div>
+<button type="button" id="resultatKnapp">Resultat</button>
+</div>
+<main id="flode" aria-live="polite"></main>
+<dialog id="resultat" aria-labelledby="resRubrik">
+<h2 id="resRubrik">Dina resultat</h2>
+<div id="resInnehall"></div>
+<p class="facit" style="margin-top:12px">Svaren sparas bara på den här enheten.</p>
+<div class="rad" style="margin-top:12px"><button type="button" class="liten" id="ovaMissade">Öva på det du missat</button><button type="button" class="liten" id="stang">Stäng</button></div>
+</dialog>
+<script>
+(function(){
+  'use strict';
+  var NYCKEL='plugg9.scroll.v1', FRAGOR=[], VIDEOR=[], filter='Alla', baraMissade=false, sedan=[], ko=[], antal=0;
+  var data={r:{}};
+  try{ var s=JSON.parse(localStorage.getItem(NYCKEL)); if(s&&s.r) data=s; }catch(e){}
+  function spara(){ try{ localStorage.setItem(NYCKEL, JSON.stringify(data)); }catch(e){} }
+  var flode=document.getElementById('flode');
+  function el(tag, cls, text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+  function spelUrl(id){ return ['..','spel',id+'.html'].join('/'); }
+  function blanda(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+  // uppläsning: samma uppdelning som spelen, så att röstklippen hittas
+  function las(text){ if(!window.speechSynthesis) return; speechSynthesis.cancel();
+    String(text).split(/(?<=[.!?])\s+/).filter(Boolean).forEach(function(b){ var u=new SpeechSynthesisUtterance(b); u.lang='sv-SE'; u.rate=.94; speechSynthesis.speak(u); }); }
+
+  // ---- val av nästa fråga: missade kommer tillbaka, kunnade mer sällan ----
+  function vikt(q){
+    var r=data.r[q.id]; if(!r) return 2;                          // aldrig sedd
+    if(!r[3]) return 3;                                            // fel senast
+    return r[0]>=2 ? .25 : .8;                                     // rätt två gånger: sällan
+  }
+  function urval(){ return FRAGOR.filter(function(q){ return (filter==='Alla'||q.a===filter) && (!baraMissade || (data.r[q.id] && !data.r[q.id][3])); }); }
+  function nastaFraga(){
+    if(ko.length && ko[0].efter<=antal) return ko.shift().q;
+    var lista=urval().filter(function(q){ return sedan.indexOf(q.id)<0; });
+    if(!lista.length) lista=urval();
+    if(!lista.length) return null;
+    var sum=0; lista.forEach(function(q){ sum+=vikt(q); });
+    var x=Math.random()*sum;
+    for(var i=0;i<lista.length;i++){ x-=vikt(lista[i]); if(x<=0) return lista[i]; }
+    return lista[lista.length-1];
+  }
+  function nastaVideo(){
+    var v=VIDEOR.filter(function(v){ return filter==='Alla'||v.a===filter||(filter==='Fysik'&&v.a==='Fysik'); });
+    if(!v.length) return null;
+    var osedda=v.filter(function(x){ return sedan.indexOf(x.src)<0; });
+    return (osedda.length?osedda:v)[Math.floor(Math.random()*(osedda.length?osedda:v).length)];
+  }
+
+  // ---- kort ----
+  function fragekort(q){
+    var s=el('section','sida'), i=el('div','inre');
+    i.appendChild(el('p','etikett',q.a+' · '+q.b));
+    var h=el('h2','fraga',q.q); i.appendChild(h);
+    var ordn=blanda(q.alt.map(function(_,n){ return n; }));
+    var box=el('div','svar'), besked=el('p','besked'), facit=el('p','facit');
+    besked.hidden=true; facit.hidden=true;
+    var knappar=ordn.map(function(n){
+      var b=el('button',null,q.alt[n]); b.type='button';
+      b.onclick=function(){
+        var ratt=n===0, r=data.r[q.id]||[0,0,0,false];
+        if(ratt) r[0]++; else r[1]++; r[2]=Date.now(); r[3]=ratt; data.r[q.id]=r; spara();
+        knappar.forEach(function(k,m){ k.disabled=true; if(ordn[m]===0) k.classList.add('ratt'); else if(k!==b) k.classList.add('blek'); });
+        if(!ratt) b.classList.add('fel');
+        besked.hidden=false; besked.className='besked '+(ratt?'ratt':'fel'); besked.textContent=ratt?'Rätt!':'Inte riktigt. Rätt svar: '+q.alt[0];
+        facit.hidden=!q.f; facit.textContent=q.f;
+        if(!ratt) ko.push({q:q, efter:antal+4});                   // kommer tillbaka om fyra kort
+        las((ratt?'Rätt! ':'Rätt svar: '+q.alt[0]+'. ')+(q.f||''));
+        svep.classList.add('syns');
+      };
+      box.appendChild(b); return b;
+    });
+    i.appendChild(box); i.appendChild(besked); i.appendChild(facit);
+    var rad=el('div','rad'), lb=el('button','liten','🔊 Läs upp'); lb.type='button';
+    lb.onclick=function(){ las(q.q+' '+ordn.map(function(n,k){ return (k+1)+'. '+q.alt[n]; }).join('. ')); };
+    rad.appendChild(lb);
+    var sp=el('a','liten','Spela spelet'); sp.href=spelUrl(q.s); rad.appendChild(sp);
+    i.appendChild(rad);
+    s.appendChild(i);
+    var svep=el('p','svep','Svep uppåt för nästa ↑'); s.appendChild(svep);
+    return s;
+  }
+  function videokort(v){
+    var s=el('section','sida'), w=el('div','video');
+    w.appendChild(el('p','etikett',v.a+' · video'));
+    var box=el('div','vbox'), vid=document.createElement('video');
+    vid.src=v.src+'#t=0.5'; vid.preload='metadata'; vid.playsInline=true; vid.setAttribute('playsinline',''); vid.controls=false;
+    var knapp=el('button','spela','▶'); knapp.type='button'; knapp.setAttribute('aria-label','Spela videon');
+    function vaxla(){ if(vid.paused){ document.querySelectorAll('video').forEach(function(o){ if(o!==vid) o.pause(); }); vid.play().catch(function(){}); } else vid.pause(); }
+    knapp.onclick=vaxla; vid.onclick=vaxla;
+    vid.onplay=function(){ knapp.hidden=true; }; vid.onpause=function(){ knapp.hidden=false; };
+    box.appendChild(vid); box.appendChild(knapp); w.appendChild(box);
+    w.appendChild(el('p','titel',v.t));
+    if(v.spel){ var a=el('a','liten','Nu spelar vi → '+v.spelNamn); a.href=spelUrl(v.spel); a.hidden=true; vid.onended=function(){ a.hidden=false; knapp.hidden=false; }; w.appendChild(a); }
+    s.appendChild(w); s._video=vid;
+    return s;
+  }
+  function fyll(n){
+    for(var k=0;k<n;k++){
+      var kort=null;
+      if(antal%4===3){ var v=nastaVideo(); if(v){ kort=videokort(v); sedan.push(v.src); } }
+      if(!kort){ var q=nastaFraga(); if(!q){ if(!antal) flode.appendChild(tomt()); return; } kort=fragekort(q); sedan.push(q.id); }
+      if(sedan.length>40) sedan.shift();
+      antal++; flode.appendChild(kort); bevaka(kort);
+    }
+  }
+  function tomt(){ var s=el('section','sida'); s.appendChild(el('p','tom', baraMissade?'Inga missade frågor här. Bra jobbat!':'Inga frågor i det här ämnet.')); return s; }
+
+  // fler kort när man närmar sig slutet; pausa videor som scrollas bort
+  var obs=new IntersectionObserver(function(poster){ poster.forEach(function(p){
+    if(p.target._video && !p.isIntersecting) p.target._video.pause();
+    if(p.isIntersecting && p.target===flode.lastElementChild) fyll(6);
+  }); },{root:flode, threshold:.5});
+  function bevaka(k){ obs.observe(k); }
+
+  function starta(){ flode.innerHTML=''; antal=0; ko=[]; flode.scrollTop=0; fyll(8); }
+
+  // ---- ämnen ----
+  function chips(){
+    var c=document.getElementById('chips'), amnen=['Alla'];
+    FRAGOR.forEach(function(q){ if(amnen.indexOf(q.a)<0) amnen.push(q.a); });
+    amnen.forEach(function(a){ var b=el('button',null,a==='Hem- och konsumentkunskap'?'HKK':a); b.type='button'; b.setAttribute('aria-pressed',String(a===filter));
+      b.onclick=function(){ filter=a; baraMissade=false; c.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed',String(x===b)); }); starta(); };
+      c.appendChild(b); });
+  }
+
+  // ---- resultat ----
+  var dlg=document.getElementById('resultat');
+  document.getElementById('resultatKnapp').onclick=function(){
+    var per={};
+    FRAGOR.forEach(function(q){ var r=data.r[q.id]; if(!r) return; var p=per[q.a]=per[q.a]||{bes:0,ratt:0,missade:0};
+      p.bes++; if(r[3]) p.ratt++; else p.missade++; });
+    var h='<table><thead><tr><th>Ämne</th><th>Besvarade</th><th>Rätt senast</th><th>Att öva</th></tr></thead><tbody>';
+    var tom=true; Object.keys(per).forEach(function(a){ tom=false; var p=per[a]; h+='<tr><td>'+a+'</td><td>'+p.bes+'</td><td>'+p.ratt+'</td><td>'+p.missade+'</td></tr>'; });
+    h+='</tbody></table>';
+    document.getElementById('resInnehall').innerHTML=tom?'<p class="facit">Du har inte svarat på något än. Svep och svara!</p>':h;
+    dlg.showModal();
+  };
+  document.getElementById('stang').onclick=function(){ dlg.close(); };
+  document.getElementById('ovaMissade').onclick=function(){ dlg.close(); baraMissade=true; starta(); };
+
+  // ---- data ----
+  Promise.all([fetch('fragor.json').then(function(r){ return r.json(); }), fetch('videor.json').then(function(r){ return r.json(); })])
+    .then(function(d){ FRAGOR=d[0]; VIDEOR=d[1]; chips(); starta(); })
+    .catch(function(){ flode.appendChild(el('p','tom','Kunde inte läsa frågorna. Prova igen med nät.')); });
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js').catch(function(){});
+})();
+</script>
+</body>
+</html>
