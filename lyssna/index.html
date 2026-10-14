@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Lyssningsprov · Plugg åk 9</title>
+<link rel="stylesheet" href="../fonter/fonter.css">
+<style>
+:root{--bg:#EDF1F6;--yta:#fff;--text:#18202E;--dov:#556074;--linje:#D5DCE7;--acc:#2F64CF;--rubrik:"Lexend",system-ui,sans-serif;--brod:"Atkinson Hyperlegible",Verdana,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#10141C;--yta:#1A202B;--text:#EEF2F8;--dov:#A3ADBF;--linje:#2C3442;--acc:#7EA6FF;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:18px/1.5 var(--brod);padding:calc(20px + env(safe-area-inset-top)) 16px 48px}
+.wrap{max-width:760px;margin:0 auto;display:grid;gap:18px}
+h1{font:800 1.9rem/1.1 var(--rubrik);margin:0}
+.dov{color:var(--dov);margin:0}
+.hem{justify-self:start;font:700 .95rem var(--rubrik);color:var(--text);text-decoration:none;border:2px solid var(--linje);border-radius:12px;padding:6px 12px;background:var(--yta)}
+.mening{background:var(--yta);border-radius:16px;padding:12px 14px;display:grid;gap:6px}
+.mening p{margin:0;font-weight:700}
+.rost{background:var(--yta);border-radius:18px;padding:14px;display:grid;gap:10px}
+.rost h2{font:700 1.15rem var(--rubrik);margin:0;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.rost h2 small{font:400 .85rem var(--brod);color:var(--dov)}
+.knappar{display:flex;flex-wrap:wrap;gap:8px}
+button{font:700 .95rem var(--rubrik);min-width:48px;min-height:44px;border-radius:12px;border:2px solid var(--acc);background:transparent;color:var(--acc);cursor:pointer;padding:6px 12px}
+button.pa{background:var(--acc);color:var(--yta)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--acc);outline-offset:3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="hem" href="../index.html">‹ Hem</a>
+<h1>Lyssningsprov</h1>
+<p class="dov">Samma fem meningar med olika röster. Tryck på siffrorna. Vilken röst vill du höra i spelen?</p>
+<div id="meningar"></div>
+<div id="roster"></div>
+</div>
+<script>
+(function(){
+  var MENINGAR = [
+    'Hej! En näringsväv visar hur organismer hänger ihop.',
+    'Fotosyntesen sker i växternas gröna delar. Där blir solljus, vatten och koldioxid till socker och syre.',
+    'Vilken av de här är en nedbrytare? Svampen, räven eller björken?',
+    'Rätt! Bra jobbat. Nu öppnas porten.',
+    'Massan 100 gram dras ner med kraften 1 newton på jorden.'
+  ];
+  var ROSTER = [
+    ['gemini-Sulafat', 'Gemini: Sulafat', 'varm'],
+    ['gemini-Achird', 'Gemini: Achird', 'vänlig'],
+    ['gemini-Kore', 'Gemini: Kore', 'fast'],
+    ['gemini-Leda', 'Gemini: Leda', 'ungdomlig'],
+    ['piper-lisa', 'Piper: Lisa', 'gratis, lokal'],
+    ['piper-alma', 'Piper: Alma', 'gratis, lokal'],
+    ['piper-nst', 'Piper: NST', 'gratis, lokal'],
+    ['alva-premium', 'Apple: Alva (Premium)', 'bästa Apple-rösten, inspelad på datorn'],
+    ['alva-enkel', 'Apple: Alva (enkel)', 'den som spelen ofta får i dag'],
+    ['live', 'Den här enhetens egen röst', 'läses upp direkt, som i spelen nu']
+  ];
+  var m = document.getElementById('meningar');
+  MENINGAR.forEach(function(t, i){ var d=document.createElement('div'); d.className='mening'; d.innerHTML='<p>'+(i+1)+'. '+t+'</p>'; m.appendChild(d); });
+  var ljud = new Audio(), aktiv = null;
+  function stoppa(){ ljud.pause(); if(window.speechSynthesis) speechSynthesis.cancel(); if(aktiv) aktiv.classList.remove('pa'); aktiv=null; }
+  function basta(){ var v=(window.speechSynthesis&&speechSynthesis.getVoices())||[]; var sv=v.filter(function(x){return /^sv/i.test(x.lang);});
+    return sv.find(function(x){return /premium/i.test(x.voiceURI+x.name);})||sv.find(function(x){return /enhanced|förbättrad/i.test(x.voiceURI+x.name);})||sv[0]||null; }
+  var r = document.getElementById('roster');
+  ROSTER.forEach(function(rr){
+    var s=document.createElement('section'); s.className='rost';
+    s.innerHTML='<h2>'+rr[1]+' <small>'+rr[2]+'</small></h2><div class="knappar"></div>';
+    var k=s.querySelector('.knappar');
+    MENINGAR.forEach(function(t, i){
+      var b=document.createElement('button'); b.type='button'; b.textContent=String(i+1);
+      b.onclick=function(){
+        var var_aktiv = aktiv===b; stoppa(); if(var_aktiv) return;
+        aktiv=b; b.classList.add('pa');
+        if(rr[0]==='live'){
+          if(!window.speechSynthesis){ b.classList.remove('pa'); return; }
+          var u=new SpeechSynthesisUtterance(t); u.lang='sv-SE'; var v=basta(); if(v) u.voice=v; u.rate=.92;
+          u.onend=function(){ b.classList.remove('pa'); }; speechSynthesis.speak(u);
+          if(v) s.querySelector('small').textContent='läses upp direkt med: '+v.name;
+        } else {
+          ljud.src=rr[0]+'-'+(i+1)+'.m4a'; ljud.onended=function(){ b.classList.remove('pa'); }; ljud.play().catch(function(){ b.classList.remove('pa'); });
+        }
+      };
+      k.appendChild(b);
+    });
+    r.appendChild(s);
+  });
+})();
+</script>
+</body>
+</html>
