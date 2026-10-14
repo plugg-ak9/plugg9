@@ -3,13 +3,14 @@
    - Videor cachas först när de spelas (eller när man trycker "Spara videorna"),
      och svaras med byte-intervall (206), eftersom Safari kräver det för video.
    - bygg.mjs fyller i VERSION, FORCACHE och VIDEOR. Ändra här, inte i plugg9/sw.js. */
-const VERSION = "2d0b8a1728";
-const FORCACHE = ["./","flode/","flode/index.html","fonter/Assistant-400-latin-ext.woff2","fonter/Assistant-400-latin.woff2","fonter/Assistant-600-latin-ext.woff2","fonter/Assistant-600-latin.woff2","fonter/Assistant-700-latin-ext.woff2","fonter/Assistant-700-latin.woff2","fonter/AtkinsonHyperlegible-400-latin-ext.woff2","fonter/AtkinsonHyperlegible-400-latin.woff2","fonter/AtkinsonHyperlegible-400i-latin-ext.woff2","fonter/AtkinsonHyperlegible-400i-latin.woff2","fonter/AtkinsonHyperlegible-700-latin-ext.woff2","fonter/AtkinsonHyperlegible-700-latin.woff2","fonter/FrankRuhlLibre-700-latin-ext.woff2","fonter/FrankRuhlLibre-700-latin.woff2","fonter/FrankRuhlLibre-900-latin-ext.woff2","fonter/FrankRuhlLibre-900-latin.woff2","fonter/IBMPlexMono-500-latin-ext.woff2","fonter/IBMPlexMono-500-latin.woff2","fonter/IBMPlexMono-600-latin-ext.woff2","fonter/IBMPlexMono-600-latin.woff2","fonter/Lexend-500-latin-ext.woff2","fonter/Lexend-500-latin.woff2","fonter/Lexend-600-latin-ext.woff2","fonter/Lexend-600-latin.woff2","fonter/Lexend-700-latin-ext.woff2","fonter/Lexend-700-latin.woff2","fonter/Lexend-800-latin-ext.woff2","fonter/Lexend-800-latin.woff2","fonter/fonter.css","ikon-180.png","ikon-192.png","ikon-512-maskable.png","ikon-512.png","index.html","manifest.webmanifest","spel/biologiresan.html","spel/demokratiuppdraget.html","spel/fysiklabbet.html","spel/judendomsresan.html","spel/pengakollen.html","spel/sverigeresan.html"];
+const VERSION = "a7f73009f8";
+const FORCACHE = ["./","flode/","flode/index.html","fonter/Assistant-400-latin-ext.woff2","fonter/Assistant-400-latin.woff2","fonter/Assistant-600-latin-ext.woff2","fonter/Assistant-600-latin.woff2","fonter/Assistant-700-latin-ext.woff2","fonter/Assistant-700-latin.woff2","fonter/AtkinsonHyperlegible-400-latin-ext.woff2","fonter/AtkinsonHyperlegible-400-latin.woff2","fonter/AtkinsonHyperlegible-400i-latin-ext.woff2","fonter/AtkinsonHyperlegible-400i-latin.woff2","fonter/AtkinsonHyperlegible-700-latin-ext.woff2","fonter/AtkinsonHyperlegible-700-latin.woff2","fonter/FrankRuhlLibre-700-latin-ext.woff2","fonter/FrankRuhlLibre-700-latin.woff2","fonter/FrankRuhlLibre-900-latin-ext.woff2","fonter/FrankRuhlLibre-900-latin.woff2","fonter/IBMPlexMono-500-latin-ext.woff2","fonter/IBMPlexMono-500-latin.woff2","fonter/IBMPlexMono-600-latin-ext.woff2","fonter/IBMPlexMono-600-latin.woff2","fonter/Lexend-500-latin-ext.woff2","fonter/Lexend-500-latin.woff2","fonter/Lexend-600-latin-ext.woff2","fonter/Lexend-600-latin.woff2","fonter/Lexend-700-latin-ext.woff2","fonter/Lexend-700-latin.woff2","fonter/Lexend-800-latin-ext.woff2","fonter/Lexend-800-latin.woff2","fonter/fonter.css","ikon-180.png","ikon-192.png","ikon-512-maskable.png","ikon-512.png","index.html","manifest.webmanifest","rost/alla.json","rost/biologiresan.json","rost/demokratiuppdraget.json","rost/flode.json","rost/fysiklabbet.json","rost/judendomsresan.json","rost/pengakollen.json","rost/rost.js","rost/start.json","rost/sverigeresan.json","spel/biologiresan.html","spel/demokratiuppdraget.html","spel/fysiklabbet.html","spel/judendomsresan.html","spel/pengakollen.html","spel/sverigeresan.html"];
 const VIDEOR = ["videor/fysik-materia.mp4?v=55a21e08","videor/fysik-densitet.mp4?v=c1111b8f","videor/fysik-massa-tyngd.mp4?v=a47c5897","videor/fysik-krafter.mp4?v=c50758ff","videor/fysik-nettokraft.mp4?v=dfae363d","videor/fysik-havstang.mp4?v=5a8ce79d","videor/fysik-ljus.mp4?v=acc59c74","videor/inkomst-budget.mp4?v=bd292820","videor/sparande.mp4?v=aa1a36ef","videor/lan-kredit.mp4?v=42967a5a","videor/faktura-kronofogden.mp4?v=7490b9c3","videor/forsakringar.mp4?v=7702b771","videor/demokrati-valdeltagande.mp4?v=c0505277","videor/regering-lag.mp4?v=141f18ba","videor/tallriksmodellen.mp4?v=87366736","videor/genetik.mp4?v=679e7259","videor/microbit-bilen.mp4?v=a744ec21","videor/koordinatsystem.mp4?v=4277eaf4"];
 
 const SIDOR = 'plugg9-v1-sidor-' + VERSION;
 const VIDEOCACHE = 'plugg9-v1-videor';
 const FONTCACHE = 'plugg9-v1-fonter';
+const ROSTCACHE = 'plugg9-v1-rost';
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(SIDOR).then(c => c.addAll(FORCACHE.map(u => new Request(u, { cache: 'reload' })))));
@@ -18,7 +19,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil((async () => {
     for (const namn of await caches.keys()) {
-      if (namn.startsWith('plugg9-') && ![SIDOR, VIDEOCACHE, FONTCACHE].includes(namn)) await caches.delete(namn);
+      if (namn.startsWith('plugg9-') && ![SIDOR, VIDEOCACHE, FONTCACHE, ROSTCACHE].includes(namn)) await caches.delete(namn);
     }
     // videor som inte längre finns i flödet (eller har bytt version) tas bort
     const vc = await caches.open(VIDEOCACHE);
@@ -30,6 +31,20 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('message', e => {
   if (e.data === 'hoppa') self.skipWaiting();
+  if (e.data && e.data.typ === 'spara-rost') {
+    e.waitUntil((async () => {
+      const lista = await (await fetch(new URL('rost/alla.json', self.registration.scope).href, { cache: 'no-store' })).json();
+      const c = await caches.open(ROSTCACHE);
+      let klara = 0;
+      for (let i = 0; i < lista.length; i += 8) {
+        await Promise.all(lista.slice(i, i + 8).map(async u => {
+          const url = new URL(u, self.registration.scope).href;
+          try { if (!(await c.match(url))) { const s = await fetch(url); if (s.ok) await c.put(url, s); } klara++; } catch (x) {}
+        }));
+        if (e.source) e.source.postMessage({ typ: 'rost-sparad', klara, av: lista.length });
+      }
+    })());
+  }
   if (e.data && e.data.typ === 'spara-videor') {
     e.waitUntil((async () => {
       let klara = 0;
@@ -94,6 +109,18 @@ self.addEventListener('fetch', e => {
     const hit = caches.open(VIDEOCACHE).then(c => c.match(nyckel));
     e.waitUntil(hit.then(h => h ? null : sparaVideo(nyckel)).catch(() => {}));
     e.respondWith(hit.then(h => h ? intervall(req, h) : fetch(req)));
+    return;
+  }
+
+  // uppläsningsklipp: cache-first, sparas när de spelas första gången
+  if (url.pathname.includes('/rost/klipp/')) {
+    e.respondWith(caches.open(ROSTCACHE).then(async c => {
+      const hit = await c.match(req, { ignoreSearch: true });
+      if (hit) return hit;
+      const svar = await fetch(req);
+      if (svar.status === 200) c.put(req, svar.clone());
+      return svar;
+    }));
     return;
   }
 

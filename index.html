@@ -14,6 +14,7 @@
 <link rel="apple-touch-icon" href="ikon-180.png">
 <link rel="icon" type="image/png" href="ikon-192.png">
 <link rel="stylesheet" href="fonter/fonter.css">
+<script src="rost/rost.js" data-spel="start"></script>
 <style>
 /* Layout: en smal kolumn med ett kort per spel, flödet överst. */
 :root{
@@ -48,6 +49,12 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--fokus);outline-offs
 .fot{color:var(--dov);font-size:.9rem;text-align:center;margin:0}
 .ny{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--yta);border:2px solid var(--fokus);border-radius:14px;padding:10px 14px;font-size:.95rem}
 .ny[hidden]{display:none}
+.installning{background:var(--yta);border-radius:18px;padding:14px 18px;display:grid;gap:10px}
+.installning h2{font:700 1.05rem var(--rubrik);margin:0}
+.installning .rad{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.installning input[type=range]{flex:1 1 180px;accent-color:var(--fokus);min-height:44px}
+.installning output{font:700 1rem var(--rubrik);min-width:3.5em}
+.installning button,.installning label{font:700 .95rem var(--rubrik);border:2px solid var(--fokus);color:var(--fokus);background:transparent;border-radius:12px;padding:8px 14px;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;gap:8px}
 .ny button{font:700 .9rem var(--rubrik);background:var(--fokus);color:var(--pa);border:0;border-radius:10px;padding:8px 14px;cursor:pointer}
 </style>
 </head>
@@ -67,6 +74,11 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--fokus);outline-offs
 <li><a class="kort so" href="spel/judendomsresan.html"><p class="nar">Religion</p><b>Judendomsresan</b><span>Från Abraham till i dag. Tro, traditioner, högtider.</span><span class="framsteg" data-nyckel="judendomsresan.v2" data-falt="ljus" data-av="7" data-enhet="banor klara"></span></a></li>
 <li><a class="kort hk" href="spel/pengakollen.html"><p class="nar">Hem- och konsumentkunskap</p><b>Pengakollen</b><span>Privatekonomi, från lönen till Kronofogden. Extrabana om kost.</span><span class="framsteg" data-nyckel="pengakollen.v1" data-falt="ljus" data-av="8" data-enhet="banor klara"></span></a></li>
 </ul>
+<section class="installning" aria-labelledby="upplasning">
+<h2 id="upplasning">Uppläsning</h2>
+<div class="rad"><label for="fart" style="border:0;padding:0;min-height:0">Fart</label><input type="range" id="fart" min="0.8" max="1.6" step="0.05" value="1.1"><output id="fartVarde" for="fart">1,1×</output></div>
+<div class="rad"><button type="button" id="prova">▶ Prova rösten</button><label><input type="checkbox" id="enhetsrost"> Använd enhetens egen röst</label></div>
+</section>
 <p class="fot">Uppdaterad 14 oktober 2026. Fungerar utan nät när sidan har öppnats en gång.</p>
 </div>
 <script>
@@ -83,6 +95,17 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--fokus);outline-offs
       var av=Number(el.dataset.av)||0; if(av) n=Math.min(n,av);
       if(n>0) el.textContent='✓ '+n+' av '+av+' '+el.dataset.enhet;
     }catch(e){}
+  });
+  // uppläsning: fart och röst (gäller alla spel, sparas på enheten)
+  var fart=document.getElementById('fart'), fv=document.getElementById('fartVarde'), er=document.getElementById('enhetsrost');
+  function lasF(k,d){ try{ var v=localStorage.getItem(k); return v===null?d:v; }catch(e){ return d; } }
+  function visaF(){ fv.textContent=String(Math.round(fart.value*100)/100).replace('.',',')+'×'; }
+  fart.value=lasF('plugg9.rostfart','1.1'); visaF(); er.checked=lasF('plugg9.rost','')==='enhet';
+  fart.addEventListener('input',function(){ visaF(); try{ localStorage.setItem('plugg9.rostfart',fart.value); }catch(e){} });
+  er.addEventListener('change',function(){ try{ localStorage.setItem('plugg9.rost',er.checked?'enhet':''); }catch(e){} location.reload(); });
+  document.getElementById('prova').addEventListener('click',function(){
+    if(!window.speechSynthesis) return; speechSynthesis.cancel();
+    ['Så här låter uppläsningen.','Du kan ändra farten med reglaget.'].forEach(function(t){ var u=new SpeechSynthesisUtterance(t); u.lang='sv-SE'; u.rate=.94; speechSynthesis.speak(u); });
   });
   // offline och uppdateringar
   if(!('serviceWorker' in navigator)) return;

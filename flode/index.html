@@ -65,6 +65,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--fokus);outline-offs
 .fot{color:var(--dov);font-size:.9rem;text-align:center;margin:0}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
+<script src="../rost/rost.js" data-spel="flode"></script>
 </head>
 <body>
 <div class="wrap">
@@ -153,6 +154,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--fokus);outline-offs
 <div class="offline">
 <p class="snart">Ska du vara utan nät? Spara alla videor på enheten först (ca 152 MB).</p>
 <button type="button" id="sparaVideor">Spara videorna för offline</button>
+<button type="button" id="sparaRost">Spara uppläsningen för offline</button>
 <p class="snart" id="sparaStatus" role="status"></p>
 </div>
 <p class="fot">Uppdaterad 14 oktober 2026. Videorna är gjorda av skolmaterial.</p>
@@ -184,7 +186,11 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--fokus);outline-offs
   if(!('serviceWorker' in navigator)){ knapp.parentNode.hidden=true; return; }
   navigator.serviceWorker.register('../sw.js').catch(function(){});
   navigator.serviceWorker.addEventListener('message',function(e){
+    if(e.data&&e.data.typ==='rost-sparad') status.textContent=e.data.klara+' av '+e.data.av+' ljudklipp sparade'+(e.data.klara===e.data.av?'. Klart!':' …');
     if(e.data&&e.data.typ==='videor-sparade') status.textContent=e.data.klara+' av '+e.data.av+' videor sparade'+(e.data.klara===e.data.av?'. Klart!':' …');
+  });
+  document.getElementById('sparaRost').addEventListener('click',function(){
+    navigator.serviceWorker.ready.then(function(reg){ status.textContent='Sparar uppläsningen …'; reg.active.postMessage({typ:'spara-rost'}); });
   });
   knapp.addEventListener('click',function(){
     navigator.serviceWorker.ready.then(function(reg){ status.textContent='Sparar …'; reg.active.postMessage({typ:'spara-videor'}); });
