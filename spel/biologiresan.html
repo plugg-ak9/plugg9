@@ -1,0 +1,1953 @@
+<!doctype html>
+<html lang="sv">
+
+<head>
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../ikon-180.png">
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('../sw.js').catch(function(){});</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Biologiresan">
+<meta name="theme-color" content="#0E1730">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Biologiresan</title>
+<link rel="stylesheet" href="../fonter/fonter.css">
+<style>
+:root{
+  --night:#0E1730; --night2:#1A2547; --night3:#243158;
+  --parchment:#F6EDDA; --tekhelet:#5B87F0; --tekhelet-dim:#33488A;
+  --flame:#F2A83B; --olive:#7FB069; --pomegranate:#E0596F; --muted:#8E9BC2;
+  --line:rgba(142,155,194,.28);
+  --display:"Frank Ruhl Libre",Georgia,serif;
+  --body:"Assistant","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--night);color:var(--parchment);font-family:var(--body);
+  font-size:17px;line-height:1.6;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation}
+
+#skarm{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--night)}
+
+
+#hud{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--night);
+  border-bottom:1px solid var(--line);flex:0 0 auto;min-height:46px}
+#hud .plats{font-family:var(--display);font-weight:700;font-size:1.05rem;flex:1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hud .plats small{display:block;font-family:var(--body);font-weight:600;font-size:.72rem;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--tekhelet);line-height:1.2}
+.hjartan{display:flex;gap:3px}
+.hjartan svg{width:19px;height:19px;color:var(--pomegranate)}
+.hjartan svg.bort{color:var(--muted);opacity:.3}
+.raknare{display:flex;align-items:center;gap:5px;font-weight:700;font-variant-numeric:tabular-nums;font-size:.95rem}
+.raknare svg{width:18px;height:18px;color:var(--flame)}
+.miniknapp{background:var(--night2);border:1px solid var(--line);color:var(--parchment);
+  border-radius:10px;width:38px;height:38px;font-size:1.05rem;cursor:pointer;display:grid;place-items:center;flex:0 0 auto}
+.miniknapp:active{background:var(--night3)}
+.miniknapp[aria-pressed="false"]{opacity:.45}
+
+
+#duk-lada{flex:1;position:relative;display:grid;place-items:center;overflow:hidden;background:#070C1A}
+canvas{display:block;image-rendering:auto;max-width:100%;max-height:100%}
+
+
+#kontroller{flex:0 0 auto;display:flex;justify-content:space-between;align-items:flex-end;
+  padding:10px 16px 16px;gap:12px;background:var(--night)}
+.pad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(2,52px);gap:6px}
+.pad button{grid-column:span 1}
+.styr{background:var(--night2);border:1px solid var(--line);border-radius:14px;color:var(--parchment);
+  font-size:1.5rem;display:grid;place-items:center;cursor:pointer;font-family:var(--body);touch-action:none}
+.styr:active,.styr.ner{background:var(--tekhelet);border-color:var(--tekhelet);color:#0a1226}
+#hopp{width:104px;height:104px;border-radius:50%;background:var(--flame);border:none;color:#2c1c02;
+  font-weight:700;font-size:.95rem;font-family:var(--body);letter-spacing:.03em;cursor:pointer;
+  box-shadow:0 6px 0 #B87A1D;touch-action:none}
+#hopp:active,#hopp.ner{transform:translateY(4px);box-shadow:0 2px 0 #B87A1D}
+.gomd{visibility:hidden}
+
+
+.overlagg{position:absolute;inset:0;background:rgba(8,13,28,.82);display:grid;place-items:center;
+  padding:14px;z-index:10;overflow:auto}
+.panel{background:var(--night2);border:1px solid var(--line);border-radius:18px;padding:20px;
+  max-width:520px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.etikett{text-transform:uppercase;letter-spacing:.11em;font-size:.7rem;font-weight:700;color:var(--tekhelet);margin:0 0 8px}
+.fraga{font-family:var(--display);font-weight:700;font-size:1.32rem;line-height:1.35;margin:0;text-wrap:balance}
+.alt{display:grid;gap:9px;margin-top:16px}
+.altknapp{display:flex;align-items:center;gap:11px;width:100%;background:var(--night3);
+  border:2px solid transparent;border-radius:13px;color:var(--parchment);font:inherit;font-weight:600;
+  font-size:1.04rem;line-height:1.35;padding:13px 15px;text-align:left;cursor:pointer;transition:border-color .12s,background .12s}
+.altknapp .bok{flex:0 0 27px;height:27px;border-radius:7px;background:rgba(255,255,255,.08);
+  display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:.95rem;color:var(--muted)}
+.altknapp:active:not(:disabled){border-color:var(--tekhelet)}
+.altknapp.ratt{border-color:var(--olive);background:rgba(127,176,105,.2)}
+.altknapp.ratt .bok{background:var(--olive);color:#0d1a08}
+.altknapp.fel{border-color:var(--pomegranate);background:rgba(224,89,111,.16)}
+.altknapp.fel .bok{background:var(--pomegranate);color:#2a0710}
+.altknapp.blek{opacity:.38}
+.facit{margin-top:14px;border-radius:13px;padding:13px 15px;border:1px solid}
+.facit.bra{background:rgba(127,176,105,.13);border-color:var(--olive)}
+.facit.daligt{background:rgba(224,89,111,.12);border-color:var(--pomegranate)}
+.facit b{font-family:var(--display);font-size:1.1rem;display:block;margin-bottom:2px}
+.facit.bra b{color:var(--olive)} .facit.daligt b{color:var(--pomegranate)}
+.facit p{margin:0;opacity:.93;font-size:.98rem}
+.knapp{font-family:var(--body);font-size:1rem;font-weight:700;background:var(--night3);color:var(--parchment);
+  border:1px solid var(--line);border-radius:12px;padding:12px 20px;cursor:pointer}
+.knapp.primar{background:var(--tekhelet);border-color:var(--tekhelet);color:#08122b}
+.knapp:active{transform:translateY(1px)}
+.rad{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center}
+.panel h2{font-family:var(--display);font-size:1.7rem;margin:0 0 6px;text-align:center;text-wrap:balance}
+.panel p.mitt{text-align:center;color:var(--muted);margin:0 auto;max-width:40ch}
+.ljusrad{display:flex;justify-content:center;gap:16px;margin:16px 0}
+.ljusrad span{display:grid;place-items:center;width:46px;height:46px}
+.ljusrad svg{width:46px;height:46px;color:var(--flame);opacity:.16;transform:scale(.7);
+  transition:opacity .4s,transform .4s cubic-bezier(.3,1.7,.5,1),filter .4s}
+.ljusrad span.tand svg{opacity:1;transform:none;filter:drop-shadow(0 0 12px rgba(242,168,59,.8))}
+.siffror{display:flex;justify-content:center;gap:26px;margin:14px 0 4px;text-align:center}
+.siffror b{font-family:var(--display);font-size:1.6rem;display:block;line-height:1;color:var(--flame);font-variant-numeric:tabular-nums}
+.siffror span{font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.dkropp{max-height:56vh;overflow:auto;margin-top:12px}
+.dkropp h3{font-family:var(--display);font-size:1.05rem;color:var(--flame);margin:16px 0 4px}
+.dkropp h3:first-child{margin-top:0}
+.dkropp dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:.97rem}
+.dkropp dt{font-weight:700;color:var(--tekhelet)}
+.dkropp dd{margin:0;opacity:.92}
+.dold{display:none!important}
+
+
+.scenrad{display:flex;gap:13px;align-items:flex-start}
+.portratt{flex:0 0 68px;width:68px;height:68px;border-radius:16px;overflow:hidden;background:var(--night3)}
+.portratt svg{width:100%;height:100%;display:block}
+.talbubbla{background:var(--night3);border-radius:14px;padding:12px 14px;flex:1;min-width:0}
+.talbubbla .vem{font-family:var(--display);font-weight:700;color:var(--flame);font-size:1rem;display:block;margin-bottom:1px}
+.talbubbla p{font-size:1.02rem;line-height:1.45}
+.instr{color:var(--muted);font-size:.95rem;margin:14px 0 0}
+.parspel{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.parspel .kol{display:grid;gap:9px;align-content:start}
+.parspel .altknapp{font-size:.98rem;padding:12px}
+.ikonknapp{background:var(--night3);border:2px solid transparent;border-radius:13px;cursor:pointer;padding:7px;display:grid;place-items:center;min-height:62px}
+.ikonknapp svg{width:100%;height:46px}
+.ikonknapp:active{border-color:var(--tekhelet)}
+.ikonknapp.fel{border-color:var(--pomegranate)}
+.brick{background:var(--night3);border:1px solid var(--line);border-radius:99px;padding:9px 14px;font:inherit;
+  font-weight:600;font-size:.96rem;color:var(--parchment);cursor:pointer;font-family:var(--body)}
+.brick.vald{background:var(--flame);color:#2a1c04;border-color:var(--flame)}
+.brick.ratt{background:rgba(127,176,105,.25);border-color:var(--olive)}
+.bricklada{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;min-height:38px}
+.hogar{display:grid;gap:10px;margin-top:12px}
+.hog{background:var(--night3);border:2px dashed var(--line);border-radius:13px;padding:10px 12px;transition:border-color .2s}
+.hog h4{margin:0 0 6px;font-family:var(--display);font-size:1.02rem}
+.hog .innehall{display:flex;flex-wrap:wrap;gap:6px;min-height:22px}
+.klar{opacity:.3;pointer-events:none;border-color:var(--olive)!important}
+.stake{display:flex;justify-content:center;align-items:flex-end;gap:5px;margin:14px auto 0;
+  padding:0 10px 0;border-bottom:9px solid #B98A46;border-radius:0 0 10px 10px;max-width:340px}
+.ljusk{background:none;border:none;padding:4px 3px 0;cursor:pointer;display:flex;
+  flex-direction:column;align-items:center;gap:3px;border-radius:8px}
+.ljusk:active{background:rgba(255,255,255,.08)}
+.ljusk .laga{width:15px;height:19px;opacity:.12;transition:opacity .25s,transform .25s}
+.ljusk .laga svg{width:100%;height:100%;display:block}
+.ljusk.tand .laga{opacity:1;filter:drop-shadow(0 0 7px rgba(242,168,59,.85))}
+.ljusk .kropp{width:14px;height:34px;background:#F0E4C8;border-radius:3px 3px 0 0}
+.ljusk .stang{width:7px;height:32px;background:#B98A46}
+.ljusk.tjanare .stang{height:54px}
+.ljusk.tjanare .kropp{background:#FFF8E6}
+.omradeslista h3{margin:18px 0 6px}
+.omradeslista h3:first-child{margin-top:2px}
+.omrade{display:flex;align-items:center;gap:11px;width:100%;margin-bottom:7px;
+  background:var(--night3);border:2px solid transparent;border-radius:13px;color:var(--parchment);
+  font:inherit;padding:10px 12px;text-align:left;cursor:pointer}
+.omrade:active{border-color:var(--tekhelet)}
+.omrade .nr{flex:0 0 28px;height:28px;border-radius:8px;background:rgba(255,255,255,.08);
+  display:grid;place-items:center;font-family:var(--display);font-weight:700;color:var(--tekhelet)}
+.omrade .txt{flex:1;min-width:0}
+.omrade .txt b{display:block;font-size:.98rem;line-height:1.3;font-weight:700}
+.omrade .txt small{color:var(--muted);font-size:.8rem}
+.omrade .stj{flex:0 0 auto;letter-spacing:1px}
+.omrade .stj i{font-style:normal;color:rgba(255,255,255,.16)}
+.omrade .stj i.pa{color:var(--flame)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+</style>
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%230b1220%22%2F%3E%3Ctext%20x%3D%227%22%20y%3D%2224%22%20font-size%3D%2226%22%20fill%3D%22%23b9ef76%22%3Ee%3C%2Ftext%3E%3C%2Fsvg%3E"><style>.hem-lank{font:600 14px/1.2 system-ui,sans-serif;color:#edf3f9;background:#243148;border:1px solid #506079;border-radius:8px;padding:10px 9px;text-decoration:none;white-space:nowrap;flex-shrink:0}.hem-lank:focus-visible{outline:3px solid #b9ef76;outline-offset:2px}@media(max-width:480px){.hem-lank span{display:none}.hem-lank{font-size:24px;padding:4px 10px}}</style><meta name="description" content="Biologiresan för högstadiet: ekologi, hjärnan, celler, arv, evolution, hälsa och undersökningar."><style>:root{--tekhelet:#75cab2;--flame:#b9ef76} .panel{font-size:18px}summary{cursor:pointer;padding:12px;border:1px solid var(--line);border-radius:10px}a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #b9ef76;outline-offset:3px}</style></head>
+<body>
+<div id="skarm">
+  <div id="hud"><a href="../index.html" class="hem-lank" aria-label="Till startsidan">‹ <span>Hem</span></a>
+    <button class="miniknapp" id="menyknapp" title="Meny">☰</button>
+    <div class="plats"><small id="hudsmall">Kartan</small><span id="hudnamn">Biologiresan</span></div>
+    <div class="raknare" id="rullor"></div>
+    <div class="hjartan" id="hjartan"></div>
+    <button class="miniknapp" id="ljudknapp" aria-pressed="true" title="Uppläsning">🔊</button>
+  </div>
+  <div id="duk-lada">
+    <canvas id="duk" width="400" height="288"></canvas>
+    <div id="overlagg" class="overlagg dold"></div>
+  </div>
+  <div id="kontroller">
+    <div class="pad">
+      <button class="styr gomd"></button>
+      <button class="styr" id="upp" data-t="upp">▲</button>
+      <button class="styr gomd"></button>
+      <button class="styr" id="vanster" data-t="vanster">◀</button>
+      <button class="styr" id="ner" data-t="ner">▼</button>
+      <button class="styr" id="hoger" data-t="hoger">▶</button>
+    </div>
+    <button id="hopp">HOPP</button>
+  </div>
+</div>
+
+<script>
+
+const VARLDAR=[{"id": 1, "namn": "Hemma", "under": "Ekologi", "tema": "smaland", "del": "Ekologi", "kap": "Näringsvävar, kretslopp och hållbar utveckling", "portar": 5, "langd": 68, "svar": 3, "fragor": [["Vad är ett ekosystem?", ["Organismerna och den icke-levande miljön i ett område", "Bara djuren i en skog", "Alla individer av samma art"], "Samspelet omfattar också vatten, ljus, temperatur och mark."], ["Vad är en population?", ["Individer av samma art i ett område", "Alla arter på jorden", "Alla rovdjur i en skog"], "En sjös abborrar kan beskrivas som en population."], ["Vilken organism är en producent?", ["En grön växt", "En hare", "En räv"], "Gröna växter bygger organiska ämnen med hjälp av fotosyntes."], ["Vad behövs för fotosyntes?", ["Ljus, vatten och koldioxid", "Enbart syre", "Enbart jord"], "Ljusenergi används för att bilda socker av vatten och koldioxid. Syre frigörs."], ["Vad bildas vid cellandning med syre?", ["Koldioxid och vatten, medan energi frigörs", "Ljus och mineraler", "Bara syre"], "Cellen frigör användbar energi ur energirika ämnen som glukos."], ["Vilka har cellandning?", ["Både växter och djur", "Bara djur", "Bara rovdjur"], "Även växter behöver frigöra energi ur socker, både dag och natt."], ["Vad visar pilen gräs → hare?", ["Att haren äter gräs", "Att gräset äter haren", "Att haren omvandlas till gräs direkt"], "Pilen visar riktningen för överföring av materia och energi när något blir uppätet."], ["Varför är en näringsväv mer realistisk än en enda kedja?", ["De flesta arter har flera födokällor och fiender", "Varje art äter exakt en annan art", "Alla arter äter varandra"], "Flera sammankopplade näringskedjor visar fler av sambanden."], ["Vad gör nedbrytare?", ["Bryter ner dött material och frigör näringsämnen", "Skapar energi ur ingenting", "Tar bort all materia"], "Svampar och bakterier är viktiga nedbrytare. Ämnen kan användas igen av växter."], ["Varför minskar tillgänglig energi högre upp i näringskedjan?", ["Mycket energi används i livsprocesser och avges som värme", "Energin förstörs helt", "Rovdjur saknar cellandning"], "Energi bevaras men allt blir inte ny biomassa som nästa konsument kan äta."], ["Vad kan begränsa en populations storlek?", ["Tillgång på mat och utrymme", "Bara antalet ben", "Enbart djurens vilja"], "Resurser, sjukdomar och rovdjur kan påverka hur många individer som överlever."], ["Vad är en ekosystemtjänst?", ["Pollinering som bidrar till vår matproduktion", "En motor som driver en bil", "Enbart en avgift till kommunen"], "Ekosystemens funktioner ger människor nytta, till exempel pollinering och vattenrening."], ["Vad innebär biologisk mångfald?", ["Variation av gener, arter och ekosystem", "Bara många individer av en art", "Att alla arter är lika vanliga"], "Mångfald finns på flera nivåer och kan bidra till ekosystemens motståndskraft."], ["Hur kan övergödning orsaka syrebrist i en sjö?", ["Fler alger dör och nedbrytarnas cellandning använder syre", "Näring förstör syreatomer", "Alla fiskar slutar andas"], "Extra närsalter kan öka algtillväxten. Nedbrytning av biomassan förbrukar syre."], ["Vilket påstående skiljer materia från energi i ett ekosystem?", ["Ämnen cirkulerar, medan energi flödar och avges som värme", "Både ämnen och energi återvinns fullständigt", "Inga ämnen återanvänds"], "Atomer kan användas igen. Ny energi behövs, oftast från solen."], ["Vilken åtgärd kan hjälpa pollinatörer?", ["Bevara blomrika miljöer med olika blomningstider", "Klippa bort alla blommor", "Asfaltera alla grönytor"], "Mat och livsmiljöer behövs under olika delar av säsongen."], ["Vad kan hända när ett rovdjur försvinner?", ["Flera populationer i näringsväven kan påverkas", "Alla arter ökar alltid", "Ingenting kan förändras"], "Fler bytesdjur kan till exempel öka betningen. Effekten beror på hela näringsväven."], ["Varför behövs både lokala och globala miljöåtgärder?", ["Påverkan sker på flera skalor och passerar gränser", "Lokala miljöer är isolerade från resten av jorden", "En person styr alla utsläpp"], "Livsmiljöer kan skyddas lokalt, medan klimat och handel också kräver samarbete."]]}, {"id": 2, "namn": "Visby", "under": "Hjärnan och sinnena", "tema": "gotland", "del": "Hjärnan och sinnena", "kap": "Nerver, hjärna, sinnen och reflexer", "portar": 5, "langd": 68, "svar": 3, "fragor": [["Vad ingår i centrala nervsystemet?", ["Hjärnan och ryggmärgen", "Alla muskler", "Bara sinnesorganen"], "Nerver utanför hjärnan och ryggmärgen hör till perifera nervsystemet."], ["Vad gör en nervcell?", ["Tar emot och förmedlar signaler", "Pumpar blod", "Tillverkar enbart benvävnad"], "Nervceller kommunicerar med elektriska signaler och kemiska signalämnen."], ["Vad är en synaps?", ["Kontaktställe där en nervcell överför en signal", "Ett blodkärl", "Ett slags skelettben"], "I många synapser förmedlas signalen av ämnen över ett litet mellanrum."], ["Vad gör en känselreceptor?", ["Omvandlar ett stimulus till signaler i nervsystemet", "Bestämmer alltid ett medvetet svar", "Skapar blodkroppar"], "Tryck, temperatur eller andra förändringar kan registreras av olika receptorer."], ["Vilken del hjälper oss att samordna rörelser och balans?", ["Lillhjärnan", "Magsäcken", "Levern"], "Lillhjärnan samverkar med andra delar av nervsystemet för jämna rörelser."], ["Vad gör hjärnstammen bland annat?", ["Reglerar viktiga funktioner som andning", "Lagrar urin", "Bryter ner maten"], "Hjärnstammen deltar i reglering av livsviktiga, automatiska funktioner."], ["Vilken roll har storhjärnan?", ["Bland annat medveten perception, språk och planering", "Bara produktion av insulin", "Enbart filtrering av blod"], "Olika delar samverkar. Hjärnan använder många områden, inte bara tio procent."], ["Varför kan handen dras undan snabbt från något hett?", ["En reflex kan kopplas om i ryggmärgen", "Huden tänker själv", "Smärta går aldrig till hjärnan"], "Signaler går också till hjärnan, men reflexsvaret kan starta innan en medveten reaktion."], ["Var finns ögats ljuskänsliga celler?", ["I näthinnan", "I pupillens hål", "I ögonfransarna"], "Stavar och tappar reagerar på ljus. Signaler förs vidare till hjärnan."], ["Vad gör ögats lins?", ["Hjälper till att fokusera ljus på näthinnan", "Skapar nervimpulser till muskler", "Ger ögat syre"], "Hornhinnan bryter också ljus. Linsens form kan ändras för olika avstånd."], ["Varför räcker inte ögat ensamt för att vi ska se?", ["Hjärnan måste tolka signalerna", "Ögat saknar ljuskänsliga celler", "Ljuset omvandlas direkt till ord"], "Synupplevelsen uppstår genom samspel mellan ögonen och hjärnan."], ["Var omvandlas ljudvibrationer till nervsignaler?", ["I innerörats snäcka", "I ytterörats hud enbart", "I näsan"], "Hårceller i snäckan reagerar på rörelser som ljudet orsakar."], ["Vilken del av örat hjälper till med balansen?", ["Balansorganet i innerörat", "Bara örsnibben", "Bara trumhinnan"], "Hjärnan kombinerar också information från synen och kroppens lägesreceptorer."], ["Varför smakar maten ofta mindre när näsan är täppt?", ["Luktsinnet bidrar mycket till smakupplevelsen", "Tungan slutar alltid fungera", "Maten saknar då näring"], "Smak och lukt är olika sinnen som samverkar."], ["Vad skiljer oftast hormonsignaler från nervsignaler?", ["Hormoner transporteras med blod och verkar ofta långsammare", "Hormoner färdas bara i ben", "Nervsignaler går alltid via blodet"], "Nervsystem och hormonsystem samverkar när kroppen reglerar sina funktioner."], ["Vad kan långvarig stress utan återhämtning påverka?", ["Sömn, koncentration och välbefinnande", "Bara hårfärgen", "Inga kroppsliga funktioner"], "Stress påverkar både kropp och upplevelser. Återhämtning och stöd spelar roll."]]}, {"id": 3, "namn": "Sápmi", "under": "Celler och liv", "tema": "fjall", "del": "Celler och liv", "kap": "Cellens delar och kroppens byggstenar", "portar": 4, "langd": 68, "svar": 3, "fragor": [["Vad omger alla celler?", ["Ett cellmembran", "En cellvägg av cellulosa", "En cellkärna"], "Cellmembranet skiljer cellens inre från omgivningen och reglerar transporter."], ["Vad skiljer en bakterie från en mänsklig cell?", ["Bakterien saknar cellkärna", "Bakterien saknar alltid DNA", "Bakterien saknar cellmembran"], "Bakteriers DNA ligger inte i en membranomsluten cellkärna."], ["Var finns merparten av DNA i en mänsklig cell med kärna?", ["I cellkärnan", "I cellväggen", "Utanför kroppen"], "Mitokondrier innehåller också en liten mängd DNA."], ["Vad gör ribosomer?", ["Bygger proteiner", "Lagrar urin", "Fångar ljus i näthinnan"], "Proteiner byggs av aminosyror utifrån information som ytterst kommer från DNA."], ["Vad sker i mitokondrier?", ["Viktiga steg i cellandningen", "Fotosyntes", "All matsmältning i tarmen"], "Mitokondrier hjälper cellen att frigöra användbar energi."], ["Vilken del finns i gröna växtceller men inte i djurceller?", ["Kloroplaster", "Cellmembran", "Ribosomer"], "Kloroplaster innehåller klorofyll och utför fotosyntes."], ["Vad är en vävnad?", ["Celler som tillsammans utför en uppgift", "En enda DNA-bas", "Alla arter i en skog"], "Muskelvävnad består till exempel av celler som kan dra ihop sig."], ["Varför ser nervceller och muskelceller olika ut?", ["De är specialiserade för olika uppgifter", "De tillhör alltid olika arter", "Den ena celltypen saknar gener"], "Olika gener är aktiva i olika celltyper."], ["Vad innebär diffusion?", ["Partiklar sprids netto från högre till lägre koncentration", "Allt flyttas alltid mot högre koncentration", "Partiklar slutar röra sig"], "Partiklarnas slumpmässiga rörelse kan ge en nettotransport längs en koncentrationsskillnad."], ["Vad händer vid vanlig celldelning?", ["En cell ger upphov till två celler", "DNA försvinner permanent", "Alla celler blir könsceller"], "DNA kopieras före delningen. Celldelning behövs bland annat vid tillväxt och reparation."]]}, {"id": 4, "namn": "Jönköping", "under": "Arv och genteknik", "tema": "domstol", "del": "Arv och genteknik", "kap": "DNA, gener, arv och miljö", "portar": 4, "langd": 68, "svar": 3, "fragor": [["Vad är en gen?", ["Ett avsnitt av DNA med information för en funktionell produkt", "En hel organism", "Ett organ i kroppen"], "Många gener innehåller information som används för att bygga proteiner."], ["Vad är en kromosom?", ["En struktur med DNA och proteiner", "Ett slags socker", "En bakteries fiende"], "Kromosomer organiserar arvsmassan."], ["Hur många kromosomer har en typisk mänsklig kroppscell med kärna?", ["46", "23", "92"], "De är vanligtvis ordnade i 23 par. Könsceller har vanligen 23 kromosomer."], ["Varför halveras kromosomantalet när könsceller bildas?", ["För att antalet ska återställas vid befruktning", "För att allt DNA ska försvinna", "För att gener saknar funktion"], "Ett ägg och en spermie bidrar normalt med 23 kromosomer var."], ["Vad är en mutation?", ["En förändring i DNA", "Alltid en fördel", "Alltid en dödlig sjukdom"], "Mutationer kan vara neutrala, skadliga eller fördelaktiga beroende på sammanhang."], ["Vad menas med arv och miljö?", ["Både gener och omgivning kan påverka egenskaper", "Bara gener spelar alltid roll", "Bara omgivningen spelar alltid roll"], "Till exempel påverkas kroppslängd av både många gener och uppväxtförhållanden."], ["Vad betyder dominant i en enkel arvmodell?", ["En genvariant märks även med en annan variant", "Varianten är alltid vanligast", "Varianten är alltid bäst"], "Dominant betyder inte starkast, vanligast eller mest fördelaktig."], ["Två föräldrar har genvarianterna Aa och Aa. Hur stor chans för aa i den enkla modellen?", ["25 procent vid varje befruktning", "100 procent", "0 procent"], "Kombinationerna är AA, Aa, aA och aa. Varje barn är ett nytt sannolikhetsutfall."], ["Vad kan genteknik användas till?", ["Att ändra DNA för exempelvis läkemedelsproduktion", "Att skapa energi ur ingenting", "Att bevisa alla etiska åsikter"], "Genmodifierade mikroorganismer kan till exempel producera mänskligt insulin."], ["Vilken fråga är etisk när genetiska tester diskuteras?", ["Vem ska få tillgång till en persons genetiska information?", "Vilken molekyl bär arvet?", "Hur många baser består en viss sekvens av?"], "Etiska frågor handlar om värden, ansvar och rättigheter. Fakta behövs men avgör inte allt."]]}, {"id": 5, "namn": "Göteborg", "under": "Evolution och mångfald", "tema": "medier", "del": "Evolution och mångfald", "kap": "Variation, urval och livets historia", "portar": 4, "langd": 68, "svar": 3, "fragor": [["Vad innebär evolution?", ["Populationers ärftliga egenskaper förändras över generationer", "En individ ändras för att den vill", "Alla arter blir alltid större"], "Evolution handlar om förändringar mellan generationer, inte om medvetna val."], ["Vad krävs för naturligt urval?", ["Ärftlig variation och skillnader i fortplantningsframgång", "Att alla individer är identiska", "Att individer bestämmer sina mutationer"], "Egenskaper som ger fler överlevande avkommor kan bli vanligare i en viss miljö."], ["Varför kan en kamouflerad insekt gynnas?", ["Den kan undgå rovdjur och få fler avkommor", "Den väljer nya gener när den gömmer sig", "Alla rovdjur försvinner"], "Urval verkar på variation som redan finns eller uppkommer, utan en plan."], ["Vad bidrar mutationer med i evolutionen?", ["Ny genetisk variation", "Bara medvetna förbättringar", "En förutbestämd slutform"], "Mutationer uppstår inte för att organismen behöver en viss förändring."], ["Vad visar fossil?", ["Spår av tidigare liv", "Exakta tankar hos utdöda djur", "Att alla arter alltid varit oförändrade"], "Fossil och deras lager kan ge information om livets historia."], ["Vad talar likheter i DNA mellan arter för?", ["Gemensamt ursprung", "Att alla arter är samma art", "Att miljön aldrig påverkar organismer"], "DNA jämförs tillsammans med andra belägg när släktskap undersöks."], ["Hur är människor och nutida schimpanser släkt?", ["De delar gemensamma förfäder", "Människan härstammar från dagens schimpanser", "De saknar gemensamt ursprung"], "Båda utvecklingslinjerna har förändrats sedan deras gemensamma förfäder."], ["Hur kan nya arter uppstå?", ["Populationer skiljs åt och utvecklas så att fortplantningsbarriärer uppstår", "En individ vill byta art", "Alla individer dör samtidigt"], "Isolering och genetiska förändringar kan över lång tid leda till artbildning."], ["Vad skiljer livets uppkomst från evolution?", ["Uppkomst gäller hur första livet uppstod, evolution hur liv förändras", "De är exakt samma fråga", "Evolution förklarar bara hur planeter bildas"], "Flera hypoteser om livets tidiga uppkomst undersöks. Evolution har starka belägg."], ["Varför kan bevarande av olika livsmiljöer skydda många arter?", ["Olika arter behöver olika resurser och miljöer", "Alla arter kräver samma förhållanden", "Gener påverkas aldrig av populationers storlek"], "Arter kan behöva flera miljöer under sin livscykel."]]}, {"id": 6, "namn": "Uppsala", "under": "Kroppens samarbete", "tema": "ideologi", "del": "Kroppens samarbete", "kap": "Mat, syre, blod och utsöndring", "portar": 4, "langd": 68, "svar": 3, "fragor": [["Var tas de flesta näringsämnen från maten upp?", ["I tunntarmen", "I matstrupen", "I lungorna"], "Tunntarmens stora yta underlättar upptag till blod och lymfa."], ["Vad gör matsmältningsenzymer?", ["Bryter ner stora molekyler till mindre", "Skapar syre ur koldioxid", "Filtrerar ljud"], "Mindre delar kan tas upp och användas av kroppen."], ["Var sker gasutbytet i lungorna?", ["I lungblåsorna", "I magsäcken", "I njurbäckenet"], "Syre går till blodet och koldioxid går från blodet till luften."], ["Vad transporterar röda blodkroppar framför allt?", ["Syre med hjälp av hemoglobin", "Enbart hormoner", "Bara avfallsprodukter i tarmen"], "Hemoglobin binder syre som behövs i kroppens celler."], ["Vad gör hjärtat?", ["Pumpar blod genom lungor och kropp", "Producerar alla nervsignaler", "Bryter ner proteiner i maten"], "Blodcirkulationen kopplar ihop organens arbete."], ["Vad är en artär?", ["Ett blodkärl som leder blod från hjärtat", "Alltid ett kärl med syrefattigt blod", "Enbart ett kärl i armen"], "Artärer definieras av riktningen. Lungartären för syrefattigt blod till lungorna."], ["Vad gör njurarna?", ["Reglerar bland annat vatten och salter och avlägsnar avfall via urin", "Bryter ner maten i tarmen", "Tar upp syre ur luften"], "Njurarna bidrar till att kroppens inre miljö hålls stabil."], ["Varför ökar ofta puls och andning vid arbete?", ["Musklerna behöver mer syre och energiomsättning", "Kroppen slutar använda glukos", "Hjärnan behöver inget blod"], "Lungor, hjärta och blod samverkar för transport till och från muskler."], ["Vad gör insulin?", ["Bidrar till att sänka blodsockret", "Gör om blod till luft", "Bryter ner skelettet"], "Insulin påverkar cellers upptag och lagring av näring och kroppens glukosomsättning."], ["Hur samverkar muskler och skelett?", ["Muskler drar i skelettet via senor", "Ben drar ihop sig som muskler", "Leder pumpar blod"], "Muskler kan dra men inte aktivt skjuta. Muskler med motsatta funktioner samverkar."]]}, {"id": 7, "namn": "Stockholm", "under": "Mikrober och immunförsvar", "tema": "riksdag", "del": "Mikrober och immunförsvar", "kap": "Smitta, vaccin och resistens", "portar": 4, "langd": 68, "svar": 3, "fragor": [["Vad skiljer virus från bakterier?", ["Virus behöver värdceller för att föröka sig", "Alla virus är större än bakterier", "Bakterier saknar arvsmassa"], "Bakterier är celler. Virus använder en värdcells system för att bilda fler virus."], ["Vad kan antibiotika behandla?", ["Vissa bakterieinfektioner", "Alla virusinfektioner", "Alla allergier"], "Olika antibiotika påverkar olika bakterier. De hjälper inte mot själva förkylningsviruset."], ["Vad innebär antibiotikaresistens?", ["Bakterier tål ett antibiotikum", "Människans kropp blir van vid tabletternas färg", "Alla läkemedel slutar fungera för alltid"], "Det är bakteriernas egenskaper som gör behandlingen mindre effektiv."], ["Hur kan antibiotikaanvändning gynna resistenta bakterier?", ["Känsliga bakterier slås ut medan resistenta kan föröka sig", "Bakterier väljer medvetet att bli starka", "Antibiotika skapar alltid exakt rätt mutation"], "Detta är ett exempel på naturligt urval. Resistens kan också spridas mellan bakterier."], ["Vad gör ett vaccin?", ["Tränar immunförsvaret att känna igen ett smittämne", "Dödar alltid alla bakterier direkt", "Ersätter alla vita blodkroppar"], "Immunologiskt minne kan ge snabbare och effektivare försvar senare."], ["Vad gör antikroppar?", ["Binder till specifika strukturer, till exempel på smittämnen", "Pumpar blod", "Tillverkar syre"], "Antikroppar är en del av immunförsvaret och kan hjälpa till att neutralisera smitta."], ["Vilket är ett skydd mot smittspridning?", ["Handtvätt vid relevanta tillfällen", "Att dela dricksflaska när man är sjuk", "Antibiotika mot varje förkylning"], "Olika smittvägar kräver olika åtgärder. Hygien kan minska kontaktsmitta."], ["Är alla bakterier skadliga?", ["Nej, många är harmlösa eller nyttiga", "Ja, alltid", "Ja, utom de utan DNA"], "Bakterier deltar bland annat i nedbrytning och i kroppens normala mikrobiota."], ["Vad gör huden som del av immunförsvaret?", ["Bildar en barriär mot omgivningen", "Producerar alla antikroppar", "Stoppar varje infektion med säkerhet"], "Huden och slemhinnorna är delar av kroppens första försvar."], ["Vad är en infektion?", ["Smittämnen etablerar sig och förökar sig i kroppen", "Samma sak som alla allergier", "Enbart ett sår utan mikrober"], "Infektioner kan ge symtom men kan också förekomma utan tydliga symtom."]]}, {"id": 8, "namn": "Norrköping", "under": "Hälsa och levnadsvillkor", "tema": "arbete", "del": "Hälsa och levnadsvillkor", "kap": "Återhämtning, rörelse och omgivning", "portar": 4, "langd": 68, "svar": 3, "fragor": [["Vad betyder fysisk och psykisk hälsa?", ["Både kroppsligt och mentalt välbefinnande är relevant", "Bara muskelstyrka räknas", "Bara frånvaro av feber räknas"], "Hälsa påverkas av biologiska, sociala och andra faktorer."], ["Varför är sömn viktig för lärande?", ["Den stödjer återhämtning och minnesbearbetning", "Hjärnan blir helt avstängd", "Sömn ersätter all övning"], "Hjärnan är aktiv under sömn. Sömn och övning fyller olika funktioner."], ["Varför behöver kroppen varierad näring?", ["Olika näringsämnen har olika funktioner", "Ett enda vitamin ersätter all mat", "Alla näringsämnen är identiska"], "Kroppen behöver bland annat energi, byggmaterial, vitaminer och mineraler."], ["Vad behövs proteiner bland annat till?", ["Att bygga och reparera vävnader och bilda enzymer", "Enbart att ge maten färg", "Att ersätta allt vatten"], "Proteiner har många uppgifter i kroppen."], ["Hur kan regelbunden rörelse påverka hälsan?", ["Stödja bland annat hjärta, muskler och välbefinnande", "Göra sömn onödig", "Ta bort alla sjukdomsrisker"], "Effekterna varierar. Rörelse är en av flera faktorer som påverkar hälsa."], ["Vad kan beroendeframkallande ämnen påverka?", ["Hjärnans belöningssystem och beteende", "Bara naglarnas längd", "Enbart hörselgångens form"], "Beroende är mer än en fråga om viljestyrka och kan kräva stöd."], ["Vilket exempel visar en samhällsfaktor för hälsa?", ["Tillgång till trygg bostad och vård", "Enbart vilken färg man gillar", "Bara blodgrupp"], "Levnadsvillkor kan göra hälsosamma val lättare eller svårare."], ["Varför är långvarig stress annorlunda än kortvarig?", ["Brist på återhämtning kan belasta kroppen", "Kort stress kan aldrig förekomma", "All stress ger samma effekt oavsett tid"], "En kort stressreaktion kan hjälpa oss hantera en situation. Varaktighet och stöd spelar roll."], ["Vilken åtgärd stödjer hälsa på samhällsnivå?", ["Trygga miljöer för rörelse och tillgång till stöd", "Att enbart skuldbelägga individer", "Att avskaffa skolmåltider"], "Förebyggande arbete kan förändra förutsättningar för många samtidigt."], ["Varför bevisar inte ett samband mellan två saker en orsak?", ["Andra faktorer kan påverka båda", "Alla samband är falska", "Diagram kan aldrig användas"], "Om stress och sömnproblem samvarierar behövs mer kunskap om riktning och andra orsaker."]]}, {"id": 9, "namn": "Malmö", "under": "Reproduktion och relationer", "tema": "global", "del": "Reproduktion och relationer", "kap": "Fortplantning, samtycke och ansvar", "portar": 4, "langd": 68, "svar": 3, "fragor": [["Vad innebär befruktning?", ["En spermie förenas med en äggcell", "Ett ägg blir en nervcell", "Blod blandas mellan två personer"], "Vid befruktning förenas arvsmassa från två könsceller."], ["Var sker befruktning oftast hos människan?", ["I en äggledare", "I urinblåsan", "I magsäcken"], "Ett tidigt embryo kan sedan föras till livmodern och fästa där."], ["Vad är moderkakans roll?", ["Utbyte av bland annat syre, näring och avfall", "Att fostret andas luft direkt", "Att skapa all arvsmassa"], "Ämnen utbyts mellan den gravidas och fostrets cirkulation utan att blodet normalt blandas direkt."], ["Vad innebär ägglossning?", ["En äggcell släpps från en äggstock", "Livmodern lämnar kroppen", "Alla äggceller bildas på nytt"], "Hormoner reglerar menstruationscykeln, som kan variera mellan personer och tillfällen."], ["Vad är menstruation?", ["Blod och delar av livmoderslemhinnan lämnar kroppen", "En infektion som alltid kräver antibiotika", "Att urin innehåller spermier"], "Om graviditet inte etableras kan den uppbyggda slemhinnan stötas ut."], ["Vilket preventivmedel minskar också risken för många sexuellt överförbara infektioner?", ["Kondom", "P-piller", "Kopparspiral"], "Kondom ger en barriär. Skyddet är inte fullständigt för alla infektioner."], ["Vad innebär samtycke?", ["Att deltagandet är frivilligt och kan avbrytas", "Att ett tidigare ja gäller för alltid", "Att tystnad alltid betyder ja"], "Man behöver vara uppmärksam på den andra personen. Alla får ändra sig."], ["Vad innebär ömsesidighet i en relation?", ["Att bådas vilja och gränser respekteras", "Att en bestämmer åt den andra", "Att man måste vilja samma sak hela tiden"], "Respekt och kommunikation behövs även när personer vill olika saker."], ["Vad beskriver sexuell läggning?", ["Vem en person kan känna romantisk eller sexuell attraktion till", "Hur blodet cirkulerar", "Vilka kläder man måste ha"], "Sexuell läggning, könsidentitet och könsuttryck är olika begrepp."], ["Varför bör medier granskas när de skildrar relationer?", ["De kan visa tillrättalagda bilder och normer", "Allt som visas är en instruktion", "Alla relationer fungerar likadant"], "Medier är inte en säker bild av verkliga kroppar, samtycke eller relationer."]]}, {"id": 10, "namn": "Forskarstationen", "under": "Forskarstationen", "tema": "prov", "del": "Forskarstationen", "kap": "Undersök, granska och förklara", "portar": 4, "langd": 68, "svar": 3, "fragor": [["Vilken fråga går att undersöka med ett experiment?", ["Hur påverkar ljusmängd krassens tillväxt under en vecka?", "Vilken blomma är vackrast för alla?", "Vad borde alla tycka om skogen?"], "En undersökningsbar fråga behöver tydliga variabler och möjliga observationer."], ["Du testar ljusets effekt på krasse. Vad bör hållas lika?", ["Bland annat vattenmängd, frön och temperatur", "Ljusmängden i alla grupper", "Ingenting"], "Ändra den faktor som undersöks och försök kontrollera andra relevanta faktorer."], ["Varför används flera plantor i varje grupp?", ["För att minska påverkan av slumpmässiga skillnader", "För att garantera den hypotes man vill ha", "För att slippa mäta"], "Upprepningar förbättrar underlaget men tar inte bort alla felkällor."], ["Vilka uppgifter behövs i en resultattabell?", ["Mätvärden med enheter och tydliga rubriker", "Bara en slutsats", "Bara färger"], "Dokumentation hjälper andra att förstå vad som faktiskt har mätts."], ["Vad är en hypotes?", ["En möjlig förklaring eller förutsägelse som kan prövas", "Ett resultat som aldrig får ifrågasättas", "En personlig smakfråga utan test"], "Resultat kan stödja eller tala emot en hypotes."], ["Två krassegrupper får olika ljus OCH vatten. Vad är problemet?", ["Det är svårt att avgöra vilken faktor som påverkat resultatet", "Undersökningen blir automatiskt säkrare", "Vatten kan aldrig påverka växter"], "Variablerna är sammanblandade. Planera så att frågan kan besvaras tydligare."], ["Vad stärker en källas trovärdighet?", ["Tydlig metod, relevant kompetens och stöd i oberoende belägg", "Många följare räcker alltid", "Att källan säljer något"], "Bedöm avsändare, syfte, aktualitet, metod och om andra oberoende källor stöder uppgiften."], ["En reklam säger att ett tillskott botar allt. Vad gör du?", ["Granskar belägg och jämför med oberoende relevanta källor", "Litar på reklamen eftersom den är snygg", "Utgår från att alla tillskott är identiska"], "Stora påståenden kräver bra belägg. Kommersiella intressen kan påverka framställningen."], ["Varför kan biologiska förklaringsmodeller förändras?", ["Nya undersökningar kan ge bättre förklaringar", "Fakta avgörs enbart av popularitet", "Vetenskap får aldrig ändras"], "Modeller bedöms mot belägg. Att ompröva en modell kan förbättra kunskapen."], ["Vad behöver ett välgrundat miljöargument?", ["Biologiska fakta och en förklaring av sambandet", "Bara ett starkt tonfall", "Bara en känd persons åsikt"], "Skilj fakta från värderingar och diskutera konsekvenser och möjliga motargument."]]}];
+const PLUGG=[["Ekologi", [["Producent", "Bildar organiska ämnen"], ["Konsument", "Äter andra organismer"], ["Nedbrytare", "Bryter ner dött material"], ["Population", "Samma art i ett område"]]], ["Hjärnan och sinnena", [["Näthinna", "Registrerar ljus"], ["Snäcka", "Registrerar ljud"], ["Lillhjärna", "Samordnar rörelser"], ["Synaps", "Överför signal mellan celler"]]], ["Celler och liv", [["Cellmembran", "Reglerar transport"], ["Ribosom", "Bygger protein"], ["Mitokondrie", "Delar av cellandningen"], ["Cellkärna", "Innehåller merparten av DNA"]]], ["Arv och genteknik", [["Gen", "Ett DNA-avsnitt"], ["Mutation", "Förändring i DNA"], ["Könscell", "Vanligen 23 kromosomer"], ["Kroppscell med kärna", "Vanligen 46 kromosomer"]]], ["Evolution och mångfald", [["Mutation", "Kan skapa ny variation"], ["Urval", "Olika fortplantningsframgång"], ["Fossil", "Spår av tidigare liv"], ["Släktskap", "Gemensamma förfäder"]]], ["Kroppens samarbete", [["Tunntarm", "Tar upp näringsämnen"], ["Lungblåsor", "Gasutbyte"], ["Hjärta", "Pumpar blod"], ["Njurar", "Reglerar vatten och salter"]]], ["Mikrober och immunförsvar", [["Virus", "Behöver värdceller"], ["Bakterie", "En cell utan cellkärna"], ["Vaccin", "Tränar immunförsvaret"], ["Resistens", "Bakteriers tålighet mot antibiotika"]]], ["Hälsa och levnadsvillkor", [["Sömn", "Stödjer återhämtning"], ["Protein", "Byggmaterial och enzymer"], ["Levnadsvillkor", "Till exempel bostad och ekonomi"], ["Belöningssystem", "Kan påverkas vid beroende"]]], ["Reproduktion och relationer", [["Befruktning", "Könsceller förenas"], ["Ägglossning", "Äggcell släpps"], ["Samtycke", "Frivilligt deltagande"], ["Ömsesidighet", "Respekt för bådas vilja"]]], ["Forskarstationen", [["Hypotes", "Prövbar förutsägelse"], ["Resultat", "Det som observerades"], ["Slutsats", "Tolkning kopplad till frågan"], ["Felkällor", "Sådant som kan påverka resultatet"]]]];
+const RESONEMANG=[["Ekologi", [["Vad kan hända om pollinatörer minskar?", "Färre pollinatörer kan minska pollineringen av vissa växter. Då kan färre frön och frukter bildas, vilket också påverkar djur och människors mat. Effekten skiljer sig mellan arter; alla växter pollineras inte av insekter."]]], ["Hjärnan och sinnena", [["Varför kan vi reagera innan vi blir medvetna om smärtan?", "En signal från huden kan kopplas om i ryggmärgen till en motorisk nerv. Muskeln aktiveras snabbt. Samtidigt går information vidare till hjärnan där den kan upplevas som smärta."]]], ["Celler", [["Varför behöver även växter cellandning?", "Fotosyntesen binder ljusenergi i socker. Cellandningen frigör användbar energi ur energirika ämnen så att cellen kan arbeta. Därför utför växter cellandning även när det är mörkt."]]], ["Genteknik", [["Vilka möjligheter och risker har genetiska tester?", "Ett test kan ge viktig information om en ärftlig sjukdom. Samtidigt kan osäkra riskbesked skapa oro och genetiska uppgifter kan missbrukas. Man behöver diskutera samtycke, integritet och hur säkert resultatet kan tolkas."]]], ["Evolution", [["Hur kan resistens bli vanligare utan att bakterier bestämmer sig?", "Det finns genetisk variation. När ett antibiotikum används överlever resistenta bakterier bättre än känsliga. De kan föröka sig och sprida sina egenskaper. Urvalet sker utan att bakterier planerar det."]]], ["Kroppens samarbete", [["Varför arbetar lungor och hjärta snabbare när vi rör oss?", "Arbetande muskler behöver frigöra mer energi. Andning och blodflöde kan öka tillförseln av syre och transporten av koldioxid. Organsystemen samverkar alltså med cellernas behov."]]], ["Infektioner", [["Varför hjälper inte antibiotika mot själva förkylningsviruset?", "Antibiotika verkar på strukturer eller processer hos bakterier. Virus använder värdceller och saknar dessa måltavlor. Onödig användning kan dessutom gynna resistenta bakterier."]]], ["Hälsa", [["Varför räcker det inte att bara säga åt människor att leva hälsosamt?", "Val påverkas av exempelvis ekonomi, trygghet, arbete och tillgång till stöd. Individer kan påverka en del, medan samhället kan göra goda levnadsvillkor mer tillgängliga. Ansvar och möjligheter finns på flera nivåer."]]], ["Relationer", [["Varför behöver samtycke finnas under hela en situation?", "En persons vilja kan ändras. Därför behöver båda vara uppmärksamma och respektera gränser även efter ett tidigare ja. Ömsesidighet handlar om att bådas vilja får utrymme."]]], ["Undersökningar", [["Två plantor växer olika. Hur vet du om ljuset var orsaken?", "En enda planta i varje grupp ger osäkert underlag. Man behöver flera plantor, jämförbara förhållanden och upprepade mätningar. Om även vatten eller temperatur skiljer sig är det svårt att skilja deras effekter från ljusets."]]]];
+</script>
+
+<script>
+
+const duk=document.getElementById('duk'), ctx=duk.getContext('2d');
+const W=400,H=288,TILE=24,ROWS=12,GR=9;
+let VH=288,OFF=0;   // synlig höjd anpassas efter skärmen              // GR = markens översta rad
+const overlagg=document.getElementById('overlagg');
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const slump=(a,b)=>a+Math.random()*(b-a);
+const slumpI=(a,b)=>Math.floor(slump(a,b+1));
+const valj=a=>a[Math.floor(Math.random()*a.length)];
+const blanda=a=>{const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function passaDuk(){
+  const l=document.getElementById('duk-lada');
+  const lw=Math.max(200,l.clientWidth), lh=Math.max(160,l.clientHeight);
+  VH=Math.round(clamp(lh/(lw/W),H,400)); OFF=VH-H;
+  duk.width=W; duk.height=VH;
+  const s=Math.min(lw/W,lh/VH);
+  duk.style.width=Math.floor(W*s)+'px'; duk.style.height=Math.floor(VH*s)+'px';
+}
+addEventListener('resize',passaDuk);
+
+
+const NY='biologiresan.v1';
+let spar={ljus:{},rullor:0,ljudEff:false,tal:true,lugn:true};
+try{const r=localStorage.getItem(NY); if(r)spar=Object.assign(spar,JSON.parse(r));}catch(e){}
+const spara=()=>{try{localStorage.setItem(NY,JSON.stringify(spar));}catch(e){}};
+const uppLast=id=>id===1||(spar.ljus[id-1]||0)>0;
+const totLjus=()=>Object.values(spar.ljus).reduce((a,b)=>a+b,0);
+
+
+let ac=null;
+function pip(f,t,typ,vol){
+  if(!spar.ljudEff)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==='suspended')ac.resume();
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type=typ||'square'; o.frequency.value=f;
+    g.gain.setValueAtTime(vol||.05,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+t);
+    o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+t);
+  }catch(e){}
+}
+const ljudHopp =()=>pip(430,.11,'square',.045);
+const ljudRulle=()=>{pip(760,.07,'triangle',.06);setTimeout(()=>pip(1150,.09,'triangle',.05),60);};
+const ljudRatt =()=>{[523,659,784,1047].forEach((f,i)=>setTimeout(()=>pip(f,.13,'triangle',.06),i*85));};
+const ljudFel  =()=>{pip(190,.18,'sawtooth',.045);setTimeout(()=>pip(140,.24,'sawtooth',.04),140);};
+const ljudAj   =()=>{pip(300,.1,'square',.05);setTimeout(()=>pip(180,.2,'square',.045),90);};
+const ljudPort =()=>{[392,523,659].forEach((f,i)=>setTimeout(()=>pip(f,.16,'sine',.06),i*70));};
+
+
+let rost=null;
+function rosterLista(){
+  if(!('speechSynthesis' in window))return [];
+  const alla=speechSynthesis.getVoices()||[];
+  const sv=alla.filter(v=>/^sv/i.test(v.lang||''));
+  return sv.length?sv:alla;
+}
+function rostPoang(v){
+  const n=(v.name||'').toLowerCase(); let p=0;
+  if(/premium/.test(n))p+=120;
+  else if(/enhanced|förbättrad|forbattrad|neural|natural/.test(n))p+=90;
+  if(/siri/.test(n))p+=60;
+  if(v.localService===false)p+=40;          // t.ex. Googles nätröster
+  if(/compact|komprimerad|eloquence/.test(n))p-=60;
+  if(/alva|klara|oskar|joanna/.test(n))p+=10;
+  if(v.lang==='sv-SE')p+=6;
+  return p;
+}
+function valjRost(){
+  const l=rosterLista(); if(!l.length){rost=null;return;}
+  if(spar.rostNamn){ const t=l.find(v=>v.name===spar.rostNamn); if(t){rost=t;return;} }
+  rost=l.slice().sort((a,b)=>rostPoang(b)-rostPoang(a))[0];
+}
+if('speechSynthesis' in window){valjRost();speechSynthesis.onvoiceschanged=valjRost;}
+const tyst=()=>{if('speechSynthesis' in window)speechSynthesis.cancel();};
+function las(text){
+  if(!spar.tal||!('speechSynthesis' in window))return;
+  tyst(); if(!rost)valjRost();
+  // dela upp i korta meningar – bättre satsmelodi och mindre risk att iOS klipper av
+  const bitar=String(text).split(/(?<=[.!?])\s+/).filter(t=>t.trim());
+  setTimeout(()=>{
+    for(const bit of bitar){
+      const u=new SpeechSynthesisUtterance(bit);
+      u.lang='sv-SE'; if(rost)u.voice=rost; u.rate=.94; u.pitch=1.02;
+      speechSynthesis.speak(u);
+    }
+  },80);
+}
+
+
+const tang={vanster:false,hoger:false,upp:false,ner:false,hopp:false};
+let hoppTryck=false;
+const KARTA={ArrowLeft:'vanster',KeyA:'vanster',ArrowRight:'hoger',KeyD:'hoger',
+  ArrowUp:'upp',KeyW:'upp',ArrowDown:'ner',KeyS:'ner',Space:'hopp',KeyZ:'hopp',Enter:'hopp',KeyX:'hopp'};
+addEventListener('keydown',e=>{const k=KARTA[e.code];if(k){if(!tang[k]&&k==='hopp')hoppTryck=true;tang[k]=true;e.preventDefault();}});
+addEventListener('keyup',e=>{const k=KARTA[e.code];if(k){tang[k]=false;e.preventDefault();}});
+function knappStyr(el,namn){
+  const ned=e=>{e.preventDefault();if(namn==='hopp'&&!tang.hopp)hoppTryck=true;tang[namn]=true;el.classList.add('ner');};
+  const upp=e=>{e.preventDefault();tang[namn]=false;el.classList.remove('ner');};
+  el.addEventListener('pointerdown',ned);
+  el.addEventListener('pointerup',upp); el.addEventListener('pointercancel',upp);
+  el.addEventListener('pointerleave',upp);
+  el.addEventListener('contextmenu',e=>e.preventDefault());
+}
+['vanster','hoger','upp','ner'].forEach(n=>knappStyr(document.getElementById(n),n));
+knappStyr(document.getElementById('hopp'),'hopp');
+
+
+function tomGrid(cols){return Array.from({length:ROWS},()=>Array(cols).fill('.'));}
+function mark(g,c0,c1){for(let c=c0;c<c1;c++)for(let r=GR;r<ROWS;r++)if(g[r])g[r][c]='#';}
+function block(g,c0,c1,r0,r1){for(let c=c0;c<c1;c++)for(let r=r0;r<r1;r++)if(g[r]&&c>=0)g[r][c]='#';}
+
+function byggBana(v){
+  const svart=spar.lugn?1:v.id;
+  const bitar=['plan','grop','plattform'];
+  if(svart>=2)bitar.push('trappa','grop');
+  if(svart>=3)bitar.push('hoppkedja');
+  if(svart>=4)bitar.push('taggar');
+  if(svart>=5)bitar.push('rorlig');
+  if(svart>=6)bitar.push('hoppkedja','rorlig');
+
+  const g=tomGrid(v.langd+40);
+  const rullor=[],portar=[],rorliga=[];
+  const npcar=[]; let hav=null;
+  const fragor=blanda(v.boss?bossFragor():v.fragor);
+  const stationer=[];
+  for(let k=0;k<v.portar;k++) stationer.push({typ:'port'});
+  const upp=(UPPDRAG[v.id]||[]);
+  if(upp.length){
+    const kliv=Math.max(1,Math.floor(v.portar/(upp.length+1)));
+    upp.forEach((u,k)=>stationer.splice(Math.min(stationer.length,(k+1)*kliv+k),0,{typ:'npc',u}));
+  }
+  let fi=0, c=0;
+  const steg=v.langd/(stationer.length+1); let nasta=steg+4;
+  mark(g,0,9); c=9;
+
+  while(stationer.length || c<v.langd){
+    if(stationer.length && c>=nasta){
+      const st=stationer.shift(); mark(g,c,c+7);
+      if(st.typ==='port')
+        portar.push({x:(c+3)*TILE+12,y:GR*TILE,oppen:false,fraga:fragor[fi++%fragor.length],glod:0});
+      else
+        npcar.push({x:(c+3)*TILE+12,y:GR*TILE,u:st.u,klar:false});
+      c+=7; nasta+=steg; continue;
+    }
+    const b=valj(bitar);
+    if(b==='plan'){const w=slumpI(5,8);mark(g,c,c+w);
+      if(Math.random()<.75)rullor.push({x:(c+Math.floor(w/2))*TILE+12,y:(GR-2)*TILE,tagen:false});
+      c+=w;}
+    else if(b==='grop'){const a=slumpI(3,4),gap=slumpI(2,Math.min(3,1+Math.ceil(svart/2))),b2=slumpI(3,4);
+      mark(g,c,c+a); mark(g,c+a+gap,c+a+gap+b2);
+      rullor.push({x:(c+a+gap/2)*TILE,y:(GR-3)*TILE,tagen:false});
+      c+=a+gap+b2;}
+    else if(b==='plattform'){const w=slumpI(7,9);mark(g,c,c+w);
+      const pr=GR-3,pc=c+1,pw=slumpI(2,3); block(g,pc,pc+pw,pr,pr+1);
+      rullor.push({x:(pc+pw/2)*TILE,y:(pr-2)*TILE,tagen:false});
+      if(w>7){const pr2=GR-5,pc2=c+4; block(g,pc2,pc2+2,pr2,pr2+1);
+        rullor.push({x:(pc2+1)*TILE,y:(pr2-2)*TILE,tagen:false});}
+      c+=w;}
+    else if(b==='trappa'){mark(g,c,c+9);
+      block(g,c+2,c+3,GR-1,GR); block(g,c+3,c+4,GR-2,GR); block(g,c+4,c+5,GR-3,GR);
+      rullor.push({x:(c+4.5)*TILE,y:(GR-5)*TILE,tagen:false});
+      c+=9;}
+    else if(b==='hoppkedja'){mark(g,c,c+3); let x=c+3;
+      for(let i=0;i<3;i++){const gap=2,pr=GR-1-i;block(g,x+gap,x+gap+2,pr,pr+1);
+        rullor.push({x:(x+gap+1)*TILE,y:(pr-2)*TILE,tagen:false}); x+=gap+2;}
+      mark(g,x+2,x+6); c=x+6;}
+    else if(b==='taggar'){const w=9;mark(g,c,c+w);
+      g[GR-1][c+4]='^'; if(svart>=6)g[GR-1][c+5]='^';
+      rullor.push({x:(c+4.5)*TILE+12,y:(GR-4)*TILE,tagen:false});
+      c+=w;}
+    else if(b==='rorlig'){mark(g,c,c+3);
+      const x0=(c+3)*TILE-10, x1=(c+8)*TILE-64+10;
+      rorliga.push({x:x0,y:(GR-1)*TILE,w:72,h:12,x0,x1,dir:1,fart:.8});
+      rullor.push({x:(c+5.5)*TILE,y:(GR-3)*TILE,tagen:false});
+      mark(g,c+8,c+12); c+=12;}
+  }
+  if(v.hav){                                   // Röda havet på väg ut ur Egypten
+    mark(g,c,c+6);
+    npcar.push({x:(c+3)*TILE,y:GR*TILE,u:HAVSUPPDRAG,klar:false,oppnarHav:true});
+    c+=6;
+    hav={c0:c,c1:c+7,oppet:false,anim:0};
+    c+=7; mark(g,c,c+6); c+=6;
+  }
+  mark(g,c,c+9); c+=9;
+  const cols=c;
+  for(let r=0;r<ROWS;r++){ const rad=g[r];
+    for(let i=0;i<cols;i++) if(rad[i]===undefined||rad[i]==='')rad[i]='.';
+    rad.length=cols; }
+  return {g,cols,rullor,portar,rorliga,npcar,hav,malX:(cols-5)*TILE};
+}
+function bossFragor(){
+  return VARLDAR.filter(v=>!v.boss).flatMap(v=>v.fragor).filter(f=>f[1].length>=3);
+}
+</script>
+
+<script>
+
+
+
+const IKON = {
+  riksdag:'<svg viewBox="0 0 100 100"><path d="M10 46 50 20l40 26z" fill="#E7C36A"/><rect x="12" y="46" width="76" height="6" fill="#C9A24A"/><g fill="#E7C36A"><rect x="20" y="54" width="9" height="28"/><rect x="36" y="54" width="9" height="28"/><rect x="52" y="54" width="9" height="28"/><rect x="68" y="54" width="9" height="28"/></g><rect x="12" y="82" width="76" height="8" rx="2" fill="#C9A24A"/><circle cx="50" cy="35" r="5" fill="#2A3A66"/></svg>',
+  domstol:'<svg viewBox="0 0 100 100"><rect x="46" y="18" width="8" height="62" rx="2" fill="#C9A24A"/><rect x="30" y="80" width="40" height="8" rx="3" fill="#C9A24A"/><rect x="16" y="26" width="68" height="5" rx="2" fill="#C9A24A"/><g fill="none" stroke="#E7C36A" stroke-width="4"><path d="M22 30 12 50h20z"/><path d="M78 30 68 50h20z"/></g><path d="M8 50a14 10 0 0 0 28 0z" fill="#8FB7E8"/><path d="M64 50a14 10 0 0 0 28 0z" fill="#8FB7E8"/></svg>',
+  tidning:'<svg viewBox="0 0 100 100"><rect x="14" y="22" width="64" height="58" rx="3" fill="#F4EFE2"/><rect x="72" y="32" width="14" height="48" rx="3" fill="#D8D2C2"/><rect x="22" y="30" width="48" height="10" rx="2" fill="#2A3A66"/><g stroke="#8E9BC2" stroke-width="3" stroke-linecap="round"><path d="M22 48h20M22 56h20M22 64h20M50 48h20M50 56h20M50 64h12"/></g></svg>',
+  rostsedel:'<svg viewBox="0 0 100 100"><rect x="14" y="52" width="72" height="34" rx="4" fill="#2A5FA8"/><rect x="30" y="48" width="40" height="7" rx="3" fill="#16386B"/><rect x="32" y="12" width="36" height="42" rx="3" fill="#F4EFE2" transform="rotate(-8 50 33)"/><g stroke="#2A3A66" stroke-width="3" stroke-linecap="round"><path d="M36 26h24M36 34h24M36 42h14" transform="rotate(-8 50 33)"/></g></svg>',
+  eu:'<svg viewBox="0 0 100 100"><rect x="8" y="18" width="84" height="64" rx="5" fill="#1B3B8F"/><g fill="#FFD617">' +
+     [0,1,2,3,4,5,6,7,8,9,10,11].map(i=>{const a=i*Math.PI/6-Math.PI/2,x=50+26*Math.cos(a),y=50+26*Math.sin(a);
+       return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.6"/>`;}).join('') + '</g></svg>',
+  fn:'<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="34" fill="#5B92E5"/><g fill="none" stroke="#F4EFE2" stroke-width="2.4"><circle cx="50" cy="50" r="22"/><circle cx="50" cy="50" r="12"/><path d="M50 28v44M28 50h44M34 34c10 8 22 8 32 0M34 66c10-8 22-8 32 0"/></g><g fill="none" stroke="#DCE6C0" stroke-width="4" stroke-linecap="round"><path d="M20 76c-6-12-4-26 4-34"/><path d="M80 76c6-12 4-26-4-34"/></g></svg>',
+  fabrik:'<svg viewBox="0 0 100 100"><rect x="10" y="52" width="80" height="34" fill="#5A6B8C"/><path d="M10 52l24-14v14zM34 52l24-14v14z" fill="#7C8CAA"/><rect x="66" y="26" width="14" height="26" fill="#7C8CAA"/><g fill="#243158"><rect x="18" y="62" width="12" height="12"/><rect x="42" y="62" width="12" height="12"/><rect x="66" y="62" width="12" height="12"/></g><g fill="#C7D2E8" opacity=".7"><circle cx="76" cy="18" r="7"/><circle cx="64" cy="13" r="5"/></g></svg>',
+  pengar:'<svg viewBox="0 0 100 100"><rect x="10" y="34" width="66" height="38" rx="4" fill="#7FB069"/><circle cx="43" cy="53" r="11" fill="none" stroke="#F4EFE2" stroke-width="3.5"/><circle cx="74" cy="58" r="17" fill="#E7C36A" stroke="#C9A24A" stroke-width="3"/><text x="74" y="65" font-size="20" font-weight="700" text-anchor="middle" fill="#8A6A26" font-family="sans-serif">kr</text></svg>',
+  sjukhus:'<svg viewBox="0 0 100 100"><rect x="16" y="28" width="68" height="58" rx="4" fill="#F4EFE2"/><rect x="42" y="14" width="16" height="16" rx="3" fill="#E0596F"/><path d="M44 38h12v10h10v12H56v10H44V60H34V48h10z" fill="#E0596F"/><g fill="#8E9BC2"><rect x="22" y="70" width="10" height="16"/><rect x="68" y="70" width="10" height="16"/></g></svg>',
+  skola:'<svg viewBox="0 0 100 100"><path d="M12 44 50 20l38 24z" fill="#E0596F"/><rect x="18" y="44" width="64" height="42" fill="#F4EFE2"/><rect x="42" y="62" width="16" height="24" fill="#8A6A44"/><g fill="#8FB7E8"><rect x="24" y="52" width="12" height="12"/><rect x="64" y="52" width="12" height="12"/></g><rect x="46" y="12" width="4" height="14" fill="#8E9BC2"/><path d="M50 13l14 5-14 5z" fill="#F2A83B"/></svg>',
+  jordglob:'<svg viewBox="0 0 100 100"><circle cx="50" cy="48" r="30" fill="#5B92E5"/><path d="M30 38c8-6 16 2 22-2s12 2 18-2M26 54c10 4 14-4 22 0s14 6 24 0M40 28c-2 12 2 24 8 34M62 24c4 14 0 26-6 36" fill="none" stroke="#7FB069" stroke-width="6" stroke-linecap="round" opacity=".85"/><rect x="44" y="78" width="12" height="8" fill="#8E9BC2"/><rect x="34" y="86" width="32" height="6" rx="3" fill="#8E9BC2"/></svg>',
+  mobil:'<svg viewBox="0 0 100 100"><rect x="30" y="10" width="40" height="80" rx="7" fill="#243158" stroke="#8E9BC2" stroke-width="3"/><rect x="36" y="20" width="28" height="56" rx="3" fill="#8FB7E8"/><path d="M50 60s-9-5.6-9-11.3A5.2 5.2 0 0 1 50 45a5.2 5.2 0 0 1 9 3.7C59 54.4 50 60 50 60z" fill="#E0596F"/><circle cx="50" cy="83" r="3.4" fill="#8E9BC2"/></svg>',
+  ren:'<svg viewBox="0 0 100 100"><path d="M34 52c0-8 8-12 18-12s18 4 18 12v16c0 4-4 6-8 4l-2-8-4 10h-8l-4-10-2 8c-4 2-8 0-8-4z" fill="#8A6A44"/><path d="M52 40c-4-4-6-10-4-16" fill="none" stroke="#C9A46A" stroke-width="4" stroke-linecap="round"/><g fill="none" stroke="#C9A46A" stroke-width="4" stroke-linecap="round"><path d="M46 30c-4-6-12-8-16-6M46 30c-2-8-8-12-14-12M60 30c4-6 12-8 16-6M60 30c2-8 8-12 14-12M60 32c-2-6 0-12 2-16"/></g></svg>',
+  kommun:'<svg viewBox="0 0 100 100"><rect x="16" y="40" width="68" height="46" fill="#C9A46A"/><path d="M12 40 50 18l38 22z" fill="#A8324A"/><rect x="44" y="60" width="12" height="26" fill="#6B4A2B"/><g fill="#8FB7E8"><rect x="24" y="50" width="11" height="14"/><rect x="65" y="50" width="11" height="14"/></g><rect x="48" y="6" width="3" height="14" fill="#8E9BC2"/><path d="M51 7l12 4-12 4z" fill="#2A5FA8"/></svg>'
+};
+
+
+function portratt(o){
+  const hud=o.hud||'#E8C39E', har=o.har||'#3A2A1E', mantel=o.mantel||'#4E7BE8';
+  let sv=`<svg viewBox="0 0 100 100" aria-hidden="true">
+    <circle cx="50" cy="50" r="48" fill="${o.bg||'#243158'}"/>
+    <path d="M14 100c0-20 16-30 36-30s36 10 36 30z" fill="${mantel}"/>`;
+  if(o.krage==='domare') sv+=`<path d="M34 70h32v8l-16 4-16-4z" fill="#F4EFE2"/>`;
+  else if(o.krage) sv+=`<path d="M34 72l16 14 16-14v-6H34z" fill="${o.krage}"/>`;
+  if(o.slips) sv+=`<path d="M50 72l6 6-6 20-6-20z" fill="${o.slips}"/>`;
+  if(o.vast) sv+=`<path d="M30 74l10-4 10 10 10-10 10 4v26H30z" fill="${o.vast}"/>`;
+  sv+=`<circle cx="50" cy="44" r="21" fill="${hud}"/>`;
+  if(o.skagg==='lang') sv+=`<path d="M29 46c0 26 8 40 21 40s21-14 21-40c0 14-42 14-42 0z" fill="${har}"/>`;
+  if(o.skagg==='kort') sv+=`<path d="M31 48c0 16 8 24 19 24s19-8 19-24c0 9-38 9-38 0z" fill="${har}"/>`;
+  if(o.har!=='ingen'){
+    if(o.frisyr==='langt') sv+=`<path d="M25 44a25 25 0 0 1 50 0c0 0 4 26-2 34-3-14-2-26-2-26-8 6-34 6-42 0 0 0 1 12-2 26-6-8-2-34-2-34z" fill="${har}"/>`;
+    else if(o.frisyr==='knut') sv+=`<circle cx="50" cy="19" r="9" fill="${har}"/><path d="M27 42a23 23 0 0 1 46 0c0-13-7-20-23-20s-23 7-23 20z" fill="${har}"/>`;
+    else sv+=`<path d="M27 42a23 23 0 0 1 46 0c0-12-6-19-23-19s-23 7-23 19z" fill="${har}"/>`;
+  }
+  if(o.lugg) sv+=`<rect x="29" y="30" width="42" height="10" rx="4" fill="${har}"/>`;
+  if(o.hatt==='keps') sv+=`<path d="M28 28a22 14 0 0 1 44 0z" fill="${o.hattfarg||'#2A5FA8'}"/><path d="M26 28h50a3 3 0 0 1 0 6H26z" fill="${o.hattfarg||'#2A5FA8'}"/><path d="M72 28h16a4 4 0 0 1 0 6H72z" fill="${o.hattfarg||'#16386B'}"/>`;
+  if(o.hatt==='hjalm') sv+=`<path d="M28 30a22 16 0 0 1 44 0z" fill="#F2A83B"/><rect x="22" y="30" width="56" height="6" rx="3" fill="#D68F22"/><rect x="48" y="12" width="4" height="18" fill="#D68F22"/>`;
+  if(o.hatt==='mossa') sv+=`<path d="M28 32a22 15 0 0 1 44 0z" fill="${o.hattfarg||'#A8324A'}"/><rect x="26" y="30" width="48" height="8" rx="4" fill="${o.hattfarg2||'#F4EFE2'}"/><circle cx="50" cy="12" r="6" fill="${o.hattfarg2||'#F4EFE2'}"/>`;
+  if(o.hatt==='samemossa') sv+=`<path d="M30 30a20 18 0 0 1 40 0z" fill="#2A5FA8"/><rect x="26" y="28" width="48" height="8" rx="3" fill="#E0596F"/><path d="M40 12h20l-4 12H44z" fill="#2A5FA8"/><circle cx="50" cy="10" r="5" fill="#F2C94C"/>`;
+  if(o.hatt==='sjal') sv+=`<path d="M26 48a24 24 0 0 1 48 0c0-16-10-24-24-24S26 32 26 48z" fill="${o.hattfarg||'#B36A8A'}"/>`;
+  if(o.hatt==='lurar') sv+=`<path d="M26 46a24 24 0 0 1 48 0" fill="none" stroke="#243158" stroke-width="7" stroke-linecap="round"/><rect x="18" y="40" width="12" height="20" rx="5" fill="#243158"/><rect x="70" y="40" width="12" height="20" rx="5" fill="#243158"/>`;
+  sv+=`<circle cx="42" cy="44" r="2.4" fill="#2A2030"/><circle cx="58" cy="44" r="2.4" fill="#2A2030"/>`;
+  if(o.glasogon) sv+=`<g fill="none" stroke="#2A2030" stroke-width="2.2"><circle cx="42" cy="44" r="7"/><circle cx="58" cy="44" r="7"/><path d="M49 44h2M35 43l-5-2M65 43l5-2"/></g>`;
+  sv+=`</svg>`;
+  return sv;
+}
+const FIGUR={
+ majken:  {bg:'#3A2E22',hud:'#EBC7A2',har:'#E4E0D6',frisyr:'knut',glasogon:1,mantel:'#7B5E86'},
+ noor:    {bg:'#2A3A5E',hud:'#C99A6A',har:'#241E30',hatt:'sjal',hattfarg:'#6BAF9B',mantel:'#3C86B8'},
+ alva:    {bg:'#2E4F6B',hud:'#EBC7A2',har:'#8A5A2B',frisyr:'langt',mantel:'#F2A83B',krage:'#D68F22'},
+ siri:    {bg:'#24405E',hud:'#E0B183',har:'#2B2136',frisyr:'knut',mantel:'#A8324A',krage:'#7A1F33'},
+ aile:    {bg:'#1B3358',hud:'#D9A97E',har:'#3A2A1E',hatt:'samemossa',mantel:'#2A5FA8',krage:'#E0596F'},
+ sirkka:  {bg:'#3A2A45',hud:'#EBC7A2',har:'#C9BBA6',frisyr:'langt',mantel:'#6E4E86'},
+ birgitta:{bg:'#2A2038',hud:'#E8C39E',har:'#6A6A72',frisyr:'knut',glasogon:1,mantel:'#141A2E',krage:'domare'},
+ samir:   {bg:'#243158',hud:'#C99A6A',har:'#241E30',skagg:'kort',mantel:'#1B2647',slips:'#A8324A'},
+ kent:    {bg:'#3C2E22',hud:'#E0B183',har:'#8A7A6A',skagg:'kort',hatt:'hjalm',mantel:'#5A6B8C',vast:'#F2A83B'},
+ farhad:  {bg:'#2E3A4E',hud:'#C99A6A',har:'#2B2136',skagg:'kort',glasogon:1,mantel:'#33488A'},
+ wilma:   {bg:'#4A2E52',hud:'#EBC7A2',har:'#D8A33B',frisyr:'langt',hatt:'lurar',mantel:'#C9558A'},
+ otto:    {bg:'#2A3A5E',hud:'#E8C39E',har:'#6A4A2B',lugg:1,glasogon:1,mantel:'#7FB069'},
+ ingrid:  {bg:'#3A2A45',hud:'#E0B183',har:'#4A2F22',frisyr:'knut',mantel:'#2A5FA8',slips:'#F2C94C'},
+ talman:  {bg:'#2A2038',hud:'#E8C39E',har:'#D6D0C4',skagg:'kort',mantel:'#141A2E',slips:'#2A5FA8'},
+ zara:    {bg:'#1B3B8F',hud:'#8A5E3C',har:'#241E30',frisyr:'knut',mantel:'#16386B',krage:'#FFD617'},
+ lo:      {bg:'#2E4A3E',hud:'#EBC7A2',har:'#2B2136',lugg:1,glasogon:1,mantel:'#3E6B57'},
+ tobias:  {bg:'#3A4A5E',hud:'#E0B183',har:'#8A5A2B',hatt:'keps',hattfarg:'#2A5FA8',mantel:'#5A6B8C',vast:'#F2A83B'},
+ nadia:   {bg:'#2A4A6E',hud:'#8A5E3C',har:'#241E30',hatt:'mossa',hattfarg:'#5B92E5',hattfarg2:'#F4EFE2',mantel:'#5B92E5'},
+ larare:  {bg:'#2B3A63',hud:'#E8C39E',har:'#4A3A2A',skagg:'kort',glasogon:1,mantel:'#6C7A9C',krage:'#33488A'}
+};
+const bildFor=n=>portratt(FIGUR[n]||FIGUR.larare);
+const HAVSUPPDRAG=null;   // används inte här – ingen bana har v.hav
+
+
+const SCENER={"1": {"in": [["Biologen Lo", "lo", "Näringsvävar, kretslopp och hållbar utveckling. Här får du träna med frågor och uppdrag. Du kan alltid ta en paus."]], "ut": [["Forskaren Noor", "noor", "Bra arbetat! Berätta gärna med egna ord om ett samband du lärde dig. Välj sedan nästa område eller öva här igen."]]}, "2": {"in": [["Biologen Lo", "lo", "Nerver, hjärna, sinnen och reflexer. Här får du träna med frågor och uppdrag. Du kan alltid ta en paus."]], "ut": [["Forskaren Noor", "noor", "Bra arbetat! Berätta gärna med egna ord om ett samband du lärde dig. Välj sedan nästa område eller öva här igen."]]}, "3": {"in": [["Biologen Lo", "lo", "Cellens delar och kroppens byggstenar. Här får du träna med frågor och uppdrag. Du kan alltid ta en paus."]], "ut": [["Forskaren Noor", "noor", "Bra arbetat! Berätta gärna med egna ord om ett samband du lärde dig. Välj sedan nästa område eller öva här igen."]]}, "4": {"in": [["Biologen Lo", "lo", "DNA, gener, arv och miljö. Här får du träna med frågor och uppdrag. Du kan alltid ta en paus."]], "ut": [["Forskaren Noor", "noor", "Bra arbetat! Berätta gärna med egna ord om ett samband du lärde dig. Välj sedan nästa område eller öva här igen."]]}, "5": {"in": [["Biologen Lo", "lo", "Variation, urval och livets historia. Här får du träna med frågor och uppdrag. Du kan alltid ta en paus."]], "ut": [["Forskaren Noor", "noor", "Bra arbetat! Berätta gärna med egna ord om ett samband du lärde dig. Välj sedan nästa område eller öva här igen."]]}, "6": {"in": [["Biologen Lo", "lo", "Mat, syre, blod och utsöndring. Här får du träna med frågor och uppdrag. Du kan alltid ta en paus."]], "ut": [["Forskaren Noor", "noor", "Bra arbetat! Berätta gärna med egna ord om ett samband du lärde dig. Välj sedan nästa område eller öva här igen."]]}, "7": {"in": [["Biologen Lo", "lo", "Smitta, vaccin och resistens. Här får du träna med frågor och uppdrag. Du kan alltid ta en paus."]], "ut": [["Forskaren Noor", "noor", "Bra arbetat! Berätta gärna med egna ord om ett samband du lärde dig. Välj sedan nästa område eller öva här igen."]]}, "8": {"in": [["Biologen Lo", "lo", "Återhämtning, rörelse och omgivning. Här får du träna med frågor och uppdrag. Du kan alltid ta en paus."]], "ut": [["Forskaren Noor", "noor", "Bra arbetat! Berätta gärna med egna ord om ett samband du lärde dig. Välj sedan nästa område eller öva här igen."]]}, "9": {"in": [["Biologen Lo", "lo", "Fortplantning, samtycke och ansvar. Här får du träna med frågor och uppdrag. Du kan alltid ta en paus."]], "ut": [["Forskaren Noor", "noor", "Bra arbetat! Berätta gärna med egna ord om ett samband du lärde dig. Välj sedan nästa område eller öva här igen."]]}, "10": {"in": [["Biologen Lo", "lo", "Undersök, granska och förklara. Här får du träna med frågor och uppdrag. Du kan alltid ta en paus."]], "ut": [["Forskaren Noor", "noor", "Bra arbetat! Berätta gärna med egna ord om ett samband du lärde dig. Välj sedan nästa område eller öva här igen."]]}};
+const UPPDRAG={"1": [{"t": "para", "vem": "Biologen Lo", "bild": "lo", "f": "Para ihop begreppet med rätt förklaring.", "parord": [["Producent", "Bildar organiska ämnen"], ["Konsument", "Äter andra organismer"], ["Nedbrytare", "Bryter ner dött material"], ["Population", "Samma art i ett område"]], "facit": "Producent: bildar organiska ämnen; Konsument: äter andra organismer; Nedbrytare: bryter ner dött material; Population: samma art i ett område."}, {"t": "ordning", "vem": "Forskaren Noor", "bild": "noor", "f": "Följ hur övergödning kan leda till syrebrist.", "ord": ["Extra närsalter når sjön", "Alger växer mer", "Mer dött material bryts ner", "Nedbrytarnas cellandning förbrukar syre"], "facit": "Extra närsalter når sjön → Alger växer mer → Mer dött material bryts ner → Nedbrytarnas cellandning förbrukar syre."}], "2": [{"t": "para", "vem": "Biologen Lo", "bild": "lo", "f": "Para ihop begreppet med rätt förklaring.", "parord": [["Näthinna", "Registrerar ljus"], ["Snäcka", "Registrerar ljud"], ["Lillhjärna", "Samordnar rörelser"], ["Synaps", "Överför signal mellan celler"]], "facit": "Näthinna: registrerar ljus; Snäcka: registrerar ljud; Lillhjärna: samordnar rörelser; Synaps: överför signal mellan celler."}, {"t": "ordning", "vem": "Forskaren Noor", "bild": "noor", "f": "Följ en förenklad undanryckningsreflex.", "ord": ["Receptor i huden aktiveras", "Sensorisk nerv leder signalen", "Omkoppling i ryggmärgen", "Motorisk nerv aktiverar muskeln"], "facit": "Receptor i huden aktiveras → Sensorisk nerv leder signalen → Omkoppling i ryggmärgen → Motorisk nerv aktiverar muskeln."}], "3": [{"t": "para", "vem": "Biologen Lo", "bild": "lo", "f": "Para ihop begreppet med rätt förklaring.", "parord": [["Cellmembran", "Reglerar transport"], ["Ribosom", "Bygger protein"], ["Mitokondrie", "Delar av cellandningen"], ["Cellkärna", "Innehåller merparten av DNA"]], "facit": "Cellmembran: reglerar transport; Ribosom: bygger protein; Mitokondrie: delar av cellandningen; Cellkärna: innehåller merparten av dna."}, {"t": "ordning", "vem": "Forskaren Noor", "bild": "noor", "f": "Ordna från minsta byggnivå till hela kroppen.", "ord": ["Cell", "Vävnad", "Organ", "Organsystem", "Organism"], "facit": "Cell → Vävnad → Organ → Organsystem → Organism."}], "4": [{"t": "para", "vem": "Biologen Lo", "bild": "lo", "f": "Para ihop begreppet med rätt förklaring.", "parord": [["Gen", "Ett DNA-avsnitt"], ["Mutation", "Förändring i DNA"], ["Könscell", "Vanligen 23 kromosomer"], ["Kroppscell med kärna", "Vanligen 46 kromosomer"]], "facit": "Gen: ett dna-avsnitt; Mutation: förändring i dna; Könscell: vanligen 23 kromosomer; Kroppscell med kärna: vanligen 46 kromosomer."}, {"t": "ordning", "vem": "Forskaren Noor", "bild": "noor", "f": "Följ en förenklad väg från arvsmassa till egenskap.", "ord": ["Information i en gen", "Informationen används vid proteinbygge", "Ett protein får en funktion", "Funktionen bidrar till en egenskap"], "facit": "Information i en gen → Informationen används vid proteinbygge → Ett protein får en funktion → Funktionen bidrar till en egenskap."}], "5": [{"t": "para", "vem": "Biologen Lo", "bild": "lo", "f": "Para ihop begreppet med rätt förklaring.", "parord": [["Mutation", "Kan skapa ny variation"], ["Urval", "Olika fortplantningsframgång"], ["Fossil", "Spår av tidigare liv"], ["Släktskap", "Gemensamma förfäder"]], "facit": "Mutation: kan skapa ny variation; Urval: olika fortplantningsframgång; Fossil: spår av tidigare liv; Släktskap: gemensamma förfäder."}, {"t": "ordning", "vem": "Forskaren Noor", "bild": "noor", "f": "Följ naturligt urval i en population med ärftlig färgvariation.", "ord": ["Olika färgvarianter finns", "Vissa upptäcks mer sällan av rovdjur", "Dessa individer får i genomsnitt fler avkommor", "Den ärftliga färgvarianten kan bli vanligare"], "facit": "Olika färgvarianter finns → Vissa upptäcks mer sällan av rovdjur → Dessa individer får i genomsnitt fler avkommor → Den ärftliga färgvarianten kan bli vanligare."}], "6": [{"t": "para", "vem": "Biologen Lo", "bild": "lo", "f": "Para ihop begreppet med rätt förklaring.", "parord": [["Tunntarm", "Tar upp näringsämnen"], ["Lungblåsor", "Gasutbyte"], ["Hjärta", "Pumpar blod"], ["Njurar", "Reglerar vatten och salter"]], "facit": "Tunntarm: tar upp näringsämnen; Lungblåsor: gasutbyte; Hjärta: pumpar blod; Njurar: reglerar vatten och salter."}, {"t": "ordning", "vem": "Forskaren Noor", "bild": "noor", "f": "Följ syret från inandning till en muskelcell.", "ord": ["Luft når lungblåsorna", "Syre passerar till blodet", "Blodet går via hjärtat till muskeln", "Syre når cellen och används vid cellandning"], "facit": "Luft når lungblåsorna → Syre passerar till blodet → Blodet går via hjärtat till muskeln → Syre når cellen och används vid cellandning."}], "7": [{"t": "para", "vem": "Biologen Lo", "bild": "lo", "f": "Para ihop begreppet med rätt förklaring.", "parord": [["Virus", "Behöver värdceller"], ["Bakterie", "En cell utan cellkärna"], ["Vaccin", "Tränar immunförsvaret"], ["Resistens", "Bakteriers tålighet mot antibiotika"]], "facit": "Virus: behöver värdceller; Bakterie: en cell utan cellkärna; Vaccin: tränar immunförsvaret; Resistens: bakteriers tålighet mot antibiotika."}, {"t": "ordning", "vem": "Forskaren Noor", "bild": "noor", "f": "Följ ett exempel på urval av resistenta bakterier.", "ord": ["En blandad bakteriepopulation finns", "Ett antibiotikum dödar känsliga bakterier", "Resistenta bakterier överlever bättre", "De överlevande förökar sig"], "facit": "En blandad bakteriepopulation finns → Ett antibiotikum dödar känsliga bakterier → Resistenta bakterier överlever bättre → De överlevande förökar sig."}], "8": [{"t": "para", "vem": "Biologen Lo", "bild": "lo", "f": "Para ihop begreppet med rätt förklaring.", "parord": [["Sömn", "Stödjer återhämtning"], ["Protein", "Byggmaterial och enzymer"], ["Levnadsvillkor", "Till exempel bostad och ekonomi"], ["Belöningssystem", "Kan påverkas vid beroende"]], "facit": "Sömn: stödjer återhämtning; Protein: byggmaterial och enzymer; Levnadsvillkor: till exempel bostad och ekonomi; Belöningssystem: kan påverkas vid beroende."}, {"t": "ordning", "vem": "Forskaren Noor", "bild": "noor", "f": "Bygg en möjlig kedja, inte ett löfte om samma effekt för alla.", "ord": ["Bättre möjlighet till återhämtning", "Mer utrymme för tillräcklig sömn", "Bättre förutsättningar för koncentration", "Lättare att delta i lärande"], "facit": "Bättre möjlighet till återhämtning → Mer utrymme för tillräcklig sömn → Bättre förutsättningar för koncentration → Lättare att delta i lärande."}], "9": [{"t": "para", "vem": "Biologen Lo", "bild": "lo", "f": "Para ihop begreppet med rätt förklaring.", "parord": [["Befruktning", "Könsceller förenas"], ["Ägglossning", "Äggcell släpps"], ["Samtycke", "Frivilligt deltagande"], ["Ömsesidighet", "Respekt för bådas vilja"]], "facit": "Befruktning: könsceller förenas; Ägglossning: äggcell släpps; Samtycke: frivilligt deltagande; Ömsesidighet: respekt för bådas vilja."}, {"t": "ordning", "vem": "Forskaren Noor", "bild": "noor", "f": "Följ tidiga steg i en graviditet.", "ord": ["Ägglossning", "Befruktning i äggledaren", "Celldelningar under färden", "Embryot fäster i livmoderslemhinnan"], "facit": "Ägglossning → Befruktning i äggledaren → Celldelningar under färden → Embryot fäster i livmoderslemhinnan."}], "10": [{"t": "para", "vem": "Biologen Lo", "bild": "lo", "f": "Para ihop begreppet med rätt förklaring.", "parord": [["Hypotes", "Prövbar förutsägelse"], ["Resultat", "Det som observerades"], ["Slutsats", "Tolkning kopplad till frågan"], ["Felkällor", "Sådant som kan påverka resultatet"]], "facit": "Hypotes: prövbar förutsägelse; Resultat: det som observerades; Slutsats: tolkning kopplad till frågan; Felkällor: sådant som kan påverka resultatet."}, {"t": "ordning", "vem": "Forskaren Noor", "bild": "noor", "f": "Planera en undersökning i en rimlig ordning.", "ord": ["Formulera en mätbar fråga", "Planera variabler och säkerhet", "Gör upprepade mätningar", "Redovisa resultat med enheter", "Dra slutsats och diskutera felkällor"], "facit": "Formulera en mätbar fråga → Planera variabler och säkerhet → Gör upprepade mätningar → Redovisa resultat med enheter → Dra slutsats och diskutera felkällor."}]};
+</script><script>
+function rekt(x,y,w,h,f){ctx.fillStyle=f;ctx.fillRect(x,y,w,h);}
+function cirkel(x,y,r,f){ctx.fillStyle=f;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();}
+function tri(x1,y1,x2,y2,x3,y3,f){ctx.fillStyle=f;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.closePath();ctx.fill();}
+function grad(y0,y1,c0,c1){const g=ctx.createLinearGradient(0,y0,0,y1);g.addColorStop(0,c0);g.addColorStop(1,c1);return g;}
+
+const TEMA={
+  smaland:  {himmel:['#8FD0EA','#DCEFC6'],mark:'#7FA24E',mark2:'#5E7F3A',kant:'#A8C97A',dis:'#A8C99C',stjarnor:false},
+  gotland:  {himmel:['#7FC3E8','#F3E3B8'],mark:'#D8CDA0',mark2:'#B9AC78',kant:'#EFE6C4',dis:'#CFC28E',stjarnor:false},
+  fjall:    {himmel:['#0E1A3C','#2E4F7A'],mark:'#E8EEF8',mark2:'#B9C6DE',kant:'#FFFFFF',dis:'#23365E',stjarnor:true},
+  domstol:  {himmel:['#2A2038','#4A3A58'],mark:'#7A5535',mark2:'#5C3F27',kant:'#A67B4E',dis:'#3A2E4A',stjarnor:false},
+  medier:   {himmel:['#1B2647','#5A4A7A'],mark:'#4E5570',mark2:'#363C52',kant:'#7C8CAA',dis:'#2A3358',stjarnor:true},
+  ideologi: {himmel:['#E9975B','#F3D6A0'],mark:'#9C8A6A',mark2:'#7A6A4E',kant:'#C4B28E',dis:'#D8AE7E',stjarnor:false},
+  riksdag:  {himmel:['#16386B','#5B92E5'],mark:'#8E9BC2',mark2:'#6A7290',kant:'#C7D2E8',dis:'#1F3F72',stjarnor:true},
+  arbete:   {himmel:['#C97F5A','#F0C48E'],mark:'#8A7A6A',mark2:'#6A5C4E',kant:'#B5A48E',dis:'#B08060',stjarnor:false},
+  global:   {himmel:['#0E2A4C','#3C86B8'],mark:'#5A6B8C',mark2:'#3E4A66',kant:'#8FB7E8',dis:'#17395E',stjarnor:true},
+  prov:     {himmel:['#0B1330','#22305C'],mark:'#6E7A5E',mark2:'#525C46',kant:'#9AA88A',dis:'#182246',stjarnor:true}
+};
+
+
+let tick=0;
+const pekskarm=()=>!matchMedia('(hover:hover) and (pointer:fine)').matches;
+function himmel(tema){
+  const t=TEMA[tema];
+  ctx.fillStyle=grad(0,VH,t.himmel[0],t.himmel[1]); ctx.fillRect(0,0,W,VH);
+  if(t.stjarnor){
+    const h=Math.max(120,VH-150);
+    for(let i=0;i<75;i++){
+      const x=(i*97)%W, y=(i*53)%h, r=(i%7===0)?1.4:.9;
+      ctx.globalAlpha=.35+.5*Math.abs(Math.sin(tick/60+i));
+      cirkel(x,y,r,i%9===0?'#F2A83B':'#DCE6FF');
+    }
+    ctx.globalAlpha=1;
+  }
+}
+function ritaBakgrund(tema,cam){
+  const t=TEMA[tema];
+  const p1=-cam*.15, p2=-cam*.35;
+  if(tema==='smaland'){
+    cirkel(W-80+p1*.3,56,26,'rgba(255,250,220,.9)');
+    kullar(p1,188,t.dis,54);
+    for(let i=0;i<9;i++){const x=((i*120+p1)%(W+240))-120; gran(x,196,.9+((i%3)*.16));}
+    for(let i=0;i<3;i++){const x=((i*240+p2)%(W+480))-240; falustuga(x,214,1);}
+    for(let i=0;i<7;i++){const x=((i*140+p2)%(W+280))-140; gran(x+40,214,1.25);}
+  }else if(tema==='gotland'){
+    cirkel(70+p1*.3,52,24,'rgba(255,248,214,.9)');
+    rekt(0,150,W,64,'#3C86B8');
+    ctx.globalAlpha=.4;
+    for(let i=0;i<22;i++){const x=((i*44+tick*.5)%(W+44))-22,y=158+(i%5)*11; rekt(x,y,14,2,'#CFE9F5');}
+    ctx.globalAlpha=1;
+    for(let i=0;i<5;i++){const x=((i*170+p2)%(W+340))-170; rauk(x,214,.85+((i%3)*.18));}
+    for(let i=0;i<2;i++){const x=((i*360+p1)%(W+720))-360; ringmur(x,196);}
+  }else if(tema==='fjall'){
+    norrsken(p1);
+    for(let i=0;i<5;i++){const x=((i*150+p1)%(W+300))-150;
+      tri(x,214,x+156,214,x+78,62,'#263C63'); tri(x+58,118,x+98,118,x+78,62,'#DCE6FF');}
+    for(let i=0;i<4;i++){const x=((i*190+p2)%(W+380))-190;
+      tri(x,214,x+176,214,x+88,104,'#3A5382'); tri(x+66,146,x+110,146,x+88,104,'#F2F6FF');}
+    for(let i=0;i<3;i++){const x=((i*250+p2)%(W+500))-250; lavvu(x,214);}
+    for(let i=0;i<24;i++){const x=(i*67+tick*.25)%W, y=(i*41+tick*.55)%H; cirkel(x,y,1.2,'rgba(255,255,255,.7)');}
+  }else if(tema==='domstol'){
+    rekt(0,-OFF-20,W,214+OFF+20,'#3A2E4A');
+    for(let i=0;i<6;i++){const x=((i*118+p1)%(W+236))-118;
+      rekt(x,44,30,170,'#6B5A44'); rekt(x-5,38,40,10,'#8A7458'); rekt(x-5,206,40,10,'#8A7458');
+      ctx.globalAlpha=.25; rekt(x+6,44,5,162,'#F4EFE2'); ctx.globalAlpha=1;}
+    for(let i=0;i<3;i++){const x=((i*230+p2)%(W+460))-230; vagskal(x+60,108,.9);}
+  }else if(tema==='medier'){
+    for(let i=0;i<7;i++){const x=((i*90+p1)%(W+180))-90, h=slumpfast(i,60,130);
+      rekt(x,214-h,58,h,'#2A3358');
+      for(let r=0;r<Math.floor(h/22);r++)for(let c=0;c<3;c++){
+        const pa=((i*7+r*3+c)%5!==0);
+        if(pa) rekt(x+9+c*15,214-h+10+r*22,9,11,(tick/30+i+r+c)%7<3.5?'#F2C94C':'#8FB7E8');}
+    }
+    for(let i=0;i<4;i++){const x=((i*170+p2)%(W+340))-170;
+      rekt(x,150,110,64,'#3C4668'); rekt(x+8,158,94,34,'#0E1A3C');
+      const txt=['NYHETER','LIVE','KÄLLKRITIK','EXTRA'][i%4];
+      ctx.fillStyle='#7FE0A8';ctx.font='bold 11px monospace';
+      ctx.fillText(txt,x+14+((tick*.6+i*40)%60)-30,182);
+      rekt(x+8,196,94,3,'#5A6B8C');}
+  }else if(tema==='ideologi'){
+    cirkel(W-70+p1*.3,66,30,'rgba(255,226,176,.8)');
+    for(let i=0;i<3;i++){const x=((i*250+p1)%(W+500))-250;
+      rekt(x,120,84,94,'#8A6A58'); tri(x+6,120,x+34,120,x+20,50,'#5A4A5E'); tri(x+50,120,x+78,120,x+64,50,'#5A4A5E');
+      ctx.fillStyle='#C4B28E';ctx.beginPath();ctx.arc(x+42,130,16,Math.PI,0);ctx.fill();}
+    const farger=['#A8324A','#2A5FA8','#7FB069','#F2C94C','#7B4FA8'];
+    for(let i=0;i<9;i++){const x=((i*110+p2)%(W+220))-110;
+      rekt(x,150,4,64,'#6A5C4E');
+      const f=farger[i%farger.length], v=Math.sin(tick/22+i)*3;
+      ctx.fillStyle=f;ctx.beginPath();ctx.moveTo(x+4,152);
+      ctx.quadraticCurveTo(x+24,158+v,x+44,152);ctx.lineTo(x+44,176);
+      ctx.quadraticCurveTo(x+24,182+v,x+4,176);ctx.closePath();ctx.fill();}
+  }else if(tema==='riksdag'){
+    rekt(0,182,W,32,'#1F4E7A');
+    ctx.globalAlpha=.35;
+    for(let i=0;i<18;i++){const x=((i*36+tick*.4)%(W+36))-18; rekt(x,188+(i%4)*7,16,2,'#CFE9F5');}
+    ctx.globalAlpha=1;
+    for(let i=0;i<3;i++){const x=((i*240+p1)%(W+480))-240;
+      rekt(x,116,150,66,'#B9A88A'); rekt(x-6,110,162,8,'#D8C6A4');
+      for(let j=0;j<7;j++)rekt(x+12+j*19,126,11,46,'#6A5C4E');
+      ctx.fillStyle='#8FA0C0';ctx.beginPath();ctx.arc(x+75,116,28,Math.PI,0);ctx.fill();
+      ctx.fillStyle='#C7D2E8';ctx.beginPath();ctx.arc(x+75,116,20,Math.PI,0);ctx.fill();
+      rekt(x+73,80,4,10,'#F2C94C');}
+    for(let i=0;i<12;i++){const a=i*Math.PI/6-Math.PI/2, cx=W-58+p2*.15, cy=54;
+      cirkel(cx+22*Math.cos(a),cy+22*Math.sin(a),2.2,'#FFD617');}
+  }else if(tema==='arbete'){
+    for(let i=0;i<4;i++){const x=((i*190+p1)%(W+380))-190;
+      rekt(x,120,22,94,'#6A5C4E'); rekt(x-3,114,28,8,'#8A7A6A');
+      ctx.globalAlpha=.5;
+      for(let s=0;s<3;s++)cirkel(x+11+Math.sin((tick/30)+s)*9,104-s*22-((tick*.4)%22),8+s*3,'#D8CFC4');
+      ctx.globalAlpha=1;}
+    for(let i=0;i<4;i++){const x=((i*170+p2)%(W+340))-170;
+      rekt(x,158,120,56,'#8A6A58');
+      ctx.fillStyle='#A8867A';ctx.beginPath();
+      for(let s=0;s<4;s++){ctx.moveTo(x+s*30,158);ctx.lineTo(x+s*30+15,140);ctx.lineTo(x+s*30+30,158);}
+      ctx.fill();
+      for(let j=0;j<4;j++)rekt(x+9+j*30,172,15,20,'#F2C94C');}
+  }else if(tema==='global'){
+    rekt(0,166,W,48,'#1F4E7A');
+    for(let i=0;i<3;i++){const x=((i*260+p1)%(W+520))-260; lastfartyg(x,166);}
+    for(let i=0;i<4;i++){const x=((i*180+p2)%(W+360))-180; hamnkran(x,214);}
+    const bf=['#A8324A','#2A5FA8','#7FB069','#F2C94C','#D8763B','#5A6B8C'];
+    for(let i=0;i<14;i++){const x=((i*54+p2*1.3)%(W+54))-27, lager=i%3;
+      for(let l=0;l<=lager;l++) rekt(x,200-l*13,44,12,bf[(i+l)%bf.length]);}
+  }else{
+    cirkel(W-74+p1*.25,58,22,'rgba(244,239,226,.85)');
+    for(let i=0;i<3;i++){const x=((i*240+p1)%(W+480))-240;
+      rekt(x,140,168,74,'#2A3358'); tri(x-8,140,x+176,140,x+84,104,'#A8324A');
+      for(let r=0;r<2;r++)for(let j=0;j<5;j++){
+        const pa=((i*3+r*5+j)%4!==0);
+        rekt(x+14+j*31,152+r*32,20,20,pa?'#F2C94C':'#1B2647');}
+      rekt(x+74,186,22,28,'#6A5C4E');}
+    for(let i=0;i<6;i++){const x=((i*150+p2)%(W+300))-150; gran(x,214,1.1);}
+  }
+}
+function slumpfast(i,a,b){ return a+((Math.sin(i*12.9898)*43758.5453)%1+1)%1*(b-a); }
+function kullar(off,bas,farg,amp){
+  ctx.fillStyle=farg;ctx.beginPath();ctx.moveTo(-20,H);
+  for(let x=-20;x<=W+20;x+=10){
+    const y=bas-amp*.5-Math.sin((x-off)/70)*amp*.32-Math.sin((x-off)/23)*amp*.12;
+    ctx.lineTo(x,y);
+  }
+  ctx.lineTo(W+20,H);ctx.closePath();ctx.fill();
+}
+const dyner=kullar;
+function gran(x,y,s){
+  rekt(x-2*s,y-12*s,4*s,12*s,'#5A3E28');
+  for(let i=0;i<4;i++){
+    const w=(26-i*5)*s, h=18*s, yy=y-12*s-i*13*s;
+    tri(x-w/2,yy,x+w/2,yy,x,yy-h,i%2?'#2F5A3A':'#3A6B45');
+  }
+}
+function falustuga(x,y,s){
+  rekt(x,y-40*s,58*s,40*s,'#8E3B32');
+  tri(x-6*s,y-40*s,x+64*s,y-40*s,x+29*s,y-64*s,'#3A3038');
+  rekt(x+8*s,y-30*s,14*s,14*s,'#F4EFE2'); rekt(x+36*s,y-30*s,14*s,14*s,'#F4EFE2');
+  rekt(x+24*s,y-18*s,12*s,18*s,'#F4EFE2');
+  rekt(x+40*s,y-74*s,7*s,12*s,'#6A5C4E');
+}
+function rauk(x,y,s){
+  ctx.fillStyle='#D8CDA0';ctx.beginPath();
+  ctx.moveTo(x,y); ctx.lineTo(x+4*s,y-30*s); ctx.lineTo(x-4*s,y-46*s);
+  ctx.lineTo(x+10*s,y-62*s); ctx.lineTo(x+26*s,y-54*s); ctx.lineTo(x+20*s,y-34*s);
+  ctx.lineTo(x+28*s,y-8*s); ctx.lineTo(x+22*s,y); ctx.closePath();ctx.fill();
+  ctx.globalAlpha=.25;ctx.fillStyle='#8A7E58';
+  ctx.fillRect(x+14*s,y-52*s,4*s,44*s);ctx.globalAlpha=1;
+}
+function ringmur(x,y){
+  rekt(x,y-34,210,34,'#C4B78C');
+  for(let i=0;i<9;i++)rekt(x+i*24,y-42,14,10,'#C4B78C');
+  rekt(x+96,y-48,26,48,'#B5A87E'); rekt(x+102,y-40,14,18,'#6A5C4E');
+}
+function lavvu(x,y){
+  tri(x,y,x+56,y,x+28,y-46,'#7A5535');
+  ctx.strokeStyle='#4A3322';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(x+22,y-52);ctx.lineTo(x+28,y-46);ctx.moveTo(x+34,y-52);ctx.lineTo(x+28,y-46);ctx.stroke();
+  ctx.globalAlpha=.7;cirkel(x+28,y-56-((tick*.3)%14),5,'#D8CFC4');ctx.globalAlpha=1;
+  cirkel(x+28,y-8,5,'#F2A83B');
+}
+function norrsken(off){
+  for(let b=0;b<3;b++){
+    ctx.globalAlpha=.16+.08*Math.sin(tick/40+b);
+    ctx.fillStyle=b===1?'#7FE0A8':b===2?'#8FB7E8':'#B6F0C8';
+    ctx.beginPath();ctx.moveTo(-20,10+b*14);
+    for(let x=-20;x<=W+20;x+=14) ctx.lineTo(x,26+b*18+Math.sin((x+off*2+tick*.6)/46+b)*14);
+    for(let x=W+20;x>=-20;x-=14) ctx.lineTo(x,64+b*20+Math.sin((x+off*2+tick*.6)/46+b)*14);
+    ctx.closePath();ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+function vagskal(x,y,s){
+  ctx.strokeStyle='#C9A24A';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(x,y-26*s);ctx.lineTo(x,y+26*s);ctx.moveTo(x-24*s,y-26*s);ctx.lineTo(x+24*s,y-26*s);ctx.stroke();
+  ctx.fillStyle='#8FB7E8';
+  ctx.beginPath();ctx.arc(x-24*s,y-26*s+8,12*s,0,Math.PI);ctx.fill();
+  ctx.beginPath();ctx.arc(x+24*s,y-26*s+8,12*s,0,Math.PI);ctx.fill();
+}
+function hamnkran(x,y){
+  rekt(x,y-96,9,96,'#D8763B'); rekt(x-16,y-4,42,6,'#4E5570');
+  rekt(x-26,y-102,86,8,'#D8763B');
+  rekt(x+46,y-94,4,26,'#8E9BC2');
+  rekt(x+40,y-70,16,12,'#F2C94C');
+}
+function lastfartyg(x,y){
+  rekt(x,y-16,150,20,'#243158'); rekt(x+8,y-4,134,8,'#141A2E');
+  const f=['#A8324A','#7FB069','#F2C94C','#2A5FA8'];
+  for(let i=0;i<6;i++)rekt(x+12+i*22,y-28,20,12,f[i%4]);
+  rekt(x+118,y-42,24,26,'#F4EFE2'); rekt(x+124,y-36,12,9,'#8FB7E8');
+}
+
+
+function ritaRulle(x,y,f){
+  const b=Math.sin(tick/14+x)*2;
+  ctx.save(); ctx.translate(x,y+b); ctx.rotate(Math.sin(tick/30+x)*.12);
+  rekt(-9,-12,18,24,'#F4EFE2');
+  ctx.strokeStyle='#2A5FA8';ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.moveTo(-5,-6);ctx.lineTo(3,-6);ctx.moveTo(-5,-1);ctx.lineTo(3,-1);ctx.stroke();
+  ctx.strokeStyle='#E0596F';ctx.lineWidth=2.2;
+  ctx.beginPath();ctx.moveTo(-4,6);ctx.lineTo(-1,9);ctx.lineTo(5,3);ctx.stroke();
+  ctx.restore();
+}
+function ritaPort(p){
+  const x=p.x,y=p.y;
+  if(p.oppen){
+    ctx.globalAlpha=.42;
+    rekt(x-22,y-72,7,72,'#7FB069'); rekt(x+15,y-72,7,72,'#7FB069');
+    ctx.globalAlpha=1;
+    ctx.fillStyle='#7FB069';ctx.beginPath();ctx.arc(x,y-72,22,Math.PI,0);ctx.fill();
+    ctx.fillStyle='#1A2547';ctx.beginPath();ctx.arc(x,y-72,15,Math.PI,0);ctx.fill();
+    rekt(x-15,y-72,30,72,'rgba(26,37,71,.55)');
+    return;
+  }
+  p.glod=(p.glod+.05)%(Math.PI*2);
+  const gl=.55+.45*Math.sin(p.glod);
+  ctx.globalAlpha=.25*gl; cirkel(x,y-46,40,'#F2A83B'); ctx.globalAlpha=1;
+  rekt(x-24,y-78,10,78,'#B98A46'); rekt(x+14,y-78,10,78,'#B98A46');
+  ctx.fillStyle='#B98A46';ctx.beginPath();ctx.arc(x,y-78,24,Math.PI,0);ctx.fill();
+  ctx.fillStyle='#5B3E1E';ctx.beginPath();ctx.arc(x,y-78,15,Math.PI,0);ctx.fill();
+  rekt(x-15,y-78,30,78,'#5B3E1E');
+  ctx.fillStyle='#F2A83B';ctx.font='bold 20px "Frank Ruhl Libre",serif';ctx.textAlign='center';
+  ctx.fillText('?',x,y-32);
+  ctx.textAlign='left';
+}
+function ritaMal(x,y){
+  const b=Math.sin(tick/22)*1.5;
+  rekt(x-2,y-72,4,72,'#C9BBA6');
+  ctx.globalAlpha=.22; cirkel(x+22,y-56,34,'#F2A83B'); ctx.globalAlpha=1;
+  // svensk flagga som vajar
+  for(let c=0;c<11;c++){
+    const fx=x+3+c*5.6, v=Math.sin(tick/9+c*.55)*3.2*(c/11+.25);
+    for(let r=0;r<7;r++){
+      const gul=(r===3)||(c>=2&&c<=3);
+      rekt(fx,y-70+r*5.4+v,6,5.6,gul?'#F5C518':'#2A5FA8');
+    }
+  }
+  cirkel(x,y-74,3.2,'#C9BBA6');
+}
+function lem(hx,hy,fx,fy,l1,l2,farg,bredd,riktning){
+  let dx=fx-hx, dy=fy-hy, d=Math.hypot(dx,dy);
+  if(d<.001){dx=0;dy=.001;d=.001;}
+  const ux=dx/d, uy=dy/d;
+  const dd=Math.min(d,l1+l2-.01);
+  const aa=(l1*l1-l2*l2+dd*dd)/(2*dd);
+  const hh=Math.sqrt(Math.max(0,l1*l1-aa*aa))*riktning;
+  const kx=hx+ux*aa+uy*hh, ky=hy+uy*aa-ux*hh;
+  ctx.strokeStyle=farg; ctx.lineWidth=bredd; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(kx,ky); ctx.lineTo(fx,fy); ctx.stroke();
+  return [kx,ky];
+}
+function ritaNpcFigur(n){
+  const x=n.x, y=n.y, f=FIGUR[n.u.bild]||FIGUR.larare, b=Math.sin(tick/30)*1.1;
+  ctx.globalAlpha=.22;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y-1,11,3.4,0,0,7);ctx.fill();ctx.globalAlpha=1;
+  ctx.fillStyle=f.mantel;
+  ctx.beginPath(); ctx.moveTo(x-7.5,y); ctx.lineTo(x-5.4,y-19+b); ctx.lineTo(x+5.4,y-19+b);
+  ctx.lineTo(x+7.5,y); ctx.closePath(); ctx.fill();
+  if(f.krage){ctx.fillStyle=f.krage;ctx.fillRect(x-5.4,y-19+b,10.8,2.4);}
+  cirkel(x-6.6,y-13+b,2.2,f.hud); cirkel(x+6.6,y-13+b,2.2,f.hud);
+  cirkel(x,y-24.4+b,5.2,f.hud);
+  if(f.skagg){ctx.fillStyle=f.har;ctx.beginPath();
+    ctx.ellipse(x,y-19.6+b,4.2,f.skagg==='lang'?5.6:3.6,0,0,7);ctx.fill();}
+  if(f.har!=='ingen'){ctx.fillStyle=f.har;
+    ctx.beginPath();ctx.arc(x,y-24.8+b,5.3,Math.PI*1.04,Math.PI*2.06);ctx.fill();
+    if(f.lugg)ctx.fillRect(x-5,y-27+b,10,2.6);}
+  ctx.fillStyle='#2A2030'; ctx.fillRect(x+1.4,y-25+b,1.1,1.4); ctx.fillRect(x-2.4,y-25+b,1.1,1.4);
+  if(f.hatt==='keps'){ctx.fillStyle=f.hattfarg||'#2A5FA8';
+    ctx.beginPath();ctx.ellipse(x,y-28.8+b,5.2,3.4,0,Math.PI,0);ctx.fill();
+    rekt(x+2,y-29.4+b,7,2,f.hattfarg||'#2A5FA8');}
+  else if(f.hatt==='hjalm'){ctx.fillStyle='#F2A83B';
+    ctx.beginPath();ctx.ellipse(x,y-28.8+b,5.4,3.8,0,Math.PI,0);ctx.fill();
+    rekt(x-6.4,y-29.2+b,12.8,1.8,'#D68F22');}
+  else if(f.hatt==='mossa'){ctx.fillStyle=f.hattfarg||'#A8324A';
+    ctx.beginPath();ctx.ellipse(x,y-28.4+b,5.3,3.6,0,Math.PI,0);ctx.fill();
+    rekt(x-5.6,y-29.2+b,11.2,2,f.hattfarg2||'#F4EFE2');
+    cirkel(x,y-33.6+b,1.8,f.hattfarg2||'#F4EFE2');}
+  else if(f.hatt==='samemossa'){ctx.fillStyle='#2A5FA8';
+    ctx.beginPath();ctx.ellipse(x,y-28.6+b,5.2,4.4,0,Math.PI,0);ctx.fill();
+    rekt(x-5.6,y-29.2+b,11.2,2,'#E0596F'); cirkel(x,y-34+b,2,'#F2C94C');}
+  else if(f.hatt==='lurar'){ctx.strokeStyle='#243158';ctx.lineWidth=1.8;
+    ctx.beginPath();ctx.arc(x,y-25+b,6.2,Math.PI,0);ctx.stroke();
+    rekt(x-7.6,y-25.6+b,2.6,4.4,'#243158'); rekt(x+5,y-25.6+b,2.6,4.4,'#243158');}
+  else if(f.hatt==='sjal'){ctx.fillStyle=f.hattfarg||'#C9A46A';
+    ctx.beginPath();ctx.arc(x,y-24.6+b,6.1,Math.PI*1.02,Math.PI*2.08);ctx.fill();
+    ctx.fillRect(x-6.1,y-24.6+b,2.6,7);}
+  if(f.glasogon){ctx.strokeStyle='#2A2030';ctx.lineWidth=.8;
+    ctx.beginPath();ctx.arc(x-1.9,y-24.4+b,1.6,0,7);ctx.arc(x+2,y-24.4+b,1.6,0,7);ctx.stroke();}
+  const by=y-42+Math.sin(tick/16)*1.8;
+  cirkel(x,by,7.6,'#F6EDDA'); tri(x-3.4,by+5,x+3.4,by+5,x+.5,by+11.5,'#F6EDDA');
+  ctx.fillStyle='#1A2547';ctx.font='bold 13px "Frank Ruhl Libre",serif';ctx.textAlign='center';
+  ctx.fillText('!',x,by+4.6);ctx.textAlign='left';
+}
+function ritaHav(h){
+  const x0=h.c0*TILE, br=(h.c1-h.c0)*TILE, yb=ROWS*TILE, yt=(GR-2)*TILE;
+  const vag=(x,y,w,hh,fas)=>{
+    ctx.fillStyle='#2F6E93'; ctx.beginPath(); ctx.moveTo(x,y+hh);
+    for(let i=0;i<=w;i+=8) ctx.lineTo(x+i,y+Math.sin((i+fas)/14)*3);
+    ctx.lineTo(x+w,y+hh); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha=.35; ctx.fillStyle='#8FD0EA';
+    ctx.beginPath(); ctx.moveTo(x,y+4);
+    for(let i=0;i<=w;i+=8) ctx.lineTo(x+i,y+Math.sin((i+fas)/14)*3);
+    ctx.lineTo(x+w,y+6); ctx.lineTo(x,y+6); ctx.closePath(); ctx.fill(); ctx.globalAlpha=1;
+  };
+  if(!h.oppet){ vag(x0,yt,br,yb-yt,tick*1.4); return; }
+  h.anim=Math.min(60,(h.anim||0)+1);
+  const t=h.anim/60, hoj=(yb-yt)+70*t;
+  vag(x0-TILE*1.2,GR*TILE-hoj*t-4,TILE*1.4,hoj,tick*1.4);
+  vag(x0+br-TILE*.2,GR*TILE-hoj*t-4,TILE*1.4,hoj,tick*1.4+40);
+  ctx.globalAlpha=.16*t; rekt(x0,GR*TILE-46,br,46,'#8FD0EA'); ctx.globalAlpha=1;
+}
+function ritaSpelare(p){
+  const x=p.x+p.w/2, y=p.y+p.h, v=p.riktning||1;
+  const vx=p.vx||0, vy=p.vy||0, fart=Math.min(Math.abs(vx),3.6);
+  const paMark=p.paMark!==false;
+  const fas=p.steg||0;
+  const sq=clamp(p.squash||0,-1,1);
+  const gar=paMark&&fart>.3;
+  const HOFT=-9, AXEL=-17.4, HUVUD=-23.0, HR=4.5;
+  const HUD='#EBC7A2', HAR='#2B2136', MANTEL='#4E7BE8', MANTEL2='#3A62C4',
+        BEN='#38304A', BEN2='#241E30', SKO='#7A5A38', SJAL='#F2A83B';
+
+  ctx.save();
+  ctx.translate(Math.round(x),Math.round(y));
+  ctx.scale(v*(1+sq*.18), 1-sq*.24);
+  ctx.rotate(clamp(fart*.03,0,.12));
+
+  let fx1,fy1,fx2,fy2,hx1,hy1,hx2,hy2,and=0;
+  if(!paMark){
+    const upp=vy<-1;
+    fx1= upp?3.8:5.0;  fy1= upp?-3.6:-1.4;
+    fx2= upp?-3.2:-4.4; fy2= upp?-1.0:-.2;
+    hx1= upp?3.0:4.6;  hy1= upp?-18.6:-13.4;
+    hx2= upp?-3.2:-4.2; hy2= upp?-19.4:-12.4;
+  }else if(gar){
+    const s1=Math.sin(fas), s2=Math.sin(fas+Math.PI);
+    const c1=Math.cos(fas), c2=Math.cos(fas+Math.PI);
+    const amp=2.6+fart*.62, lyft=1.2+fart*.85;
+    fx1=c1*amp; fy1=-Math.max(0,s1)*lyft;
+    fx2=c2*amp; fy2=-Math.max(0,s2)*lyft;
+    hx1=c2*amp*.95; hy1=-8.4+Math.max(0,s2)*.9;
+    hx2=c1*amp*.95; hy2=-8.4+Math.max(0,s1)*.9;
+    and=Math.abs(Math.sin(fas))*.6;
+  }else{
+    const b=Math.sin(tick/36)*.45;
+    fx1=2.0; fy1=0; fx2=-2.2; fy2=0;
+    hx1=3.4; hy1=-8.6+b; hx2=-3.6; hy2=-8.6+b;
+    and=b;
+  }
+  const sko=(fx,fy)=>{ctx.fillStyle=SKO;ctx.fillRect(fx-2.1,fy-1.4,4.4,2.2);};
+  const hand=(hx,hy)=>cirkel(hx,hy,1.5,HUD);
+
+  // ---- sjal som fladdrar bakom ----
+  const svans=2.2+fart*1.15, sv=gar?Math.sin(fas)*1.1:Math.sin(tick/30)*.55;
+  ctx.fillStyle=SJAL;
+  ctx.beginPath();
+  ctx.moveTo(-3.4,AXEL+1.2+and);
+  ctx.quadraticCurveTo(-5.2-svans*.5,AXEL+1.0-svans*.3, -4.0-svans,AXEL+3.4-svans*.45+sv);
+  ctx.lineTo(-3.4-svans*.9,AXEL+4.7-svans*.35+sv);
+  ctx.quadraticCurveTo(-4.0-svans*.3,AXEL+3.4, -2.4,AXEL+3.2+and);
+  ctx.closePath(); ctx.fill();
+
+  // ---- bakre ben och arm ----
+  lem(-.8,HOFT+and*.3, fx2,fy2, 4.9,4.9,BEN2,3.8,1); sko(fx2,fy2);
+  lem(-1.4,AXEL+.6+and, hx2,hy2, 3.9,3.9,MANTEL2,3.0,-1); hand(hx2,hy2);
+
+  // ---- mantel ----
+  const hem=gar?Math.sin(fas)*1.3:0;
+  ctx.fillStyle=MANTEL;
+  ctx.beginPath();
+  ctx.moveTo(-5.2,AXEL+and); ctx.lineTo(5.2,AXEL+and);
+  ctx.quadraticCurveTo(6.4,HOFT-2.5, 5.9+hem,HOFT+1.6);
+  ctx.lineTo(-5.9+hem,HOFT+1.6);
+  ctx.quadraticCurveTo(-6.4,HOFT-2.5, -5.2,AXEL+and);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle=MANTEL2;
+  ctx.beginPath();
+  ctx.moveTo(-5.2,AXEL+and); ctx.lineTo(-2.4,AXEL+and);
+  ctx.lineTo(-3.0+hem,HOFT+1.6); ctx.lineTo(-5.9+hem,HOFT+1.6);
+  ctx.quadraticCurveTo(-6.4,HOFT-2.5,-5.2,AXEL+and);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle='rgba(0,0,0,.16)'; ctx.fillRect(-5.6+hem*.7,HOFT+.4,11.4,1.4);
+
+  // ---- väska ----
+  ctx.strokeStyle='#8A6A44'; ctx.lineWidth=1.3;
+  ctx.beginPath(); ctx.moveTo(1.8,AXEL+1+and); ctx.lineTo(-4.2,HOFT-2.6); ctx.stroke();
+  ctx.fillStyle='#B98A46'; ctx.fillRect(-6.6,HOFT-3.6,4.2,3.6);
+  ctx.fillStyle='#8A6A44'; ctx.fillRect(-6.6,HOFT-3.6,4.2,1.1);
+
+  // ---- huvud ----
+  const hy=HUVUD+and*.8, ph=gar?Math.sin(fas+1)*.9:0;
+  ctx.fillStyle=HAR;
+  ctx.beginPath(); ctx.ellipse(-4.6,hy+1.4+ph*.4,2.5,3.3,-.35-fart*.06+ph*.06,0,7); ctx.fill();
+  cirkel(.4,hy,HR,HUD);
+  ctx.fillStyle=HAR;
+  ctx.beginPath(); ctx.arc(.4,hy,HR+.15,Math.PI*1.03,Math.PI*2.06); ctx.fill();
+  ctx.fillRect(-4.2,hy-1.6,4.6,2.3);
+  ctx.fillStyle='#2A2030'; ctx.fillRect(2.2,hy-.4,1.1,1.4);
+  ctx.fillStyle='rgba(200,120,110,.5)'; ctx.fillRect(-1.6,hy+1.4,1.8,1.1);
+  ctx.strokeStyle='#8A5F52'; ctx.lineWidth=.7;
+  ctx.beginPath(); ctx.moveTo(2.0,hy+2.2); ctx.lineTo(3.4,hy+2.2); ctx.stroke();
+
+  // ---- främre ben och arm ----
+  lem(.8,HOFT+and*.3, fx1,fy1, 4.9,4.9,BEN,4.0,1); sko(fx1,fy1);
+  lem(1.4,AXEL+.6+and, hx1,hy1, 3.9,3.9,MANTEL,3.2,-1); hand(hx1,hy1);
+  ctx.restore();
+}
+</script>
+
+<script>
+
+let lage='karta', spel=null, pausad=false;
+const HJARTA='<svg viewBox="0 0 24 24"><path d="M12 21s-8-5.1-8-10.3A4.7 4.7 0 0 1 12 7a4.7 4.7 0 0 1 8 3.7C20 15.9 12 21 12 21z" fill="currentColor"/></svg>';
+const RULLE='<svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" fill="#F6EDDA"/><path d="M8 8h8M8 12h8" stroke="#33488A" stroke-width="1.6" stroke-linecap="round"/><path d="M8.5 16.5l2 2 4.5-4.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const LJUSIK='<svg viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.4l6.5-.9z" fill="currentColor"/></svg>';
+
+function uppdateraHud(){
+  const hn=document.getElementById('hudnamn'), hs=document.getElementById('hudsmall');
+  const hj=document.getElementById('hjartan'), ru=document.getElementById('rullor');
+  if(lage==='bana'&&spel){
+    hs.textContent='Bana '+spel.v.id+' · '+spel.v.kap; hn.textContent=spel.v.namn;
+    hj.innerHTML=Array.from({length:spel.maxHjartan},(_,i)=>
+      HJARTA.replace('<svg','<svg class="'+(i<spel.hjartan?'':'bort')+'"')).join('');
+    ru.innerHTML=RULLE+'<span>'+spel.rullor+'/'+spel.bana.rullor.length+'</span>';
+  }else{
+    hs.textContent='Kartan'; hn.textContent='Biologiresan';
+    hj.innerHTML=''; ru.innerHTML=LJUSIK+'<span>'+totLjus()+'/30</span>';
+  }
+}
+
+
+function visa(html){ overlagg.innerHTML='<div class="panel">'+html+'</div>'; overlagg.classList.remove('dold'); pausad=true; }
+function dolj(){ overlagg.classList.add('dold'); overlagg.innerHTML=''; pausad=false; tyst(); }
+
+function visaFraga(port){
+  const [f,alt,facit]=port.fraga;
+  const ordn=blanda(alt.map((_,i)=>i)), bok='ABCD';
+  visa(`<p class="etikett">Stängd port</p>
+    <h2 class="fraga">${esc(f)}</h2>
+    <div class="alt" id="alt">${ordn.map((idx,n)=>
+      `<button class="altknapp" data-i="${idx}"><span class="bok">${bok[n]}</span><span>${esc(alt[idx])}</span></button>`).join('')}</div>
+    <div id="efter"></div>`);
+  las(f+'. '+ordn.map((i,n)=>`${n+1}. ${alt[i]}`).join('. '));
+  overlagg.querySelectorAll('#alt .altknapp').forEach(b=>b.onclick=()=>{
+    const ratt=+b.dataset.i===0;
+    overlagg.querySelectorAll('#alt .altknapp').forEach(x=>{
+      x.disabled=true;
+      if(+x.dataset.i===0)x.classList.add('ratt');
+      else if(x===b)x.classList.add('fel'); else x.classList.add('blek');
+    });
+    if(ratt){ ljudRatt(); port.oppen=true; spel.oppnade++;
+      spel.checkpoint={x:port.x+40,y:port.y-40};
+      document.getElementById('efter').innerHTML=
+        `<div class="facit bra"><b>${valj(['Snyggt!','Precis!','Helt rätt!','Där satt den!'])}</b><p>${esc(facit)}</p></div>
+         <div class="rad"><button class="knapp primar" id="vidare">Porten öppnas →</button></div>`;
+      las('Rätt! '+facit);
+    }else{ ljudFel(); spel.fel++; skada(true);
+      document.getElementById('efter').innerHTML=
+        `<div class="facit daligt"><b>Nästan!</b><p>Rätt svar: <strong>${esc(alt[0])}</strong>. ${esc(facit)}</p></div>
+         <div class="rad"><button class="knapp primar" id="vidare">${spel.hjartan>0?'Försök med en ny fråga':'Se resultat'}</button></div>`;
+      las('Fel. Rätt svar: '+alt[0]+'. '+facit);
+      if(spel.hjartan>0){ port.fraga=nyFraga(port); }
+    }
+    document.getElementById('vidare').onclick=()=>{
+      if(spel.hjartan<=0){ dolj(); visaResultat(false); return; }
+      dolj();
+      if(port.oppen){ ljudPort(); }
+      else { spel.p.x=port.x-46; spel.p.vx=0; }
+      uppdateraHud();
+    };
+    document.getElementById('vidare').focus({preventScroll:true});
+    uppdateraHud();
+  });
+}
+function nyFraga(port){
+  const pool=spel.v.boss?bossFragor():spel.v.fragor;
+  const anv=spel.bana.portar.map(p=>p.fraga&&p.fraga[0]);
+  const kvar=pool.filter(f=>!anv.includes(f[0]));
+  return kvar.length?valj(kvar):valj(pool);
+}
+
+function visaResultat(klarad){
+  const antalRullor=spel.bana.rullor.length;
+  const ljus = !klarad ? 0
+    : (spel.fel===0 && spel.rullor===antalRullor) ? 3
+    : (spel.fel<=1) ? 2 : 1;
+  if(ljus>0){
+    spar.ljus[spel.v.id]=Math.max(spar.ljus[spel.v.id]||0,ljus);
+    spar.rullor+=spel.rullor; spara();
+  }
+  const nasta=VARLDAR.find(v=>v.id===spel.v.id+1);
+  visa(`<h2>${klarad?(ljus===3?'Perfekt!':'Bana klar!'):'Slut på liv'}</h2>
+    <div class="ljusrad">${[0,1,2].map(i=>`<span data-i="${i}">${LJUSIK}</span>`).join('')}</div>
+    <p class="mitt">${klarad
+      ? (ljus===3?'Alla fältanteckningar och inte ett enda fel svar. Du kan det här.'
+        :'Ta alla fältanteckningar och svara rätt på alla portar, så får du alla tre stjärnorna.')
+      : 'Ingen fara. Portarna får nya frågor om du kör igen – läs plugglistan först.'}</p>
+    <div class="siffror">
+      <div><b>${spel.oppnade}/${spel.bana.portar.length}</b><span>Portar</span></div>
+      <div><b>${spel.uppdragKlara}/${spel.bana.npcar.length}</b><span>Möten</span></div>
+      <div><b>${spel.rullor}/${antalRullor}</b><span>Fältanteckningar</span></div>
+      <div><b>${spel.fel}</b><span>Fel svar</span></div>
+    </div>
+    ${klarad&&nasta&&uppLast(nasta.id)?
+      `<p class="mitt" style="color:var(--flame);font-weight:700;margin-top:6px">Nästa mål: ${esc(nasta.namn)} – vandra dit på kartan.</p>`:''}
+    <div class="rad">
+      <button class="knapp" id="omigen">Spela banan igen</button>
+      <button class="knapp primar" id="tillKarta">Ut på kartan</button>
+    </div>`);
+  overlagg.querySelectorAll('.ljusrad span').forEach((el,i)=>{
+    if(i<ljus) setTimeout(()=>{el.classList.add('tand');pip(660+i*160,.2,'sine',.05);},280+i*300);
+  });
+  document.getElementById('omigen').onclick=()=>{dolj();startaBana(spel.v.id);};
+  document.getElementById('tillKarta').onclick=()=>{dolj();tillKarta();};
+  las(klarad?`Bana klar! Du fick ${ljus} stjärnor.`:'Slut på liv. Testa igen!');
+}
+
+function visaMeny(){
+  visa(`<h2>Paus</h2>
+    <div class="rad">
+      <button class="knapp primar" id="fortsatt">Fortsätt spela</button>
+      <button class="knapp" id="omraden">🎯 Träna ett område</button>
+      <button class="knapp" id="plugg">📖 Plugglista</button>
+      <button class="knapp" id="reson">💬 Resonemangshjälp</button>
+      <button class="knapp" id="lugnt">${spar.lugn?"Lugnt läge på":"Lugnt läge av"}</button>
+      <button class="knapp" id="rostval">🎙 Röst</button>
+      ${lage==='bana'?'<button class="knapp" id="avbryt">Lämna banan</button>':''}
+      <button class="knapp" id="effekt">${spar.ljudEff?'🔈 Ljudeffekter på':'🔇 Ljudeffekter av'}</button>
+      <button class="knapp" id="nolla">Nollställ framsteg</button>
+    </div>`);
+  document.getElementById('fortsatt').onclick=dolj;
+  document.getElementById('omraden').onclick=()=>{visaOmraden();
+    document.getElementById('stang').onclick=visaMeny;};
+  document.getElementById('plugg').onclick=()=>{visaPlugg();
+    document.getElementById('stang').onclick=visaMeny;};
+  document.getElementById('reson').onclick=()=>{visaResonemang();
+    document.getElementById('stang').onclick=visaMeny;};
+  document.getElementById('lugnt').onclick=()=>{spar.lugn=!spar.lugn;spara();visaMeny();};
+  document.getElementById('rostval').onclick=visaRoster;
+  document.getElementById('effekt').onclick=()=>{spar.ljudEff=!spar.ljudEff;spara();visaMeny();};
+  const a=document.getElementById('avbryt'); if(a)a.onclick=()=>{dolj();tillKarta();};
+  document.getElementById('nolla').onclick=()=>{
+    visa(`<h2>Nollställa allt?</h2><p class="mitt">Alla stjärnor och upplåsta banor försvinner.</p>
+      <div class="rad"><button class="knapp" id="ja">Ja, nollställ</button><button class="knapp primar" id="nej">Nej, tillbaka</button></div>`);
+    document.getElementById('ja').onclick=()=>{spar.ljus={};spar.rullor=0;spara();dolj();tillKarta();};
+    document.getElementById('nej').onclick=visaMeny;
+  };
+}
+function visaRoster(){
+  const l=rosterLista();
+  visa(`<h2>Röst för uppläsningen</h2>
+    ${l.length?`<p class="mitt">Tryck på en röst för att höra den.</p>
+    <div class="alt" id="roster">${l.map((v,i)=>
+      `<button class="altknapp${rost&&rost.name===v.name?' ratt':''}" data-n="${esc(v.name)}">
+         <span class="bok">${i+1}</span><span>${esc(v.name)}<br><span style="font-size:.8rem;opacity:.65">${esc(v.lang||'')}${v.localService===false?' · nätröst':''}</span></span></button>`).join('')}</div>`
+    :'<p class="mitt">Ingen talsyntes hittades i den här webbläsaren.</p>'}
+    <div class="facit bra" style="border-color:var(--line);background:rgba(255,255,255,.04);margin-top:16px">
+      <b style="color:var(--flame)">Låter rösten robotig?</b>
+      <p><strong>iPad/iPhone:</strong> Inställningar → Hjälpmedel → Uppläst innehåll → Röster → Svenska → ladda ner Alva (Premium).<br>
+      <strong>Mac:</strong> Systeminställningar → Hjälpmedel → Uppläst innehåll → Systemröst → Hantera röster → Svenska → hämta Premium/Förbättrad.<br>
+      Kom sedan tillbaka hit och välj den i listan.</p>
+    </div>
+    <div class="rad"><button class="knapp primar" id="tillbakaMeny">Klar</button></div>`);
+  overlagg.querySelectorAll('#roster .altknapp').forEach(b=>b.onclick=()=>{
+    spar.rostNamn=b.dataset.n; spara(); valjRost();
+    overlagg.querySelectorAll('#roster .altknapp').forEach(x=>x.classList.remove('ratt'));
+    b.classList.add('ratt');
+    spar.tal=true; visaLjud();
+    las('Hej! En näringsväv visar hur organismer hänger ihop.');
+  });
+  document.getElementById('tillbakaMeny').onclick=visaMeny;
+}
+function visaOmraden(){
+  let html='', sistDel='';
+  for(const v of VARLDAR){
+    if(v.del!==sistDel){ html+=`<h3>${esc(v.del)}</h3>`; sistDel=v.del; }
+    const st=spar.ljus[v.id]||0;
+    html+=`<button class="omrade" data-id="${v.id}">
+      <span class="nr">${v.id}</span>
+      <span class="txt"><b>${esc(v.namn)} – ${esc(v.under)}</b><small>${esc(v.kap)}</small></span>
+      <span class="stj">${[0,1,2].map(i=>`<i class="${i<st?'pa':''}">★</i>`).join('')}</span>
+    </button>`;
+  }
+  visa(`<h2>Träna ett område</h2>
+    <p class="mitt">Här kan du hoppa direkt till vilket område du vill – till exempel
+      det ni har prov på. Du kan börja med ekologi eller hjärnan och sinnena. Alla områden går att välja direkt.</p>
+    <div class="dkropp omradeslista">${html}</div>
+    <div class="rad"><button class="knapp primar" id="stang">Stäng</button></div>`);
+  overlagg.querySelectorAll('.omrade').forEach(b=>b.onclick=()=>{
+    dolj(); startaBana(+b.dataset.id);
+  });
+  document.getElementById('stang').onclick=dolj;
+}
+function visaResonemang(){
+  visa(`<h2>Resonemangshjälp</h2>
+    <p class="mitt">Förklara först med egna ord, gärna högt. Jämför sedan med exemplet. Spelet sätter inget betyg; praktiska undersökningar behöver också göras utanför spelet.</p>
+    <div class="dkropp">${RESONEMANG.map(([r,rader])=>
+      `<h3>${esc(r)}</h3>${rader.map(([o,f])=>`<p>${esc(o)}</p><details><summary>Visa ett exempel</summary><p>${esc(f)}</p></details>`).join('')}`).join('')}</div>
+    <div class="rad"><button class="knapp primar" id="stang">Stäng</button><button class="knapp" id="lastext">🔊 Läs texten</button></div>`);
+  document.getElementById('stang').onclick=dolj;
+  document.getElementById('lastext').onclick=()=>{spar.tal=true;visaLjud();las(overlagg.querySelector('.dkropp').innerText);};
+}
+function visaPlugg(){
+  visa(`<h2>Plugglista</h2>
+    <div class="dkropp">${PLUGG.map(([r,rader])=>
+      `<h3>${esc(r)}</h3><dl>${rader.map(([o,f])=>`<dt>${esc(o)}</dt><dd>${esc(f)}</dd>`).join('')}</dl>`).join('')}</div>
+    <div class="rad"><button class="knapp primar" id="stang">Stäng</button><button class="knapp" id="lastext">🔊 Läs texten</button></div>`);
+  document.getElementById('stang').onclick=dolj;
+  document.getElementById('lastext').onclick=()=>{spar.tal=true;visaLjud();las(overlagg.querySelector('.dkropp').innerText);};
+}
+</script>
+
+<script>
+
+const GRAV=.66, HOPPV=-10.9, MAXFART=3.5;
+const ACC_MARK=.145, ACC_LUFT=.095, VAND=2.4, BROMS_MARK=.26, BROMS_LUFT=.035;
+
+function startaBana(id){
+  const v=VARLDAR.find(x=>x.id===id);
+  const bana=byggBana(v);
+  spel={v,bana,
+    p:{x:2*TILE,y:(GR-2)*TILE,vx:0,vy:0,w:15,h:26,paMark:false,coyote:0,buffert:0,riktning:1,blink:0,hoppTid:0,steg:0,squash:0},
+    cam:0, hjartan:v.boss?5:4, maxHjartan:v.boss?5:4, rullor:0, fel:0, oppnade:0, uppdragKlara:0,
+    checkpoint:{x:2*TILE,y:(GR-2)*TILE}, trygg:{x:2*TILE,y:(GR-2)*TILE}, klar:false, partiklar:[]};
+  lage='bana'; dolj(); uppdateraHud();
+  const sc=SCENER[v.id];
+  if(sc&&sc.in) visaScen(sc.in);
+  else las(`Bana ${v.id}. ${v.namn}. ${v.under}.`);
+}
+function tillKarta(){
+  lage='karta'; dolj(); uppdateraHud();
+  if(spel){ const pl=PLATSER.find(q=>q.id===spel.v.id);
+    if(pl){ karta.x=pl.x; karta.y=pl.y+26; } }
+}
+
+function fastRuta(c,r){
+  const b=spel.bana;
+  if(c<0)return true;
+  if(c>=b.cols)return true;
+  if(r<0||r>=ROWS)return false;
+  return b.g[r][c]==='#';
+}
+function skada(utanRespawn){
+  if(spel.hjartan<=0)return;
+  if(!spar.lugn) spel.hjartan--; ljudAj(); spel.p.blink=40;
+  if(!utanRespawn){
+    const t=spel.trygg.x>spel.checkpoint.x?spel.trygg:spel.checkpoint;
+    spel.p.x=t.x; spel.p.y=t.y; spel.p.vx=0; spel.p.vy=0;
+  }
+  uppdateraHud();
+  if(spel.hjartan<=0 && !utanRespawn) setTimeout(()=>visaResultat(false),400);
+}
+
+function stegBana(){
+  const p=spel.p, b=spel.bana;
+  // styrning – mjuk acceleration, snabb vändning, tydlig inbromsning
+  const acc=p.paMark?ACC_MARK:ACC_LUFT, broms=p.paMark?BROMS_MARK:BROMS_LUFT;
+  const in_=(tang.hoger?1:0)-(tang.vanster?1:0);
+  if(in_){
+    const vander=(in_>0&&p.vx<0)||(in_<0&&p.vx>0);
+    p.vx+=in_*acc*(vander?VAND:1);
+    p.riktning=in_;
+  }else{
+    if(p.vx>broms)p.vx-=broms; else if(p.vx<-broms)p.vx+=broms; else p.vx=0;
+  }
+  p.vx=clamp(p.vx,-MAXFART,MAXFART);
+  p.steg=(p.steg||0)+(p.paMark?Math.abs(p.vx)*.21:0);
+  if(p.squash>0)p.squash=Math.max(0,p.squash-.075);
+  if(p.squash<0)p.squash=Math.min(0,p.squash+.06);
+
+  if(hoppTryck){p.buffert=9;hoppTryck=false;}
+  if(p.buffert>0)p.buffert--;
+  if(p.paMark)p.coyote=8; else if(p.coyote>0)p.coyote--;
+  if(p.buffert>0&&p.coyote>0){
+    p.vy=HOPPV-Math.abs(p.vx)*.13;      // fart ger extra höjd
+    p.paMark=false;p.coyote=0;p.buffert=0;p.hoppTid=8;p.squash=-.5;ljudHopp();
+    for(let i=0;i<5;i++)spel.partiklar.push({x:p.x+p.w/2+slump(-5,5),y:p.y+p.h,
+      vx:slump(-.7,.7)-p.vx*.25,vy:slump(-.5,.3),liv:16,r:1.6,f:'#FFFFFF'});
+  }
+  if(p.hoppTid>0)p.hoppTid--;
+  if(!tang.hopp&&p.hoppTid<=0&&p.vy<-4.5)p.vy=-4.5;
+  const lang=Math.abs(p.vy)<2.2;                       // svävar lite i toppen
+  const g=p.vy<0?(lang?GRAV*.74:GRAV):(lang?GRAV*.86:GRAV*1.12);
+  p.vy=Math.min(p.vy+g,12);
+  const forreVy=p.vy;
+
+  // x
+  p.x+=p.vx;
+  let r0=Math.floor(p.y/TILE), r1=Math.floor((p.y+p.h-1)/TILE);
+  if(p.vx>0){const c=Math.floor((p.x+p.w-1)/TILE);
+    for(let r=r0;r<=r1;r++) if(fastRuta(c,r)){p.x=c*TILE-p.w;p.vx=0;break;}}
+  else if(p.vx<0){const c=Math.floor(p.x/TILE);
+    for(let r=r0;r<=r1;r++) if(fastRuta(c,r)){p.x=(c+1)*TILE;p.vx=0;break;}}
+
+  // y
+  const forreBotten=p.y+p.h;
+  p.y+=p.vy; p.paMark=false;
+  let c0=Math.floor(p.x/TILE), c1=Math.floor((p.x+p.w-1)/TILE);
+  if(p.vy>0){const r=Math.floor((p.y+p.h)/TILE);
+    for(let c=c0;c<=c1;c++) if(fastRuta(c,r)){
+      p.y=r*TILE-p.h;
+      if(forreVy>5.5&&!p.paMark){ p.squash=Math.min(1,forreVy/13); pip(150,.06,'sine',.035);
+        for(let i=0;i<6;i++)spel.partiklar.push({x:p.x+p.w/2+slump(-7,7),y:p.y+p.h,
+          vx:slump(-1.3,1.3),vy:slump(-.9,-.1),liv:18,r:1.8,f:'#FFFFFF'}); }
+      p.vy=0;p.paMark=true;break;}}
+  else if(p.vy<0){const r=Math.floor(p.y/TILE);
+    for(let c=c0;c<=c1;c++) if(fastRuta(c,r)){p.y=(r+1)*TILE;p.vy=0;break;}}
+
+  // rörliga plattformar
+  for(const m of b.rorliga){
+    m.x+=m.dir*m.fart;
+    if(m.x<m.x0){m.x=m.x0;m.dir=1;} if(m.x>m.x1){m.x=m.x1;m.dir=-1;}
+    if(p.vy>=0 && forreBotten<=m.y+4 && p.y+p.h>=m.y && p.y+p.h<=m.y+14 &&
+       p.x+p.w>m.x+2 && p.x<m.x+m.w-2){
+      p.y=m.y-p.h; p.vy=0; p.paMark=true; p.x+=m.dir*m.fart;
+    }
+  }
+
+  // taggar
+  const tc0=Math.floor((p.x+5)/TILE), tc1=Math.floor((p.x+p.w-6)/TILE);
+  const tr0=Math.floor((p.y+p.h-8)/TILE), tr1=Math.floor((p.y+p.h-1)/TILE);
+  if(p.blink<=0)
+    for(let c=tc0;c<=tc1;c++) for(let r=tr0;r<=tr1;r++)
+      if(r>=0&&r<ROWS&&c>=0&&c<b.cols&&b.g[r][c]==='^'){skada();break;}
+
+  // damm under fötterna vid fart
+  if(p.paMark&&Math.abs(p.vx)>2.2&&tick%5===0)
+    spel.partiklar.push({x:p.x+p.w/2-p.riktning*4,y:p.y+p.h-1,
+      vx:-p.riktning*slump(.2,.8),vy:slump(-.5,-.05),liv:14,r:1.5,f:'#FFFFFF'});
+  // trygg mark att återvända till
+  if(p.paMark && p.blink<=0){
+    const cm=Math.floor((p.x+p.w/2)/TILE), rm=Math.floor((p.y+p.h+2)/TILE);
+    if(fastRuta(cm-1,rm)&&fastRuta(cm,rm)&&fastRuta(cm+1,rm)&&
+       b.g[rm-1]&&b.g[rm-1][cm]!=='^'&&b.g[rm-1][cm+1]!=='^'&&b.g[rm-1][cm-1]!=='^'&&
+       p.x>spel.trygg.x){ spel.trygg={x:p.x,y:p.y}; }
+  }
+  // fall
+  if(p.y>H+40){skada();}
+  if(p.blink>0)p.blink--;
+
+  // rullar
+  for(const rl of b.rullor){
+    if(rl.tagen)continue;
+    if(Math.abs(rl.x-(p.x+p.w/2))<20 && Math.abs(rl.y-(p.y+p.h/2))<24){
+      rl.tagen=true; spel.rullor++; ljudRulle(); uppdateraHud();
+      for(let i=0;i<8;i++)spel.partiklar.push({x:rl.x,y:rl.y,vx:slump(-1.6,1.6),vy:slump(-2.4,-.4),liv:26});
+    }
+  }
+  // figurer att prata med
+  for(const n of b.npcar){
+    if(n.klar)continue;
+    if(p.x+p.w>n.x-20 && p.x<n.x+20 && p.y+p.h>n.y-72){ p.vx=0; visaUppdrag(n); return; }
+  }
+  // portar
+  for(const po of b.portar){
+    if(po.oppen)continue;
+    if(p.x+p.w>po.x-18 && p.x<po.x+18 && p.y+p.h>po.y-70){
+      p.vx=0; visaFraga(po); return;
+    }
+  }
+  // mål
+  if(p.x>b.malX && !spel.klar){
+    spel.klar=true; ljudPort();
+    const sc=SCENER[spel.v.id];
+    setTimeout(()=>{ if(sc&&sc.ut) visaScen(sc.ut,()=>visaResultat(true)); else visaResultat(true); },320);
+  }
+  // partiklar
+  spel.partiklar=spel.partiklar.filter(q=>{q.x+=q.vx;q.y+=q.vy;q.vy+=.14;q.liv--;return q.liv>0;});
+  // kamera
+  const mal=clamp(p.x+p.w/2-W/2,0,b.cols*TILE-W);
+  spel.cam+=(mal-spel.cam)*.14;
+}
+
+function ritaBana(){
+  const b=spel.bana, cam=Math.round(spel.cam), t=TEMA[spel.v.tema];
+  himmel(spel.v.tema);
+  ctx.save(); ctx.translate(0,OFF);
+  ritaBakgrund(spel.v.tema,cam);
+  ctx.translate(-cam,0);
+  const c0=Math.max(0,Math.floor(cam/TILE)-1), c1=Math.min(b.cols,Math.ceil((cam+W)/TILE)+1);
+  for(let c=c0;c<c1;c++)for(let r=0;r<ROWS;r++){
+    const ch=b.g[r][c]; if(ch==='.')continue;
+    const x=c*TILE,y=r*TILE;
+    if(ch==='#'){
+      const topp=!fastRuta(c,r-1);
+      rekt(x,y,TILE,TILE,topp?t.mark:t.mark2);
+      if(topp){rekt(x,y,TILE,5,t.kant); rekt(x,y+5,TILE,2,'rgba(0,0,0,.10)');}
+      ctx.globalAlpha=.16;
+      rekt(x+((c*7+r*3)%12),y+9,7,4,'#000'); rekt(x+((c*5+r*11)%14),y+17,5,3,'#000');
+      ctx.globalAlpha=1;
+    }else if(ch==='^'){
+      rekt(x,y+TILE-4,TILE,4,'#6B3040');
+      for(let i=0;i<3;i++){
+        tri(x+i*8,y+TILE-3,x+i*8+8,y+TILE-3,x+i*8+4,y+4,'#E0596F');
+        tri(x+i*8+2,y+TILE-3,x+i*8+4,y+TILE-3,x+i*8+4,y+8,'#FFD3DA');
+      }
+    }
+  }
+  for(const m of b.rorliga){
+    rekt(m.x,m.y,m.w,m.h,'#8A6A44'); rekt(m.x,m.y,m.w,4,'#B98A46');
+    ctx.globalAlpha=.35;rekt(m.x+4,m.y+m.h,m.w-8,3,'#000');ctx.globalAlpha=1;
+  }
+  for(const rl of b.rullor) if(!rl.tagen) ritaRulle(rl.x,rl.y,'#F2A83B');
+  if(b.hav) ritaHav(b.hav);
+  for(const n of b.npcar) if(!n.klar) ritaNpcFigur(n);
+  for(const po of b.portar) ritaPort(po);
+  ritaMal(b.malX+34,GR*TILE);
+  for(const q of spel.partiklar){ctx.globalAlpha=(q.liv/(q.f?20:26))*(q.f?.5:1);cirkel(q.x,q.y,q.r||2,q.f||'#F2A83B');ctx.globalAlpha=1;}
+  if(!(spel.p.blink>0 && Math.floor(tick/4)%2)) ritaSpelare(spel.p);
+  ctx.restore();
+
+  if(spel.cam<40){
+    ctx.globalAlpha=clamp((40-spel.cam)/25,0,1);
+    ctx.fillStyle='rgba(10,16,34,.75)'; ctx.fillRect(8,10,W-16,30);
+    ctx.fillStyle='#F6EDDA'; ctx.font='600 12px Assistant,sans-serif'; ctx.textAlign='center';
+    ctx.fillText(pekskarm()?'◀ ▶ springer · HOPP hoppar · portarna kräver rätt svar'
+      :'Pilarna springer · mellanslag hoppar · portarna kräver rätt svar',W/2,29);
+    ctx.textAlign='left'; ctx.globalAlpha=1;
+  }
+}
+</script>
+
+<script>
+
+function scenHuvud(vem,bild,text){
+  return `<div class="scenrad">
+    <div class="portratt">${bildFor(bild)}</div>
+    <div class="talbubbla"><span class="vem">${esc(vem)}</span><p style="margin:0">${esc(text)}</p></div>
+  </div>`;
+}
+function visaScen(rader,klart){
+  let i=0;
+  const rita=()=>{
+    const [vem,bild,text]=rader[i];
+    visa(scenHuvud(vem,bild,text)+
+      `<div class="rad"><button class="knapp primar" id="vidare">${i<rader.length-1?'Vidare →':'Sätt igång'}</button></div>`);
+    las(text);
+    document.getElementById('vidare').onclick=()=>{ i++; if(i<rader.length)rita(); else{ dolj(); if(klart)klart(); } };
+  };
+  rita();
+}
+
+function efterUppdrag(npc){
+  if(npc.oppnarHav && spel.bana.hav && !spel.bana.hav.oppet){
+    const h=spel.bana.hav; h.oppet=true; h.anim=0;
+    for(let c=h.c0;c<h.c1;c++) for(let r=GR;r<ROWS;r++) spel.bana.g[r][c]='#';
+    ljudPort(); pip(220,.5,'sine',.06);
+    las('Havet delar sig! Spring igenom.');
+  }
+}
+function avsluta(npc,u,fel){
+  document.getElementById('efter').innerHTML=
+    `<div class="facit ${fel?'daligt':'bra'}"><b>${fel?'Nästan!':valj(['Snyggt!','Precis!','Helt rätt!'])}</b><p>${esc(u.facit||'')}</p></div>
+     <div class="rad"><button class="knapp primar" id="klart">Fortsätt →</button></div>`;
+  las(u.facit||'');
+  document.getElementById('klart').onclick=()=>{
+    npc.klar=true; spel.uppdragKlara++; ljudPort(); efterUppdrag(npc); dolj();
+    if(spel.hjartan<=0) visaResultat(false);
+  };
+  document.getElementById('klart').focus({preventScroll:true});
+}
+const misslyck=()=>{ ljudFel(); skada(true); uppdateraHud(); };
+
+function visaUppdrag(npc){
+  const u=npc.u;
+  if(u.t==='para')      uiPara(u,npc);
+  else if(u.t==='ordning') uiOrdning(u,npc);
+  else if(u.t==='sortera') uiSortera(u,npc);
+  else if(u.t==='prata')   uiPrata(u,npc);
+  else if(u.t==='tandning')uiTandning(u,npc);
+}
+
+
+function uiPara(u,npc){
+  const rader=u.par||u.parord, ikoner=!!u.par;
+  const V=blanda(rader.map((r,i)=>({t:r[0],i}))), Hh=blanda(rader.map((r,i)=>({t:r[1],i})));
+  let kvar=rader.length, fel=0, vald=null;
+  visa(scenHuvud(u.vem,u.bild,u.f)+
+   `<div class="parspel" id="par">
+      <div class="kol">${V.map(o=>`<button class="altknapp" data-s="v" data-i="${o.i}"><span>${esc(o.t)}</span></button>`).join('')}</div>
+      <div class="kol">${Hh.map(o=>ikoner
+        ? `<button class="ikonknapp" data-s="h" data-i="${o.i}" aria-label="bild">${IKON[o.t]||''}</button>`
+        : `<button class="altknapp" data-s="h" data-i="${o.i}"><span>${esc(o.t)}</span></button>`).join('')}</div>
+    </div><div id="efter"></div>`);
+  las(u.f+' Vänster: '+V.map(o=>o.t).join(', ')+'. Höger: '+Hh.map(o=>o.t).join(', ')+'.');
+  overlagg.querySelectorAll('#par button').forEach(b=>b.onclick=()=>{
+    if(b.classList.contains('klar'))return;
+    if(b.dataset.s==='v'){
+      overlagg.querySelectorAll('[data-s="v"]').forEach(x=>x.classList.remove('vald'));
+      b.classList.add('vald'); vald=b; las(b.textContent.trim()); return;
+    }
+    if(!vald){ las('Välj ett ord till vänster först.'); return; }
+    if(vald.dataset.i===b.dataset.i){
+      vald.classList.remove('vald'); vald.classList.add('klar'); b.classList.add('klar');
+      ljudRulle(); vald=null; kvar--;
+      if(kvar===0) avsluta(npc,u,fel>0);
+    }else{
+      fel++; misslyck(); b.classList.add('fel');
+      setTimeout(()=>b.classList.remove('fel'),450);
+      vald.classList.remove('vald'); vald=null;
+      if(spel.hjartan<=0) avsluta(npc,u,true);
+    }
+  });
+}
+
+
+function uiOrdning(u,npc){
+  let steg=0, fel=0;
+  visa(scenHuvud(u.vem,u.bild,u.f)+
+   `<div class="bricklada" id="valda"></div>
+    <div class="alt" id="ord">${blanda(u.ord).map(o=>`<button class="altknapp" data-o="${esc(o)}"><span>${esc(o)}</span></button>`).join('')}</div>
+    <div id="efter"></div>`);
+  las(u.f+' '+u.ord.slice().sort().join('. '));
+  const valda=document.getElementById('valda');
+  overlagg.querySelectorAll('#ord .altknapp').forEach(b=>b.onclick=()=>{
+    if(b.disabled)return;
+    if(b.dataset.o===u.ord[steg]){
+      b.disabled=true; b.classList.add('blek'); ljudRulle();
+      valda.insertAdjacentHTML('beforeend',`<span class="brick ratt">${steg+1}. ${esc(b.dataset.o)}</span>`);
+      steg++;
+      if(steg===u.ord.length) avsluta(npc,u,fel>0);
+    }else{
+      fel++; misslyck(); b.classList.add('fel');
+      setTimeout(()=>b.classList.remove('fel'),450);
+      if(spel.hjartan<=0) avsluta(npc,u,true);
+    }
+  });
+}
+
+
+function uiSortera(u,npc){
+  let kvar=u.items.length, fel=0, vald=null;
+  visa(scenHuvud(u.vem,u.bild,u.f)+
+   `<div class="bricklada" id="lada">${blanda(u.items.map(it=>({t:it[0],h:it[1]}))).map(o=>
+      `<button class="brick" data-h="${o.h}">${esc(o.t)}</button>`).join('')}</div>
+    <div class="hogar" id="hogar">${u.hogar.map((h,i)=>
+      `<div class="hog" role="button" tabindex="0" data-h="${i}"><h4>${esc(h)}</h4><div class="innehall"></div></div>`).join('')}</div>
+    <div id="efter"></div>`);
+  las(u.f+' Högarna heter '+u.hogar.join(' och ')+'.');
+  overlagg.querySelectorAll('#lada .brick').forEach(b=>b.onclick=()=>{
+    overlagg.querySelectorAll('#lada .brick').forEach(x=>x.classList.remove('vald'));
+    b.classList.add('vald'); vald=b; las(b.textContent);
+  });
+  overlagg.querySelectorAll('.hog').forEach(h=>h.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();h.click();}});
+  overlagg.querySelectorAll('.hog').forEach(h=>h.onclick=()=>{
+    if(!vald)return;
+    if(vald.dataset.h===h.dataset.h){
+      const k=document.createElement('span'); k.className='brick ratt'; k.textContent=vald.textContent;
+      h.querySelector('.innehall').appendChild(k); vald.remove(); vald=null; kvar--; ljudRulle();
+      if(kvar===0) avsluta(npc,u,fel>0);
+    }else{
+      fel++; misslyck(); h.style.borderColor='var(--pomegranate)';
+      setTimeout(()=>h.style.borderColor='',450);
+      if(spel.hjartan<=0) avsluta(npc,u,true);
+    }
+  });
+}
+
+
+function uiPrata(u,npc){
+  let i=0, fel=false;
+  const rita=()=>{
+    const [sag,alt,facit]=u.steg[i];
+    const ordn=blanda(alt.map((_,k)=>k)), bok='ABC';
+    visa(scenHuvud(u.vem,u.bild,sag)+
+     `<p class="instr">Vad svarar du?</p>
+      <div class="alt" id="svar">${ordn.map((k,n)=>
+        `<button class="altknapp" data-i="${k}"><span class="bok">${bok[n]}</span><span>${esc(alt[k])}</span></button>`).join('')}</div>
+      <div id="efter"></div>`);
+    las(sag+' '+ordn.map((k,n)=>`${n+1}. ${alt[k]}`).join('. '));
+    overlagg.querySelectorAll('#svar .altknapp').forEach(b=>b.onclick=()=>{
+      const ratt=+b.dataset.i===0;
+      overlagg.querySelectorAll('#svar .altknapp').forEach(x=>{x.disabled=true;
+        if(+x.dataset.i===0)x.classList.add('ratt'); else if(x===b)x.classList.add('fel'); else x.classList.add('blek');});
+      if(!ratt){ fel=true; misslyck(); }else ljudRatt();
+      document.getElementById('efter').innerHTML=
+        `<div class="facit ${ratt?'bra':'daligt'}"><b>${ratt?'Precis!':'Nästan!'}</b><p>${ratt?'':'Rätt svar: <strong>'+esc(alt[0])+'</strong>. '}${esc(facit)}</p></div>
+         <div class="rad"><button class="knapp primar" id="vidare">${i<u.steg.length-1?'Vidare →':'Klart'}</button></div>`;
+      las((ratt?'Rätt. ':'Fel. Rätt svar: '+alt[0]+'. ')+facit);
+      document.getElementById('vidare').onclick=()=>{
+        if(spel.hjartan<=0){ npc.klar=true; dolj(); visaResultat(false); return; }
+        i++;
+        if(i<u.steg.length) rita();
+        else{ npc.klar=true; spel.uppdragKlara++; ljudPort(); efterUppdrag(npc); dolj(); }
+      };
+    });
+  };
+  rita();
+}
+
+
+const LAGA='<svg viewBox="0 0 24 24"><path d="M12 2c4 6 6.5 9 6.5 13a6.5 6.5 0 0 1-13 0C5.5 11 8 8 12 2z" fill="#F2A83B"/></svg>';
+function uiTandning(u,npc){
+  const N=9, mitt=4; let tanda=[], fel=0;
+  const rita=()=>{
+    const txt = tanda.length===0 ? 'Tjänaren är det höga ljuset i mitten.'
+      : tanda.length===1 ? 'Bra! Nu tänder Tjänaren de åtta andra ljusen.'
+      : (tanda.length-1)+' av 8 ljus tända.';
+    visa(scenHuvud(u.vem,u.bild,u.f)+
+      `<div class="stake">${Array.from({length:N},(_,i)=>
+        `<button class="ljusk${i===mitt?' tjanare':''}${tanda.includes(i)?' tand':''}" data-i="${i}"
+           aria-label="${i===mitt?'Tjänaren':'Ljus '+(i+1)}">
+           <span class="laga">${LAGA}</span><span class="kropp"></span><span class="stang"></span></button>`).join('')}</div>
+       <p class="instr" style="text-align:center">${esc(txt)}</p>
+       <div id="efter"></div>`);
+    overlagg.querySelectorAll('.ljusk').forEach(kn=>kn.onclick=()=>{
+      const i=+kn.dataset.i;
+      if(tanda.includes(i))return;
+      if(tanda.length===0 && i!==mitt){
+        fel++; misslyck(); las('Nej. Tjänaren tänds först – det är det höga ljuset i mitten.');
+        if(spel.hjartan<=0){ rita(); avsluta(npc,u,true); return; }
+        rita(); return;
+      }
+      tanda.push(i); pip(620+tanda.length*45,.1,'sine',.05);
+      rita();
+      if(tanda.length===N) avsluta(npc,u,fel>0);
+    });
+  };
+  rita();
+  las(u.f+' Tjänaren är det höga ljuset i mitten.');
+}
+</script>
+
+<script>
+
+const GEO={lon0:10,lon1:24,lat0:54.5,lat1:69.5,k:76};
+const PXL=GEO.k*Math.cos(62*Math.PI/180);
+const MW=Math.round((GEO.lon1-GEO.lon0)*PXL);
+const MH=Math.round((GEO.lat1-GEO.lat0)*GEO.k);
+const P=(lo,la)=>[(lo-GEO.lon0)*PXL,(GEO.lat1-la)*GEO.k];
+
+const PLATSER=[
+ {id:1, lo:15.21,la:59.27,ikon:'hus',     lbl:'vanster'}, // Hemma
+ {id:2, lo:18.29,la:57.64,ikon:'ringmur', lbl:'hoger'},   // Visby
+ {id:3, lo:19.83,la:66.61,ikon:'lavvu',   lbl:'under'},   // Jokkmokk, Sápmi
+ {id:4, lo:14.16,la:57.78,ikon:'domstol', lbl:'over'},    // Jönköping
+ {id:5, lo:11.97,la:57.70,ikon:'tidning', lbl:'vanster'}, // Göteborg
+ {id:6, lo:17.64,la:59.86,ikon:'katedral',lbl:'hoger'},   // Uppsala
+ {id:7, lo:18.07,la:59.33,ikon:'riksdag', lbl:'hoger'},   // Stockholm
+ {id:8, lo:16.19,la:58.59,ikon:'fabrik',  lbl:'hoger'},   // Norrköping
+ {id:9, lo:13.00,la:55.60,ikon:'hamn',    lbl:'vanster'}, // Malmö
+ {id:10,lo:15.90,la:56.80,ikon:'skola',   lbl:'hoger',pekar:1} // Provet
+].map(p=>{const [x,y]=P(p.lo,p.la);return Object.assign(p,{x,y});});
+
+
+const SVERIGE=[
+ [20.55,69.06],[21.60,68.72],[22.50,68.45],[23.20,68.10],[23.60,67.70],[23.45,67.10],
+ [23.65,66.45],[23.90,66.10],[24.15,65.83],
+ [23.40,65.75],[22.60,65.72],[22.15,65.58],[21.50,65.32],[21.10,64.95],[20.95,64.75],
+ [20.45,64.15],[20.26,63.83],[19.60,63.50],[18.72,63.29],[18.30,62.95],[17.93,62.63],
+ [17.31,62.39],[17.15,61.95],[17.10,61.73],[17.06,61.30],[17.14,60.67],[17.60,60.55],
+ [18.15,60.40],[18.43,60.34],[18.70,60.10],[18.95,59.80],[18.60,59.45],[18.30,59.32],
+ [17.95,58.90],[17.10,58.67],[16.60,58.55],[16.85,58.20],[16.63,57.76],[16.45,57.26],
+ [16.60,56.90],[16.36,56.66],[16.00,56.40],[15.59,56.16],[15.00,56.10],[14.30,55.92],
+ [14.35,55.55],[13.82,55.42],[13.36,55.34],[13.16,55.37],[12.99,55.60],[12.80,55.85],
+ [12.69,56.05],[12.85,56.43],[12.86,56.67],[12.25,57.11],[11.95,57.70],[11.75,58.35],
+ [11.30,58.65],[11.17,58.94],
+ [11.45,59.10],[11.80,59.35],[12.00,59.90],[12.50,60.50],[12.20,61.05],[12.60,61.60],
+ [12.10,62.15],[12.20,62.80],[12.00,63.20],[12.70,63.90],[13.60,64.10],[14.20,64.50],
+ [14.50,65.30],[15.00,66.15],[16.20,67.20],[17.30,68.10],[18.10,68.55],[19.00,68.50],
+ [20.00,69.00]];
+const NORGE=[
+ [20.55,69.06],[20.00,69.00],[19.00,68.50],[18.10,68.55],[17.30,68.10],[16.20,67.20],
+ [15.00,66.15],[14.50,65.30],[14.20,64.50],[13.60,64.10],[12.70,63.90],[12.00,63.20],
+ [12.20,62.80],[12.10,62.15],[12.60,61.60],[12.20,61.05],[12.50,60.50],[12.00,59.90],
+ [11.80,59.35],[11.45,59.10],[11.17,58.94],
+ [10.70,59.05],[10.10,58.95],[9.20,58.70],[8.10,58.15],[7.00,57.95],[5.60,58.40],
+ [5.00,59.20],[5.20,60.40],[4.90,61.50],[5.60,62.40],[6.60,63.10],[8.00,63.70],
+ [9.60,64.30],[11.00,65.20],[12.50,66.20],[14.00,67.30],[15.60,68.20],[17.00,69.00],
+ [18.50,69.60],[20.20,69.80]];
+const FINLAND=[
+ [24.15,65.83],[24.56,65.73],[25.35,64.95],[25.10,64.50],[24.50,64.30],[23.80,64.10],
+ [23.20,63.80],[22.30,63.30],[21.55,63.10],[21.30,62.50],[21.50,61.60],[21.40,61.10],
+ [21.60,60.70],[22.20,60.45],[23.00,60.05],[24.00,59.95],[24.95,60.17],[26.00,60.40],
+ [27.50,60.55],[27.50,70.00],[20.60,70.00],
+ [20.55,69.06],[21.60,68.72],[22.50,68.45],[23.20,68.10],[23.60,67.70],[23.45,67.10],
+ [23.65,66.45],[23.90,66.10]];
+const JYLLAND=[[8.10,56.90],[8.60,57.10],[9.00,57.20],[10.00,57.60],[10.60,57.74],
+ [10.50,57.20],[10.90,56.80],[10.70,56.30],[10.20,56.10],[10.55,55.60],[10.80,55.20],
+ [10.20,54.90],[9.50,54.80],[8.60,54.90],[8.05,55.50]];
+const FYN=[[9.80,55.62],[10.70,55.60],[10.80,55.10],[10.05,54.90],[9.70,55.20]];
+const SJALLAND=[[11.00,56.05],[12.10,56.12],[12.60,56.00],[12.60,55.60],[12.20,55.32],
+ [11.40,55.20],[11.00,55.50]];
+const GOTLAND=[[18.10,57.35],[18.55,57.40],[18.80,57.62],[19.05,57.88],[18.85,57.97],
+ [18.50,57.88],[18.30,57.62],[18.05,57.48]];
+const OLAND=[[16.40,56.20],[16.72,56.62],[17.08,57.18],[16.95,57.36],[16.60,56.96],
+ [16.30,56.52],[16.26,56.22]];
+const BORNHOLM=[[14.68,55.32],[15.16,55.30],[15.14,54.99],[14.70,55.00]];
+const SYDKUST=[
+ [8.00,54.60],[9.00,54.80],[9.90,54.50],[11.00,54.42],[12.50,54.50],[13.30,54.40],
+ [14.00,54.10],[16.00,54.50],[17.50,54.78],[18.80,54.70],[19.60,54.62],[21.00,55.90],
+ [21.10,56.30],[21.00,57.00],[21.60,57.60],[22.60,57.72],[23.20,58.50],[23.50,59.50],
+ [24.50,59.62],[25.80,59.50],[25.80,53.90],[8.00,53.90]];
+
+const VANERN=[[12.30,58.40],[13.00,58.42],[13.50,58.72],[13.40,59.20],[12.90,59.40],
+ [12.40,59.28],[12.20,58.80]];
+const VATTERN=[[14.05,57.82],[14.60,58.30],[14.95,58.62],[14.62,58.72],[14.20,58.20],
+ [13.95,57.88]];
+const MALAREN=[[15.95,59.42],[17.50,59.52],[18.05,59.36],[17.20,59.24],[16.30,59.28]];
+const HJALMAREN=[[15.35,59.22],[16.05,59.30],[15.95,59.12],[15.38,59.08]];
+const STORSJON=[[14.20,63.00],[14.90,63.30],[14.75,63.50],[14.20,63.32],[14.05,63.10]];
+
+const TORNEALVEN=[[20.55,69.06],[22.50,68.45],[23.60,67.70],[23.45,67.10],[23.90,66.10],[24.15,65.83]];
+const LULEALVEN=[[16.80,67.50],[18.50,67.00],[20.00,66.30],[21.30,65.90],[22.15,65.58]];
+const UMEALVEN=[[15.50,65.60],[17.50,64.80],[19.00,64.20],[20.26,63.83]];
+const ANGERMAN=[[14.20,64.20],[15.80,63.70],[17.20,63.30],[17.93,62.85]];
+const DALALVEN=[[13.00,61.80],[14.50,61.30],[16.00,60.60],[17.14,60.67]];
+const KLARALVEN=[[12.60,61.00],[13.00,60.30],[13.50,59.60],[13.45,59.36]];
+const GOTAALV=[[12.30,58.38],[12.30,58.10],[12.00,57.90],[11.95,57.72]];
+const FJALLKEDJAN=[
+ [[12.20,61.30],[12.60,62.50],[13.60,64.00],[15.00,66.00],[16.50,67.30],[18.30,68.40],[20.20,68.90]],
+ [[11.60,59.60],[11.90,60.40],[12.20,61.00]]
+];
+const REGIONER=[
+ ['ÖSTERSJÖN',19.6,56.6,'hav',14],['BOTTENHAVET',19.6,62.2,'hav',13],
+ ['BOTTENVIKEN',22.0,64.9,'hav',11],['SKAGERRAK',10.6,58.6,'hav',10],
+ ['KATTEGATT',11.4,57.2,'hav',10],['FINSKA VIKEN',24.2,59.9,'hav',9],
+ ['NORGE',12.6,62.2,'land',13],['FINLAND',24.2,63.4,'land',13],
+ ['DANMARK',9.2,56.3,'land',11],['NORRLAND',17.4,65.2,'land',13],
+ ['SVEALAND',15.2,60.2,'land',12],['GÖTALAND',14.4,57.1,'land',12],
+ ['SÁPMI',18.4,67.6,'land',11],['GOTLAND',18.5,57.6,'land',8],
+ ['VÄNERN',12.8,58.85,'sjo',8],['VÄTTERN',14.4,58.3,'sjo',7],
+ ['DALÄLVEN',15.2,60.9,'flod',8],['LULEÄLVEN',19.4,66.6,'flod',8]
+];
+
+const karta={x:0,y:0,cam:{x:0,y:0},riktning:1,narmast:null,bat:false,steg:0,fart:0};
+(function(){const u=PLATSER[0];karta.x=u.x-14;karta.y=u.y+20;})();
+
+
+let mask=null;
+function byggMask(){
+  const m=document.createElement('canvas'); m.width=MW; m.height=MH;
+  const q=m.getContext('2d');
+  q.fillStyle='#000'; q.fillRect(0,0,MW,MH);          // allt är hav från början
+  q.fillStyle='#fff';                                  // landet målas vitt
+  const rita=pts=>{q.beginPath();pts.forEach((pt,i)=>{const[x,y]=P(pt[0],pt[1]);i?q.lineTo(x,y):q.moveTo(x,y);});q.closePath();q.fill();};
+  [SVERIGE,NORGE,FINLAND,JYLLAND,FYN,SJALLAND,GOTLAND,OLAND,BORNHOLM,SYDKUST].forEach(rita);
+  q.fillStyle='#000';                                  // sjöarna är vatten igen
+  [VANERN,VATTERN,MALAREN,HJALMAREN,STORSJON].forEach(rita);
+  mask=q.getImageData(0,0,MW,MH).data;
+}
+function arVatten(x,y){
+  if(!mask)return false;
+  const ix=Math.round(clamp(x,0,MW-1)), iy=Math.round(clamp(y,0,MH-1));
+  return mask[(iy*MW+ix)*4]<128;
+}
+
+
+function bana(pts,slut){
+  ctx.beginPath();
+  pts.forEach((pt,i)=>{const[x,y]=P(pt[0],pt[1]);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});
+  if(slut)ctx.closePath();
+}
+function fyllGeo(pts,farg){ bana(pts,true); ctx.fillStyle=farg; ctx.fill(); }
+function strackGeo(pts,farg,bredd){ bana(pts,false); ctx.strokeStyle=farg; ctx.lineWidth=bredd;
+  ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke(); }
+
+function ritaPlatsIkon(p,oppen){
+  const x=p.x,y=p.y, g=oppen?'#E7C36A':'#6A7290', m=oppen?'#B08A3E':'#4E5570';
+  ctx.globalAlpha=.22;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y+4,20,6,0,0,7);ctx.fill();ctx.globalAlpha=1;
+  if(p.ikon==='hus'){ rekt(x-16,y-18,32,18,oppen?'#A8324A':m);
+    tri(x-20,y-18,x+20,y-18,x,y-32,oppen?'#3A3038':m);
+    if(oppen){rekt(x-10,y-14,7,7,'#F2C94C'); rekt(x+4,y-14,7,7,'#F2C94C');} }
+  else if(p.ikon==='ringmur'){ rekt(x-22,y-16,44,16,g);
+    for(let i=0;i<6;i++)rekt(x-22+i*8,y-22,5,7,g);
+    rekt(x-5,y-28,11,28,m); rekt(x-3,y-22,7,10,oppen?'#5B3E1E':'#3A4058'); }
+  else if(p.ikon==='lavvu'){ tri(x-20,y,x+20,y,x,y-30,oppen?'#8A6A44':m);
+    ctx.strokeStyle=oppen?'#4A3322':'#3A4058';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(x-5,y-36);ctx.lineTo(x,y-30);ctx.moveTo(x+5,y-36);ctx.lineTo(x,y-30);ctx.stroke();
+    if(oppen)cirkel(x,y-8,5,'#F2A83B'); }
+  else if(p.ikon==='domstol'){ rekt(x-22,y-6,44,6,g); tri(x-24,y-20,x+24,y-20,x,y-34,g);
+    for(let i=0;i<4;i++)rekt(x-18+i*11,y-20,6,14,g);
+    if(oppen){ctx.strokeStyle='#F4EFE2';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(x-10,y-26);ctx.lineTo(x+10,y-26);ctx.stroke();} }
+  else if(p.ikon==='tidning'){ rekt(x-19,y-24,34,24,oppen?'#F4EFE2':m);
+    rekt(x+13,y-20,6,20,oppen?'#D8D2C2':m);
+    if(oppen){rekt(x-15,y-21,26,6,'#2A3A66');
+      ctx.strokeStyle='#8E9BC2';ctx.lineWidth=1.6;ctx.beginPath();
+      ctx.moveTo(x-15,y-11);ctx.lineTo(x+9,y-11);ctx.moveTo(x-15,y-6);ctx.lineTo(x+9,y-6);ctx.stroke();} }
+  else if(p.ikon==='katedral'){ rekt(x-18,y-22,36,22,g);
+    tri(x-14,y-22,x-2,y-22,x-8,y-48,m); tri(x+2,y-22,x+14,y-22,x+8,y-48,m);
+    if(oppen)cirkel(x,y-12,6,'#8FB7E8'); }
+  else if(p.ikon==='riksdag'){ tri(x-24,y-16,x+24,y-16,x,y-30,g); rekt(x-24,y-16,48,4,m);
+    for(let i=0;i<5;i++)rekt(x-19+i*9,y-12,6,12,g);
+    rekt(x-24,y,48,0,m);
+    if(oppen){ctx.globalAlpha=.3;cirkel(x,y-26,24,'#F2C94C');ctx.globalAlpha=1;} }
+  else if(p.ikon==='fabrik'){ rekt(x-20,y-16,40,16,g); rekt(x+8,y-32,8,16,m);
+    tri(x-20,y-16,x-4,y-16,x-12,y-26,m); tri(x-4,y-16,x+8,y-16,x+2,y-26,m);
+    if(oppen){ctx.globalAlpha=.55;cirkel(x+12,y-40,6,'#D8CFC4');cirkel(x+6,y-48,4,'#D8CFC4');ctx.globalAlpha=1;} }
+  else if(p.ikon==='hamn'){ rekt(x-20,y-6,40,6,g); rekt(x-6,y-34,5,28,g); rekt(x-14,y-36,30,5,g);
+    rekt(x+10,y-31,4,10,m);
+    const bf=oppen?['#A8324A','#7FB069','#F2C94C']:[m,m,m];
+    for(let i=0;i<3;i++)rekt(x-18+i*13,y-16,11,10,bf[i]); }
+  else { tri(x-22,y-18,x+22,y-18,x,y-32,oppen?'#A8324A':m);
+    rekt(x-17,y-18,34,18,oppen?'#F4EFE2':m);
+    rekt(x-4,y-11,9,11,'#6A5C4E');
+    if(oppen){rekt(x-13,y-14,7,7,'#8FB7E8'); rekt(x+7,y-14,7,7,'#8FB7E8');
+      ctx.globalAlpha=.3;cirkel(x,y-22,26,'#F2C94C');ctx.globalAlpha=1;} }
+}
+
+function ritaEtikett(p){
+  const v=VARLDAR.find(v=>v.id===p.id), oppen=uppLast(p.id), ljus=spar.ljus[p.id]||0;
+  ctx.font='700 12px Assistant,sans-serif';
+  const txt=p.id+'. '+v.namn, w=ctx.measureText(txt).width+12;
+  let lx=p.x, ly=p.y+18;
+  if(p.lbl==='over')ly=p.y-42; else if(p.lbl==='vanster'){lx=p.x-w/2-24;ly=p.y-12;}
+  else if(p.lbl==='hoger'){lx=p.x+w/2+24;ly=p.y-12;}
+  ctx.textAlign='center';
+  ctx.fillStyle='rgba(12,20,40,.78)'; ctx.fillRect(lx-w/2,ly-12,w,17);
+  ctx.fillStyle=oppen?'#F6EDDA':'#96A2C4'; ctx.fillText(txt,lx,ly);
+  if(!oppen){ ctx.font='11px sans-serif'; ctx.fillText('🔒',p.x,p.y-4); }
+  else if(ljus>0){ for(let i=0;i<3;i++){ ctx.globalAlpha=i<ljus?1:.2;
+      cirkel(p.x-11+i*11,ly+11,3.2,'#F2A83B'); ctx.globalAlpha=1; } }
+  ctx.textAlign='left';
+}
+
+function stegKarta(){
+  if(!mask)byggMask();
+  karta.bat=arVatten(karta.x,karta.y);
+  const fart=karta.bat?1.7:2.6; let dx=0,dy=0;
+  if(tang.vanster)dx-=1; if(tang.hoger)dx+=1;
+  if(tang.upp)dy-=1; if(tang.ner)dy+=1;
+  if(dx||dy){const l=Math.hypot(dx,dy);karta.x+=dx/l*fart;karta.y+=dy/l*fart;
+    if(dx)karta.riktning=dx>0?1:-1;
+    karta.fart=fart; karta.steg+=fart*.24;}
+  else karta.fart=0;
+  karta.x=clamp(karta.x,10,MW-10); karta.y=clamp(karta.y,16,MH-10);
+  karta.narmast=null;
+  for(const p of PLATSER) if(Math.hypot(p.x-karta.x,p.y-karta.y)<34) karta.narmast=p;
+  if(hoppTryck){
+    hoppTryck=false;
+    if(karta.narmast){
+      if(uppLast(karta.narmast.id)) startaBana(karta.narmast.id);
+      else { pip(180,.2,'square',.05); las('Den här platsen är låst. Klara banan innan först.'); }
+    }
+  }
+  karta.cam.x+=(clamp(karta.x-W/2,0,Math.max(0,MW-W))-karta.cam.x)*.15;
+  karta.cam.y+=(clamp(karta.y-VH/2,0,Math.max(0,MH-VH))-karta.cam.y)*.15;
+}
+
+function ritaKarta(){
+  if(!mask)byggMask();
+  const cx=Math.round(karta.cam.x), cy=Math.round(karta.cam.y);
+  ctx.fillStyle='#0B1226'; ctx.fillRect(0,0,W,VH);
+  ctx.save(); ctx.translate(-cx,-cy);
+
+  // hav
+  ctx.fillStyle='#2E6C93'; ctx.fillRect(0,0,MW,MH);
+  ctx.globalAlpha=.16; ctx.strokeStyle='#CFE9F5'; ctx.lineWidth=2;
+  for(let i=0;i<70;i++){const x=(i*173)%MW, y=(i*277)%MH;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+7,y-3,x+14,y);ctx.quadraticCurveTo(x+21,y+3,x+28,y);ctx.stroke();}
+  ctx.globalAlpha=1;
+  // land
+  [SYDKUST,FINLAND,NORGE,JYLLAND,FYN,SJALLAND,BORNHOLM].forEach(l=>fyllGeo(l,'#B9C49A'));
+  [SVERIGE,GOTLAND,OLAND].forEach(l=>fyllGeo(l,'#C6CFA2'));
+  // skogsprickar
+  ctx.fillStyle='#A8B886';
+  for(let i=0;i<220;i++){const x=(i*151)%MW,y=(i*233)%MH;
+    if(!arVatten(x,y)){ctx.beginPath();ctx.ellipse(x,y,9,4,0,0,7);ctx.fill();}}
+  // fjällkedjan
+  for(const kedja of FJALLKEDJAN)
+    for(let i=0;i<kedja.length-1;i++){
+      const [x1,y1]=P(kedja[i][0],kedja[i][1]), [x2,y2]=P(kedja[i+1][0],kedja[i+1][1]);
+      const n=Math.max(2,Math.round(Math.hypot(x2-x1,y2-y1)/20));
+      for(let j=0;j<n;j++){const t=j/n,x=x1+(x2-x1)*t,y=y1+(y2-y1)*t+((j%2)?4:-3);
+        tri(x-12,y+6,x+12,y+6,x,y-11,'#9C9184'); tri(x-5,y-1,x+5,y-1,x,y-11,'#F2F6FF');}
+    }
+  // sjöar och älvar
+  [VANERN,VATTERN,MALAREN,HJALMAREN,STORSJON].forEach(s=>fyllGeo(s,'#2E6C93'));
+  [TORNEALVEN,LULEALVEN,UMEALVEN,ANGERMAN,DALALVEN,KLARALVEN,GOTAALV]
+    .forEach(a=>strackGeo(a,'#3B7FA6',2.6));
+  // kustlinje
+  ctx.globalAlpha=.5;
+  [SVERIGE,NORGE,FINLAND,GOTLAND,OLAND,JYLLAND,SJALLAND].forEach(l=>{bana(l,true);
+    ctx.strokeStyle='#8FD0EA';ctx.lineWidth=2;ctx.stroke();});
+  ctx.globalAlpha=1;
+  // resvägen
+  ctx.strokeStyle='rgba(246,237,218,.5)';ctx.lineWidth=3;ctx.setLineDash([7,8]);
+  ctx.beginPath();ctx.moveTo(PLATSER[0].x,PLATSER[0].y);
+  for(let i=1;i<PLATSER.length;i++){const a=PLATSER[i-1],b=PLATSER[i];
+    ctx.quadraticCurveTo((a.x+b.x)/2+((i%2)?26:-26),(a.y+b.y)/2-14,b.x,b.y);}
+  ctx.stroke();ctx.setLineDash([]);
+  // regionnamn
+  ctx.textAlign='center';
+  for(const [namn,lo,la,typ,st] of REGIONER){
+    const [x,y]=P(lo,la);
+    ctx.font=`700 ${st}px Assistant,sans-serif`;
+    ctx.fillStyle= typ==='hav'?'rgba(228,244,252,.75)': typ==='sjo'?'rgba(226,242,250,.9)'
+                 : typ==='flod'?'rgba(226,242,250,.85)':'rgba(60,70,40,.55)';
+    ctx.save();
+    if(typ==='flod'){ctx.translate(x,y);ctx.rotate(-.5);ctx.fillText(namn,0,0);}
+    else{ctx.translate(x,y);ctx.fillText(namn.split('').join(String.fromCharCode(8202)),0,0);}
+    ctx.restore();
+  }
+  ctx.textAlign='left';
+  // hänvisningsstreck
+  for(const p of PLATSER) if(p.pekar){
+    const m=PLATSER.find(q=>q.id===p.pekar);
+    ctx.strokeStyle='rgba(246,237,218,.45)';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);
+    ctx.beginPath();ctx.moveTo(p.x,p.y+2);ctx.lineTo(m.x,m.y-20);ctx.stroke();ctx.setLineDash([]);
+  }
+  // platser
+  for(const p of PLATSER) ritaPlatsIkon(p,uppLast(p.id));
+  for(const p of PLATSER) ritaEtikett(p);
+  // spelaren (med båt på vatten)
+  if(karta.bat){
+    const b=Math.sin(tick/12)*1.5;
+    ritaSpelare({x:karta.x-8,y:karta.y-26+b,w:15,h:24,riktning:karta.riktning,paMark:true,vx:0,steg:0});
+    ctx.fillStyle='#8A6A44';ctx.beginPath();
+    ctx.moveTo(karta.x-15,karta.y-4+b);ctx.lineTo(karta.x+15,karta.y-4+b);
+    ctx.lineTo(karta.x+10,karta.y+4+b);ctx.lineTo(karta.x-10,karta.y+4+b);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=.6;
+    for(let i=0;i<3;i++)rekt(karta.x-16-i*5,karta.y+6+((tick/6+i)%3),9,2,'#CFE9F5');
+    ctx.globalAlpha=1;
+  }else{
+    ritaSpelare({x:karta.x-8,y:karta.y-24,w:15,h:24,riktning:karta.riktning,paMark:true,
+      vx:karta.fart*1.25,steg:karta.steg});
+  }
+  // kompass + skalstock
+  const [kx,ky]=P(10.9,55.3);
+  cirkel(kx,ky,15,'rgba(12,20,40,.6)');
+  tri(kx,ky-12,kx-5,ky+4,kx+5,ky+4,'#F6EDDA');
+  ctx.fillStyle='#F6EDDA';ctx.font='700 9px Assistant,sans-serif';ctx.textAlign='center';
+  ctx.fillText('N',kx,ky+13);
+  const skala=Math.round(200/(111.32*Math.cos(62*Math.PI/180))*PXL);
+  rekt(kx-skala/2,ky+26,skala,4,'rgba(12,20,40,.6)');
+  rekt(kx-skala/2,ky+26,skala/2,4,'#F6EDDA');
+  ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillText('200 km',kx,ky+40);ctx.textAlign='left';
+  ctx.restore();
+
+
+  // minikarta
+  const mw=56,mh=Math.round(mw*MH/MW),mx=W-mw-10,my=10;
+  ctx.fillStyle='rgba(10,16,34,.8)';ctx.fillRect(mx-3,my-3,mw+6,mh+6);
+  ctx.fillStyle='rgba(150,172,124,.45)';ctx.fillRect(mx,my,mw,mh);
+  ctx.strokeStyle='rgba(246,237,218,.35)';ctx.lineWidth=1;
+  ctx.beginPath();
+  PLATSER.forEach((q,i)=>{const px=mx+q.x/MW*mw,py=my+q.y/MH*mh;i?ctx.lineTo(px,py):ctx.moveTo(px,py);});
+  ctx.stroke();
+  for(const q of PLATSER){const px=mx+q.x/MW*mw,py=my+q.y/MH*mh;
+    cirkel(px,py,3,(spar.ljus[q.id]||0)>0?'#F2A83B':uppLast(q.id)?'#5B87F0':'#5A6280');}
+  const pxs=mx+karta.x/MW*mw,pys=my+karta.y/MH*mh;
+  ctx.globalAlpha=.5+.5*Math.abs(Math.sin(tick/22)); cirkel(pxs,pys,5,'#FFFFFF'); ctx.globalAlpha=1;
+  cirkel(pxs,pys,2.4,'#FFFFFF');
+
+  // pil mot nästa mål
+  const mal=PLATSER.find(q=>uppLast(q.id)&&!((spar.ljus[q.id]||0)>0));
+  if(mal && karta.narmast!==mal){
+    const sx=mal.x-cx, sy=mal.y-cy;
+    if(sx<24||sx>W-24||sy<24||sy>VH-70){
+      const mx2=W/2, my2=(VH-38)/2, dx=sx-mx2, dy=sy-my2, l=Math.hypot(dx,dy)||1;
+      const r=Math.min(W,VH-38)/2-30, ax=mx2+dx/l*r, ay=my2+dy/l*r;
+      ctx.save(); ctx.translate(ax,ay); ctx.rotate(Math.atan2(dy,dx));
+      ctx.globalAlpha=.55+.45*Math.abs(Math.sin(tick/18));
+      tri(-10,-9,-10,9,12,0,'#F2A83B'); ctx.globalAlpha=1; ctx.restore();
+    }
+  }
+  // banner
+  ctx.fillStyle='rgba(10,16,34,.78)';ctx.fillRect(0,VH-38,W,38);
+  ctx.fillStyle='#F6EDDA';ctx.font='600 13px Assistant,sans-serif';ctx.textAlign='center';
+  if(karta.narmast){
+    const v=VARLDAR.find(v=>v.id===karta.narmast.id);
+    const g=pekskarm()?'tryck HOPP':'tryck mellanslag';
+    ctx.fillText(uppLast(v.id)? `${v.namn} – ${g} för att gå in` : `${v.namn} är låst – klara bana ${v.id-1} först`, W/2,VH-15);
+  }else if(karta.bat){
+    ctx.fillText('Du seglar · styr mot land med pilarna',W/2,VH-15);
+  }else if(mal){
+    ctx.fillStyle='#F2A83B';
+    ctx.fillText('Nästa mål: '+VARLDAR.find(v=>v.id===mal.id).namn+' – vandra dit',W/2,VH-15);
+  }else{
+    ctx.fillText(pekskarm()?'Gå omkring med pilarna · gå fram till en plats och tryck HOPP'
+      :'Gå omkring med piltangenterna · tryck mellanslag vid en plats',W/2,VH-15);
+  }
+  ctx.textAlign='left';
+}
+
+
+let sist=0,ack=0;
+function loop(nu){
+  requestAnimationFrame(loop);
+  const dt=Math.min(50,nu-sist); sist=nu; ack+=dt;
+  let steg=0;
+  while(ack>=16.7 && steg<3){ ack-=16.7; steg++;
+    tick++;
+    if(!pausad){ if(lage==='bana')stegBana(); else stegKarta(); }
+    else hoppTryck=false;
+  }
+  if(lage==='bana'&&spel) ritaBana(); else ritaKarta();
+}
+
+
+document.getElementById('menyknapp').onclick=()=>{ if(overlagg.classList.contains('dold'))visaMeny(); else dolj(); };
+const lj=document.getElementById('ljudknapp');
+function visaLjud(){ lj.setAttribute('aria-pressed',String(spar.tal)); lj.textContent=spar.tal?'🔊':'🔇'; }
+lj.onclick=()=>{ spar.tal=!spar.tal; spara(); visaLjud(); tyst(); if(spar.tal)las('Uppläsning på.'); };
+visaLjud();
+
+function startskarm(){
+  const klara=Object.keys(spar.ljus).length;
+  visa(`<h2>Biologiresan</h2>
+    <p class="mitt">${klara?`Du har klarat ${klara} av 10 banor och samlat ${totLjus()} stjärnor.`
+      :'En biologiexpedition genom Sverige. Spring, hoppa och lös uppdrag. Välj gärna ekologi eller hjärnan först. Lugnt läge är på: inga förlorade liv. Styr med pilar eller A/D, hoppa med mellanslag. På pekskärm använder du knapparna.'}</p>
+    <div class="siffror"><div><b>${totLjus()}/30</b><span>Stjärnor</span></div>
+      <div><b>${klara}/10</b><span>Banor</span></div></div>
+    <div class="rad">
+      <button class="knapp primar" id="start">${klara?'Fortsätt resan':'Börja resan'}</button>
+      <button class="knapp" id="om">🎯 Träna ett område</button>
+      <button class="knapp" id="pl">📖 Plugglista</button>
+      <button class="knapp" id="re">💬 Resonemang</button>
+    </div>
+    <p class="mitt" style="margin-top:14px;font-size:.88rem">Biologi för åk 7–9. Nyskrivna frågor utifrån Lgr22. .</p>`);
+  document.getElementById('start').onclick=()=>{ dolj(); pip(523,.1,'sine',.05); las('Välkommen till Biologiresan. Gå till en plats på kartan och tryck hopp.'); };
+  document.getElementById('pl').onclick=()=>{ visaPlugg();
+    const s=document.getElementById('stang'); s.onclick=startskarm; };
+  document.getElementById('re').onclick=()=>{ visaResonemang();
+    const s=document.getElementById('stang'); s.onclick=startskarm; };
+  document.getElementById('om').onclick=()=>{ visaOmraden();
+    const s=document.getElementById('stang'); s.onclick=startskarm; };
+}
+if(!(navigator.maxTouchPoints>0||'ontouchstart' in window))
+  document.getElementById('kontroller').style.display='none';
+passaDuk(); uppdateraHud(); startskarm(); requestAnimationFrame(loop);
+</script>
+<script>(() => {
+  const context = document.modelContext;
+  if (!context?.registerTool) return;
+  const lifetime = new AbortController();
+  window.addEventListener('pagehide', () => lifetime.abort(), { once: true });
+  try {
+    Promise.resolve(context.registerTool({
+      name: 'open_study_game_menu',
+      title: 'Öppna spelets meny',
+      description: 'Öppnar den synliga menyn med spelets studiehjälp och inställningar. Besvarar inga frågor och ändrar inte framsteg.',
+      inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+      annotations: { readOnlyHint: false, untrustedContentHint: false },
+      async execute(input) {
+        if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length) throw new Error('Använd ett tomt objekt.');
+        const menu = document.getElementById('menyknapp');
+        const overlay = document.getElementById('overlagg');
+        if (!menu || !overlay) throw new Error('Menyn är inte tillgänglig.');
+        if (!overlay.classList.contains('dold')) throw new Error('Stäng den öppna dialogen först.');
+        menu.click();
+        await new Promise(resolve => requestAnimationFrame(resolve));
+        return { menuOpened: !overlay.classList.contains('dold'), game: document.title };
+      }
+    }, { signal: lifetime.signal })).catch(() => {});
+  } catch (_) {}
+})();
+</script></body>
+</html>

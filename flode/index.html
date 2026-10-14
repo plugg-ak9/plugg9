@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pluggflödet · Plugg åk 9</title>
+<meta name="description" content="Korta videor och reels, sen spelar du.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#10141C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plugg åk 9">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../ikon-180.png">
+<link rel="stylesheet" href="../fonter/fonter.css">
+<style>
+/* Layout: en smal kolumn att scrolla i, ett kort per ämne, videor först. */
+:root{
+  --bg:#EDF1F6; --yta:#FFFFFF; --text:#18202E; --dov:#556074; --linje:#D5DCE7;
+  --hkk:#C98A10; --so:#2F64CF; --tk:#1F8A5B; --kost:#D0503F; --no:#7B57C9; --ma:#0D8293; --fokus:#2F64CF;
+  --rubrik:"Lexend","Avenir Next","Segoe UI",sans-serif;
+  --brod:"Atkinson Hyperlegible","Verdana",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#10141C; --yta:#1A202B; --text:#EEF2F8; --dov:#A3ADBF; --linje:#2C3442;
+  --hkk:#F0B640; --so:#7EA6FF; --tk:#4FCB8E; --kost:#FF8574; --no:#B89BFF; --ma:#45C7D6; --fokus:#7EA6FF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141C; --yta:#1A202B; --text:#EEF2F8; --dov:#A3ADBF; --linje:#2C3442;
+  --hkk:#F0B640; --so:#7EA6FF; --tk:#4FCB8E; --kost:#FF8574; --no:#B89BFF; --ma:#45C7D6; --fokus:#7EA6FF; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--brod);font-size:19px;line-height:1.55;padding:calc(20px + env(safe-area-inset-top)) 16px 48px;letter-spacing:.01em}
+.wrap{max-width:640px;margin:0 auto;display:grid;gap:28px}
+.hem{justify-self:start;font-family:var(--rubrik);font-weight:700;font-size:.95rem;color:var(--text);text-decoration:none;background:var(--yta);border:2px solid var(--linje);border-radius:12px;padding:6px 12px}
+.topp h1{font-family:var(--rubrik);font-weight:800;font-size:2.1rem;line-height:1.1;margin:0;text-wrap:balance}
+.topp p{margin:8px 0 0;color:var(--dov)}
+.nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-family:var(--rubrik);font-weight:700;font-size:.85rem;text-decoration:none;color:var(--text);border:2px solid var(--c);border-radius:99px;padding:6px 14px}
+.hkk{--c:var(--hkk)} .no{--c:var(--no)} .ma{--c:var(--ma)} .so{--c:var(--so)} .tk{--c:var(--tk)} .kost{--c:var(--kost)}
+.avsnitt{background:var(--yta);border-radius:22px;padding:22px 18px;display:grid;gap:18px;border-top:8px solid var(--c);scroll-margin-top:12px}
+.avh{display:grid;gap:4px}
+.nar{margin:0;font-family:var(--rubrik);font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
+h2{font-family:var(--rubrik);font-weight:800;font-size:1.6rem;line-height:1.15;margin:0;text-wrap:balance}
+h3{font-family:var(--rubrik);font-weight:700;font-size:1.05rem;margin:0 0 8px}
+.las{justify-self:start;font-family:var(--rubrik);font-weight:700;font-size:.85rem;color:var(--c);background:transparent;border:2px solid var(--c);border-radius:12px;padding:6px 12px;cursor:pointer;margin-top:6px}
+.las.pa{background:var(--c);color:var(--yta)}
+.videor{display:grid;gap:16px}
+.video{margin:0;display:grid;gap:6px}
+.video video{width:100%;max-width:100%;aspect-ratio:16/9;border-radius:14px;background:#000;display:block}
+.staende video{aspect-ratio:9/16;width:auto;max-height:78vh;margin-inline:auto}
+.video figcaption{font-family:var(--rubrik);font-weight:700;font-size:1rem}
+.snart{margin:0;color:var(--dov);font-size:.95rem}
+.block{border-top:1px solid var(--linje);padding-top:14px;display:grid;gap:4px}
+.kan{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.kan li{padding-left:28px;position:relative}
+.kan li::before{content:"";position:absolute;left:4px;top:.5em;width:12px;height:12px;border-radius:50%;border:3px solid var(--c)}
+.spel{display:grid;gap:2px;text-decoration:none;color:var(--yta);background:var(--c);border-radius:16px;padding:14px 18px}
+.spel b{font-family:var(--rubrik);font-size:1.1rem}
+.spel span{font-size:.92rem}
+.spel[hidden]{display:none}
+.reel .nu{margin-top:8px}
+.offline{display:grid;gap:8px;justify-items:start}
+.offline button{font:700 .95rem var(--rubrik);color:var(--text);background:var(--yta);border:2px solid var(--linje);border-radius:12px;padding:8px 14px;cursor:pointer}
+a:focus-visible,button:focus-visible{outline:3px solid var(--fokus);outline-offset:3px}
+.fot{color:var(--dov);font-size:.9rem;text-align:center;margin:0}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="hem" href="../index.html" aria-label="Till startsidan">‹ Hem</a>
+<header class="topp">
+<h1>Pluggflödet</h1>
+<p>Scrolla, titta, klart. En video i taget räcker.</p>
+<nav class="nav" aria-label="Hoppa till"><a href="#fysik" class="chip no">Fysik</a><a href="#privatekonomi" class="chip hkk">Privatekonomi</a><a href="#so" class="chip so">Demokrati</a><a href="#kost" class="chip kost">Kost</a><a href="#genetik" class="chip no">Genetik</a><a href="#teknik" class="chip tk">Teknik</a><a href="#matte" class="chip ma">Matte</a></nav>
+</header>
+<section class="avsnitt no" id="fysik">
+<header class="avh"><p class="nar">Fysik</p><h2>Fysik: Materia och krafter, Optik</h2>
+<button class="las" type="button" data-las="Fysik: Materia och krafter, Optik">Läs upp</button></header>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Vad materia är, och densitet</li><li>Massa, tyngd och newton</li><li>Krafter och nettokraft</li><li>Hävstänger och vridmoment</li><li>Ljus, reflektion och osynligt ljus</li><li>Brytning, linser och speglar</li><li>Ögat och synfel</li></ul><button class="las" type="button" data-las="Vad materia är, och densitet. Massa, tyngd och newton. Krafter och nettokraft. Hävstänger och vridmoment. Ljus, reflektion och osynligt ljus. Brytning, linser och speglar. Ögat och synfel">Läs upp</button></div>
+<a class="spel" href="../spel/fysiklabbet.html"><b>Spela Fysiklabbet</b><span>Börja med rummen märkta Börja här. Tryck på Öva muntligt.</span></a>
+</section>
+<section class="avsnitt hkk" id="privatekonomi">
+<header class="avh"><p class="nar">Hem- och konsumentkunskap</p><h2>Privatekonomi</h2>
+<button class="las" type="button" data-las="Privatekonomi">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="inkomst-budget"><video controls playsinline preload="metadata" src="../videor/inkomst-budget.mp4?v=bd292820#t=0.5"></video><figcaption>Inkomst, utgifter och budget</figcaption></figure>
+<figure class="video" id="sparande"><video controls playsinline preload="metadata" src="../videor/sparande.mp4?v=aa1a36ef#t=0.5"></video><figcaption>Sparande</figcaption></figure>
+<figure class="video" id="lan-kredit"><video controls playsinline preload="metadata" src="../videor/lan-kredit.mp4?v=42967a5a#t=0.5"></video><figcaption>Lån och kredit</figcaption></figure>
+<figure class="video staende" id="faktura-kronofogden"><video controls playsinline preload="metadata" src="../videor/faktura-kronofogden.mp4?v=7490b9c3#t=0.5"></video><figcaption>Fakturan och Kronofogden</figcaption></figure>
+<figure class="video" id="forsakringar"><video controls playsinline preload="metadata" src="../videor/forsakringar.mp4?v=7702b771#t=0.5"></video><figcaption>Abonnemang och försäkringar</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Inkomst, bruttolön och nettolön</li><li>Fasta och rörliga utgifter, budget</li><li>Målsparande, buffert, sparränta</li><li>Ränta, amortering, sms-lån</li><li>Faktura → påminnelse → inkasso → Kronofogden</li><li>Hemförsäkring och självrisk</li></ul><button class="las" type="button" data-las="Inkomst, bruttolön och nettolön. Fasta och rörliga utgifter, budget. Målsparande, buffert, sparränta. Ränta, amortering, sms-lån. Faktura → påminnelse → inkasso → Kronofogden. Hemförsäkring och självrisk">Läs upp</button></div>
+<a class="spel" href="../spel/pengakollen.html"><b>Spela Pengakollen</b><span>Bana 1–6, sen provet på bana 7</span></a>
+</section>
+<section class="avsnitt so" id="so">
+<header class="avh"><p class="nar">Samhällskunskap</p><h2>Demokrati och riksdagen</h2>
+<button class="las" type="button" data-las="Demokrati och riksdagen">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="demokrati-valdeltagande"><video controls playsinline preload="metadata" src="../videor/demokrati-valdeltagande.mp4?v=c0505277#t=0.5"></video><figcaption>Demokratiska villkor och valdeltagande</figcaption></figure>
+<figure class="video" id="regering-lag"><video controls playsinline preload="metadata" src="../videor/regering-lag.mp4?v=141f18ba#t=0.5"></video><figcaption>Regeringstyper och hur en lag blir till</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Vilka villkor ska en demokrati uppfylla?</li><li>Vilka sorters regeringar kan Sverige ha?</li><li>Hur ändras en lag?</li><li>Är högt valdeltagande bra? Varför?</li></ul><button class="las" type="button" data-las="Vilka villkor ska en demokrati uppfylla?. Vilka sorters regeringar kan Sverige ha?. Hur ändras en lag?. Är högt valdeltagande bra? Varför?">Läs upp</button></div>
+<a class="spel" href="../spel/demokratiuppdraget.html"><b>Spela Demokratiuppdraget</b><span>Fyra uppdrag: demokrati, valdeltagande, regeringar, lagar</span></a>
+<a class="spel" href="../spel/sverigeresan.html"><b>Spela Sverigeresan</b><span>Bana 2 Visby och bana 7 Stockholm</span></a>
+</section>
+<section class="avsnitt kost" id="kost">
+<header class="avh"><p class="nar">Hem- och konsumentkunskap</p><h2>Kost och tallriksmodellen</h2>
+<button class="las" type="button" data-las="Kost och tallriksmodellen">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="tallriksmodellen"><video controls playsinline preload="metadata" src="../videor/tallriksmodellen.mp4?v=87366736#t=0.5"></video><figcaption>Tallriksmodellen och rött kött</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Tallriksmodellen: kolhydrater, protein, grönsaker</li><li>Rör dig mycket: lika mycket kolhydrater och grönsaker</li><li>Rör dig lite: mer grönsaker, mindre kolhydrater</li><li>Protein: kött, fisk, ägg, bönor · Kolhydrater: pasta, ris, potatis</li><li>Rött kött: max 350 g i veckan</li></ul><button class="las" type="button" data-las="Tallriksmodellen: kolhydrater, protein, grönsaker. Rör dig mycket: lika mycket kolhydrater och grönsaker. Rör dig lite: mer grönsaker, mindre kolhydrater. Protein: kött, fisk, ägg, bönor · Kolhydrater: pasta, ris, potatis. Rött kött: max 350 g i veckan">Läs upp</button></div>
+<a class="spel" href="../spel/pengakollen.html"><b>Spela Pengakollen</b><span>Köket – bana 8</span></a>
+</section>
+<section class="avsnitt no" id="genetik">
+<header class="avh"><p class="nar">Biologi</p><h2>Genetik</h2>
+<button class="las" type="button" data-las="Genetik">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="genetik"><video controls playsinline preload="metadata" src="../videor/genetik.mp4?v=679e7259#t=0.5"></video><figcaption>Genetik – det viktigaste</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>DNA, gener och kromosomer</li><li>Hur egenskaper ärvs</li><li>Dominant och recessiv</li><li>Korsningsschema</li><li>Mutation och genteknik</li></ul><button class="las" type="button" data-las="DNA, gener och kromosomer. Hur egenskaper ärvs. Dominant och recessiv. Korsningsschema. Mutation och genteknik">Läs upp</button></div>
+<a class="spel" href="../spel/biologiresan.html"><b>Spela Biologiresan</b><span>Bana 4: Arv och genteknik</span></a>
+</section>
+<section class="avsnitt tk" id="teknik">
+<header class="avh"><p class="nar">Teknik</p><h2>Micro:bit-bilen</h2>
+<button class="las" type="button" data-las="Micro:bit-bilen">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="microbit-bilen"><video controls playsinline preload="metadata" src="../videor/microbit-bilen.mp4?v=a744ec21#t=0.5"></video><figcaption>Micro:bit-bilen steg för steg</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Bilen kan starta och stanna</li><li>Bilen kör framåt, bakåt, vänster och höger</li><li>LED-skärmen visar en bild för varje rörelse</li><li>Bygg en bil i Tinkercad</li></ul><button class="las" type="button" data-las="Bilen kan starta och stanna. Bilen kör framåt, bakåt, vänster och höger. LED-skärmen visar en bild för varje rörelse. Bygg en bil i Tinkercad">Läs upp</button></div>
+
+</section>
+<section class="avsnitt ma" id="matte">
+<header class="avh"><p class="nar">Matematik</p><h2>Koordinatsystem, tabeller och grafer</h2>
+<button class="las" type="button" data-las="Koordinatsystem, tabeller och grafer">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="koordinatsystem"><video controls playsinline preload="metadata" src="../videor/koordinatsystem.mp4?v=4277eaf4#t=0.5"></video><figcaption>Koordinatsystem, tabeller och grafer</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Punkter i koordinatsystem</li><li>Tabeller och grafer</li></ul><button class="las" type="button" data-las="Punkter i koordinatsystem. Tabeller och grafer">Läs upp</button></div>
+
+</section>
+<div class="offline">
+<p class="snart">Ska du vara utan nät? Spara alla videor på enheten först (ca 114 MB).</p>
+<button type="button" id="sparaVideor">Spara videorna för offline</button>
+<p class="snart" id="sparaStatus" role="status"></p>
+</div>
+<p class="fot">Uppdaterad 14 oktober 2026. Videorna är gjorda av skolmaterial.</p>
+</div>
+<script>
+(function(){
+  // uppläsning på svenska
+  var aktiv=null;
+  function rost(){ var v=(window.speechSynthesis&&speechSynthesis.getVoices())||[]; return v.find(function(x){return /^sv/i.test(x.lang)&&/premium|enhanced|förbättrad|alva/i.test(x.name)})||v.find(function(x){return /^sv/i.test(x.lang)})||null; }
+  document.querySelectorAll('.las').forEach(function(b){
+    if(!('speechSynthesis' in window)){ b.hidden=true; return; }
+    b.addEventListener('click',function(){
+      speechSynthesis.cancel();
+      if(aktiv===b){ b.classList.remove('pa'); aktiv=null; return; }
+      if(aktiv) aktiv.classList.remove('pa');
+      var u=new SpeechSynthesisUtterance(b.dataset.las); u.lang='sv-SE'; var r=rost(); if(r) u.voice=r; u.rate=.92;
+      u.onend=function(){ b.classList.remove('pa'); if(aktiv===b) aktiv=null; };
+      aktiv=b; b.classList.add('pa'); speechSynthesis.speak(u);
+    });
+  });
+  // reels: visa "Nu spelar vi" när reelen är slut
+  document.querySelectorAll('.reel video').forEach(function(v){ v.addEventListener('ended',function(){ var a=v.parentNode.querySelector('.nu'); if(a){ a.hidden=false; a.scrollIntoView({block:'nearest',behavior:'smooth'}); } }); });
+  // pausa andra videor när en startar
+  var vs=[].slice.call(document.querySelectorAll('video'));
+  vs.forEach(function(v){ v.addEventListener('play',function(){ vs.forEach(function(o){ if(o!==v) o.pause(); }); }); });
+  if(location.hash){ var m=document.getElementById(location.hash.slice(1)); if(m) m.scrollIntoView(); }
+  // offline: service worker och "spara videorna"
+  var knapp=document.getElementById('sparaVideor'), status=document.getElementById('sparaStatus');
+  if(!('serviceWorker' in navigator)){ knapp.parentNode.hidden=true; return; }
+  navigator.serviceWorker.register('../sw.js').catch(function(){});
+  navigator.serviceWorker.addEventListener('message',function(e){
+    if(e.data&&e.data.typ==='videor-sparade') status.textContent=e.data.klara+' av '+e.data.av+' videor sparade'+(e.data.klara===e.data.av?'. Klart!':' …');
+  });
+  knapp.addEventListener('click',function(){
+    navigator.serviceWorker.ready.then(function(reg){ status.textContent='Sparar …'; reg.active.postMessage({typ:'spara-videor'}); });
+  });
+})();
+</script>
+</body>
+</html>
