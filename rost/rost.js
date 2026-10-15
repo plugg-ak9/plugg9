@@ -89,6 +89,28 @@
     })();
   }
 
+  // fartknapp i spelet, bredvid uppläsningsknappen (🔊): trycket växlar fart, sparas för alla spel
+  var FARTER = [0.9, 1, 1.1, 1.25, 1.4, 1.6];
+  function fartText(f) { return String(f).replace('.', ',') + '×'; }
+  function fartKnapp() {
+    var lj = document.getElementById('ljudknapp');
+    if (!lj || document.getElementById('rostfart')) return;
+    var b = document.createElement('button');
+    b.type = 'button'; b.id = 'rostfart'; b.className = lj.className;
+    b.title = 'Uppläsningens fart'; b.setAttribute('aria-label', 'Uppläsningens fart');
+    b.style.cssText = 'font:700 13px/1 system-ui,sans-serif;min-width:44px;padding:0 6px';
+    b.textContent = fartText(fart());
+    b.onclick = function () {
+      var nu = fart(), i = FARTER.findIndex(function (f) { return f > nu + 0.01; });
+      var ny = FARTER[i < 0 ? 0 : i];
+      try { localStorage.setItem('plugg9.rostfart', String(ny)); } catch (e) {}
+      b.textContent = fartText(ny);
+      ss.cancel(); var u = new SpeechSynthesisUtterance('Så här snabbt.'); u.lang = 'sv-SE'; u.rate = .94; ss.speak(u);
+    };
+    lj.parentNode.insertBefore(b, lj);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fartKnapp); else fartKnapp();
+
   ss.speak = function (u) { ko.push(u); setTimeout(nasta, 0); };
   ss.cancel = function () {
     generation++; ko = []; upptagen = false; aktuell = null;
