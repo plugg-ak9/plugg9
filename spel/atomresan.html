@@ -1,0 +1,1846 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../ikon-180.png">
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('../sw.js').catch(function(){});</script>
+<script src="../rost/rost.js" data-spel="atomresan"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Atomresan">
+<meta name="theme-color" content="#0E1730">
+<!-- Atomresan: pluggspel i atomkemi (åk 9), byggt ur Pluggspel-mall.html med NO/Kemi/_kalla/bygg-atomresan.py -->
+<title>Atomresan</title>
+<link rel="stylesheet" href="../fonter/fonter.css">
+<style>
+:root{
+  --night:#0E1730; --night2:#1A2547; --night3:#243158;
+  --parchment:#F6EDDA; --tekhelet:#5B87F0; --tekhelet-dim:#33488A;
+  --flame:#F2A83B; --olive:#7FB069; --pomegranate:#E0596F; --muted:#8E9BC2;
+  --line:rgba(142,155,194,.28);
+  --display:"Frank Ruhl Libre",Georgia,serif;
+  --body:"Assistant","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--night);color:var(--parchment);font-family:var(--body);
+  font-size:17px;line-height:1.6;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation}
+
+#skarm{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--night)}
+
+/* ---------- HUD ---------- */
+#hud{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--night);
+  border-bottom:1px solid var(--line);flex:0 0 auto;min-height:46px}
+#hud .plats{font-family:var(--display);font-weight:700;font-size:1.05rem;flex:1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hud .plats small{display:block;font-family:var(--body);font-weight:600;font-size:.72rem;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--tekhelet);line-height:1.2}
+.hjartan{display:flex;gap:3px}
+.hjartan svg{width:19px;height:19px;color:var(--pomegranate)}
+.hjartan svg.bort{color:var(--muted);opacity:.3}
+.raknare{display:flex;align-items:center;gap:5px;font-weight:700;font-variant-numeric:tabular-nums;font-size:.95rem}
+.raknare svg{width:18px;height:18px;color:var(--flame)}
+.miniknapp{background:var(--night2);border:1px solid var(--line);color:var(--parchment);
+  border-radius:10px;width:38px;height:38px;font-size:1.05rem;cursor:pointer;display:grid;place-items:center;flex:0 0 auto}
+.miniknapp:active{background:var(--night3)}
+.miniknapp[aria-pressed="false"]{opacity:.45}
+
+/* ---------- spelplan ---------- */
+#duk-lada{flex:1;position:relative;display:grid;place-items:center;overflow:hidden;background:#070C1A}
+canvas{display:block;image-rendering:auto;max-width:100%;max-height:100%}
+
+/* ---------- kontroller ---------- */
+#kontroller{flex:0 0 auto;display:flex;justify-content:space-between;align-items:flex-end;
+  padding:10px 16px 16px;gap:12px;background:var(--night)}
+.pad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(2,52px);gap:6px}
+.pad button{grid-column:span 1}
+.styr{background:var(--night2);border:1px solid var(--line);border-radius:14px;color:var(--parchment);
+  font-size:1.5rem;display:grid;place-items:center;cursor:pointer;font-family:var(--body);touch-action:none}
+.styr:active,.styr.ner{background:var(--tekhelet);border-color:var(--tekhelet);color:#0a1226}
+#hopp{width:104px;height:104px;border-radius:50%;background:var(--flame);border:none;color:#2c1c02;
+  font-weight:700;font-size:.95rem;font-family:var(--body);letter-spacing:.03em;cursor:pointer;
+  box-shadow:0 6px 0 #B87A1D;touch-action:none}
+#hopp:active,#hopp.ner{transform:translateY(4px);box-shadow:0 2px 0 #B87A1D}
+.gomd{visibility:hidden}
+
+/* ---------- överlägg ---------- */
+.overlagg{position:absolute;inset:0;background:rgba(8,13,28,.82);display:grid;place-items:center;
+  padding:14px;z-index:10;overflow:auto}
+.panel{background:var(--night2);border:1px solid var(--line);border-radius:18px;padding:20px;
+  max-width:520px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.etikett{text-transform:uppercase;letter-spacing:.11em;font-size:.7rem;font-weight:700;color:var(--tekhelet);margin:0 0 8px}
+.fraga{font-family:var(--display);font-weight:700;font-size:1.32rem;line-height:1.35;margin:0;text-wrap:balance}
+.alt{display:grid;gap:9px;margin-top:16px}
+.altknapp{display:flex;align-items:center;gap:11px;width:100%;background:var(--night3);
+  border:2px solid transparent;border-radius:13px;color:var(--parchment);font:inherit;font-weight:600;
+  font-size:1.04rem;line-height:1.35;padding:13px 15px;text-align:left;cursor:pointer;transition:border-color .12s,background .12s}
+.altknapp .bok{flex:0 0 27px;height:27px;border-radius:7px;background:rgba(255,255,255,.08);
+  display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:.95rem;color:var(--muted)}
+.altknapp:active:not(:disabled){border-color:var(--tekhelet)}
+.altknapp.ratt{border-color:var(--olive);background:rgba(127,176,105,.2)}
+.altknapp.ratt .bok{background:var(--olive);color:#0d1a08}
+.altknapp.fel{border-color:var(--pomegranate);background:rgba(224,89,111,.16)}
+.altknapp.fel .bok{background:var(--pomegranate);color:#2a0710}
+.altknapp.blek{opacity:.38}
+.facit{margin-top:14px;border-radius:13px;padding:13px 15px;border:1px solid}
+.facit.bra{background:rgba(127,176,105,.13);border-color:var(--olive)}
+.facit.daligt{background:rgba(224,89,111,.12);border-color:var(--pomegranate)}
+.facit b{font-family:var(--display);font-size:1.1rem;display:block;margin-bottom:2px}
+.facit.bra b{color:var(--olive)} .facit.daligt b{color:var(--pomegranate)}
+.facit p{margin:0;opacity:.93;font-size:.98rem}
+.knapp{font-family:var(--body);font-size:1rem;font-weight:700;background:var(--night3);color:var(--parchment);
+  border:1px solid var(--line);border-radius:12px;padding:12px 20px;cursor:pointer}
+.knapp.primar{background:var(--tekhelet);border-color:var(--tekhelet);color:#08122b}
+.knapp:active{transform:translateY(1px)}
+.rad{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center}
+.panel h2{font-family:var(--display);font-size:1.7rem;margin:0 0 6px;text-align:center;text-wrap:balance}
+.panel p.mitt{text-align:center;color:var(--muted);margin:0 auto;max-width:40ch}
+.ljusrad{display:flex;justify-content:center;gap:16px;margin:16px 0}
+.ljusrad span{display:grid;place-items:center;width:46px;height:46px}
+.ljusrad svg{width:46px;height:46px;color:var(--flame);opacity:.16;transform:scale(.7);
+  transition:opacity .4s,transform .4s cubic-bezier(.3,1.7,.5,1),filter .4s}
+.ljusrad span.tand svg{opacity:1;transform:none;filter:drop-shadow(0 0 12px rgba(242,168,59,.8))}
+.siffror{display:flex;justify-content:center;gap:26px;margin:14px 0 4px;text-align:center}
+.siffror b{font-family:var(--display);font-size:1.6rem;display:block;line-height:1;color:var(--flame);font-variant-numeric:tabular-nums}
+.siffror span{font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.dkropp{max-height:56vh;overflow:auto;margin-top:12px}
+.dkropp h3{font-family:var(--display);font-size:1.05rem;color:var(--flame);margin:16px 0 4px}
+.dkropp h3:first-child{margin-top:0}
+.dkropp dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:.97rem}
+.dkropp dt{font-weight:700;color:var(--tekhelet)}
+.dkropp dd{margin:0;opacity:.92}
+.dold{display:none!important}
+
+/* ---------- scener och uppdrag ---------- */
+.scenrad{display:flex;gap:13px;align-items:flex-start}
+.portratt{flex:0 0 68px;width:68px;height:68px;border-radius:16px;overflow:hidden;background:var(--night3)}
+.portratt svg{width:100%;height:100%;display:block}
+.talbubbla{background:var(--night3);border-radius:14px;padding:12px 14px;flex:1;min-width:0}
+.talbubbla .vem{font-family:var(--display);font-weight:700;color:var(--flame);font-size:1rem;display:block;margin-bottom:1px}
+.talbubbla p{font-size:1.02rem;line-height:1.45}
+.instr{color:var(--muted);font-size:.95rem;margin:14px 0 0}
+.parspel{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.parspel .kol{display:grid;gap:9px;align-content:start}
+.parspel .altknapp{font-size:.98rem;padding:12px}
+.ikonknapp{background:var(--night3);border:2px solid transparent;border-radius:13px;cursor:pointer;padding:7px;display:grid;place-items:center;min-height:62px}
+.ikonknapp svg{width:100%;height:46px}
+.ikonknapp:active{border-color:var(--tekhelet)}
+.ikonknapp.fel{border-color:var(--pomegranate)}
+.brick{background:var(--night3);border:1px solid var(--line);border-radius:99px;padding:9px 14px;font:inherit;
+  font-weight:600;font-size:.96rem;color:var(--parchment);cursor:pointer;font-family:var(--body)}
+.brick.vald{background:var(--flame);color:#2a1c04;border-color:var(--flame)}
+.brick.ratt{background:rgba(127,176,105,.25);border-color:var(--olive)}
+.bricklada{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;min-height:38px}
+.hogar{display:grid;gap:10px;margin-top:12px}
+.hog{background:var(--night3);border:2px dashed var(--line);border-radius:13px;padding:10px 12px;transition:border-color .2s}
+.hog h4{margin:0 0 6px;font-family:var(--display);font-size:1.02rem}
+.hog .innehall{display:flex;flex-wrap:wrap;gap:6px;min-height:22px}
+.klar{opacity:.3;pointer-events:none;border-color:var(--olive)!important}
+.stake{display:flex;justify-content:center;align-items:flex-end;gap:5px;margin:14px auto 0;
+  padding:0 10px 0;border-bottom:9px solid #B98A46;border-radius:0 0 10px 10px;max-width:340px}
+.ljusk{background:none;border:none;padding:4px 3px 0;cursor:pointer;display:flex;
+  flex-direction:column;align-items:center;gap:3px;border-radius:8px}
+.ljusk:active{background:rgba(255,255,255,.08)}
+.ljusk .laga{width:15px;height:19px;opacity:.12;transition:opacity .25s,transform .25s}
+.ljusk .laga svg{width:100%;height:100%;display:block}
+.ljusk.tand .laga{opacity:1;filter:drop-shadow(0 0 7px rgba(242,168,59,.85))}
+.ljusk .kropp{width:14px;height:34px;background:#F0E4C8;border-radius:3px 3px 0 0}
+.ljusk .stang{width:7px;height:32px;background:#B98A46}
+.ljusk.tjanare .stang{height:54px}
+.ljusk.tjanare .kropp{background:#FFF8E6}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+</style>
+
+<style>.hem-lank{font:600 14px/1.2 system-ui,sans-serif;color:#edf3f9;background:#243148;border:1px solid #3b4a66;border-radius:8px;padding:10px 9px;text-decoration:none;white-space:nowrap;flex-shrink:0}.hem-lank:focus-visible{outline:3px solid #b9ef76;outline-offset:2px}@media(max-width:480px){.hem-lank span{display:none}.hem-lank{font-size:24px;padding:4px 10px}}</style>
+<link rel="stylesheet" href="../design.css">
+</head>
+<body>
+<div id="skarm">
+  <div id="hud"><a href="../index.html" class="hem-lank" aria-label="Till startsidan">‹ <span>Hem</span></a>
+    <button class="miniknapp" id="menyknapp" title="Meny">☰</button>
+    <div class="plats"><small id="hudsmall">Kartan</small><span id="hudnamn">Judendomsresan</span></div>
+    <div class="raknare" id="rullor"></div>
+    <div class="hjartan" id="hjartan"></div>
+    <button class="miniknapp" id="ljudknapp" aria-pressed="true" title="Uppläsning">🔊</button>
+  </div>
+  <div id="duk-lada">
+    <canvas id="duk" width="400" height="288"></canvas>
+    <div id="overlagg" class="overlagg dold"></div>
+  </div>
+  <div id="kontroller">
+    <div class="pad">
+      <button class="styr gomd"></button>
+      <button class="styr" id="upp" data-t="upp">▲</button>
+      <button class="styr gomd"></button>
+      <button class="styr" id="vanster" data-t="vanster">◀</button>
+      <button class="styr" id="ner" data-t="ner">▼</button>
+      <button class="styr" id="hoger" data-t="hoger">▶</button>
+    </div>
+    <button id="hopp">HOPP</button>
+  </div>
+</div>
+
+<script>
+/* =======================================================================
+   FRÅGEBANK – allt hämtat ur SOS Religion, kap. 5 Judendom (s. 72–99)
+   ======================================================================= */
+/* =====  BYT UT: banor och frågor (Atomresan, atomkemi åk 9)  =====
+   Källa: lärarens material i atomkemi (NO/Kemi/_kalla/ATOMKEMI-LARARMATERIAL*.md).
+   Rätt svar står alltid först – motorn blandar. Alternativen är ungefär lika långa (inget ska avslöjas av längden). */
+const VARLDAR=[
+{id:1,namn:'Väte',under:'Atomens byggstenar',tema:'karna',portar:3,langd:44,svar:2,
+ fragor:[
+  ['Vilken laddning har en proton?',['Positiv','Negativ'],'Protoner är positiva.'],
+  ['Vilken laddning har en elektron?',['Negativ','Positiv'],'Elektroner är negativa.'],
+  ['Vilken laddning har en neutron?',['Ingen laddning','Positiv'],'Neutroner är neutrala – de saknar laddning.'],
+  ['Var finns protonerna och neutronerna?',['I atomkärnan','I elektronskalen'],'Atomkärnan består av protoner och neutroner.'],
+  ['Var finns elektronerna?',['I skal runt kärnan','Inne i atomkärnan'],'Elektronerna finns i elektronskal runt atomkärnan.'],
+  ['Vilken partikel bestämmer vilket ämne det är?',['Protonen','Elektronen'],'Antalet protoner bestämmer vilket ämne atomen är.'],
+  ['Vad är en atom?',['Minsta delen av ett grundämne','Största delen av ett grundämne'],'En atom är den minsta delen av ett grundämne.'],
+  ['Hur många elektroner har en atom jämfört med protoner?',['Lika många','Hälften'],'I en atom är protonerna och elektronerna lika många.'],
+  ['Vilka partiklar finns i atomkärnan?',['Protoner och neutroner','Protoner och elektroner'],'Kärnan = protoner och neutroner. Elektronerna finns i skalen.'],
+  ['En heliumatom har 2 protoner. Hur många elektroner har den?',['2','4'],'Protoner och elektroner är lika många i en atom.']
+ ]},
+{id:2,namn:'Litium',under:'Elektronskalen',tema:'labb',portar:4,langd:52,svar:3,
+ fragor:[
+  ['Vad heter det innersta elektronskalet?',['K-skalet','L-skalet','M-skalet'],'Det innersta skalet heter K-skalet, det andra L-skalet.'],
+  ['Vad heter det andra elektronskalet?',['L-skalet','K-skalet','A-skalet'],'K-skalet är innerst, sedan kommer L-skalet.'],
+  ['Hur många platser har K-skalet?',['2','8','18'],'K-skalet har 2 platser.'],
+  ['Hur många platser har L-skalet?',['8','2','4'],'L-skalet har 8 platser, och resten av skalen också.'],
+  ['Litium har 3 elektroner. Hur många finns i K-skalet?',['2','3','1'],'K-skalet fylls med 2. Den tredje elektronen hamnar i L-skalet.'],
+  ['Litium har 3 elektroner. Hur många finns i L-skalet?',['1','3','2'],'2 i K-skalet och 1 i L-skalet.'],
+  ['Helium har 2 elektroner. Var finns de?',['I K-skalet','I L-skalet','I kärnan'],'K-skalet har plats för 2, så båda får plats där.'],
+  ['En atom har 3 protoner. Hur många elektroner har den?',['3','6','1'],'Protoner och elektroner är lika många.'],
+  ['Natrium har 11 elektroner. Hur fördelas de i skalen?',['2, 8 och 1','8, 2 och 1','1, 8 och 2'],'K-skalet 2, L-skalet 8 och den sista i tredje skalet.'],
+  ['Klor har 17 elektroner. Hur fördelas de i skalen?',['2, 8 och 7','8, 8 och 1','2, 7 och 8'],'2 i K-skalet, 8 i L-skalet och 7 i det yttersta skalet.'],
+  ['Vad heter elektronerna i det yttersta skalet?',['Valenselektroner','Kärnelektroner','Skalneutroner'],'Valenselektroner är elektronerna i det yttersta skalet.']
+ ]},
+{id:3,namn:'Syre',under:'Atomnummer och atommassa',tema:'tabell',portar:4,langd:58,svar:3,
+ fragor:[
+  ['Vad är atomnumret?',['Antalet protoner','Antalet neutroner','Antalet skal'],'Antal protoner = atomnummer.'],
+  ['Vad är atommassan?',['Protoner plus neutroner','Protoner plus elektroner','Bara neutronerna'],'Atommassa = protoner + neutroner.'],
+  ['Helium har atomnummer 2. Hur många protoner har det?',['2','4','1'],'Atomnumret är antalet protoner.'],
+  ['Var står atomnumret när en atom skrivs i text?',['Nere till vänster','Uppe till vänster','Till höger'],'Atomnumret står nere till vänster om den kemiska beteckningen.'],
+  ['Var står atommassan när en atom skrivs i text?',['Uppe till vänster','Nere till vänster','Till höger'],'Atommassan står uppe till vänster, beteckningen till höger.'],
+  ['En syreatom har atomnummer 8 och atommassa 18. Hur många protoner?',['8','18','10'],'Atomnumret 8 = 8 protoner.'],
+  ['En syreatom har atomnummer 8 och atommassa 18. Hur många neutroner?',['10','8','18'],'Neutroner = atommassa minus atomnummer: 18 − 8 = 10.'],
+  ['Zink har atomnummer 30 och atommassa 70. Hur många protoner?',['30','70','40'],'Atomnumret 30 = 30 protoner.'],
+  ['Zink har atomnummer 30 och atommassa 70. Hur många neutroner?',['40','30','70'],'70 − 30 = 40 neutroner.'],
+  ['Zink har atomnummer 30. Hur många elektroner har en zinkatom?',['30','40','70'],'Elektronerna är lika många som protonerna: 30.'],
+  ['Kol har atomnummer 6 och atommassa 12. Hur många neutroner?',['6','12','18'],'12 − 6 = 6 neutroner.'],
+  ['Litium har atomnummer 3. Hur många elektroner har litium?',['3','6','1'],'Lika många elektroner som protoner: 3.']
+ ]},
+{id:4,namn:'Kol',under:'Periodiska systemet',tema:'tabell',portar:5,langd:64,svar:4,
+ fragor:[
+  ['I vilken ordning står ämnena i periodiska systemet?',['Efter atomnummer','I bokstavsordning','Efter färg','Efter ålder'],'Från lägst atomnummer (väte, 1) till högst.'],
+  ['Vilket ämne har atomnummer 1?',['Väte','Helium','Syre','Kol'],'Väte står först, med atomnummer 1.'],
+  ['Vad kallas de lodräta raderna?',['Grupper','Perioder','Skal','Serier'],'Grupper är lodräta.'],
+  ['Vad kallas de vågräta raderna?',['Perioder','Grupper','Skal','Serier'],'Perioder är vågräta.'],
+  ['Vad har ämnen i samma grupp gemensamt?',['Lika många valenselektroner','Lika många protoner','Lika stor atommassa','Lika många neutroner'],'Ämnen i en grupp har lika många valenselektroner.'],
+  ['Vad har ämnen i samma period gemensamt?',['Lika många elektronskal','Lika många valenselektroner','Samma atomnummer','Lika många neutroner'],'Ämnen i en period har samma antal elektronskal.'],
+  ['Vad är valenselektroner?',['Elektronerna i yttersta skalet','Elektronerna i innersta skalet','Protonerna i kärnan','Neutronerna i kärnan'],'Valenselektroner = elektronerna i yttersta elektronskalet.'],
+  ['Varför liknar ämnen i samma grupp varandra?',['Valenselektronerna styr egenskaperna','De har samma atomnummer','De väger exakt lika mycket','De har lika många neutroner'],'Valenselektronerna styr ämnets kemiska egenskaper.'],
+  ['Varför är väte och helium ensamma i period 1?',['Alla andra har fler än två elektroner','De är de tyngsta ämnena','De har inga elektroner','De saknar protoner'],'Period 1 har bara K-skalet, med 2 platser.'],
+  ['Vad har ämnena i den sista gruppen?',['Fulla yttersta skal','Tomma yttersta skal','En valenselektron','Inga elektronskal'],'I sista gruppen har alla ämnen fulla yttersta skal.'],
+  ['Ett ämne står i period 3. Hur många elektronskal har det?',['3','1','8','18'],'Perioden visar antalet elektronskal.'],
+  ['Hur många valenselektroner har ämnena i grupp 1?',['1','2','7','8'],'Grupp 1 har en valenselektron.'],
+  ['Hur många valenselektroner har ämnena i grupp 17?',['7','1','8','17'],'Grupp 17 (7 i häftet) har 7 valenselektroner.'],
+  ['Syre är en gas och svavel är fast. Varför står de i samma grupp?',['De har lika många valenselektroner','De har samma atomnummer','De är båda metaller','De har samma atommassa'],'Gruppen bestäms av valenselektronerna, inte av om ämnet är gas eller fast.']
+ ]},
+{id:5,namn:'Natrium',under:'Grundämnesfamiljer',tema:'neon',portar:5,langd:68,svar:4,
+ fragor:[
+  ['Vad kallas ämnena i grupp 1, utom väte?',['Alkalimetaller','Halogener','Ädelgaser','Övergångsmetaller'],'Alla ämnen i grupp 1 utom väte är alkalimetaller.'],
+  ['Vad kallas ämnena i grupp 17?',['Halogener','Alkalimetaller','Ädelgaser','Övergångsmetaller'],'Grupp 17 (7 i häftet), fluor och neråt, är halogener.'],
+  ['Vad kallas ämnena i den sista gruppen?',['Ädelgaser','Halogener','Alkalimetaller','Övergångsmetaller'],'Sista gruppen, helium och neråt, är ädelgaser.'],
+  ['Hur många valenselektroner har en alkalimetall?',['1','2','7','8'],'Alkalimetaller har bara 1 valenselektron.'],
+  ['Hur många valenselektroner har en halogen?',['7','1','2','8'],'Halogener har 7 valenselektroner – en ledig plats.'],
+  ['Varför reagerar ädelgaser nästan inte alls?',['De har fulla yttersta skal','De har en valenselektron','De saknar helt protoner','De är för tunga'],'Ädelgaserna har redan fulla yttersta skal.'],
+  ['Vad vill en alkalimetall göra med sin valenselektron?',['Lämna bort den','Behålla den','Få en till','Dela den'],'Alkalimetaller vill lämna bort sin valenselektron och bilda joner.'],
+  ['Vad vill en halogen göra?',['Ta emot en elektron','Ge bort sju elektroner','Behålla sitt skal','Få en till proton'],'Halogener vill fylla sin sista lediga plats med en elektron.'],
+  ['Vad händer när en alkalimetall kommer i vatten?',['Den reagerar häftigt','Ingenting alls händer','Den blir en ädelgas','Den löses upp lugnt'],'Alkalimetaller reagerar gärna, och väldigt häftigt, med vatten.'],
+  ['Vilket av de här ämnena är en halogen?',['Fluor','Natrium','Helium','Litium'],'Fluor står överst i grupp 17.'],
+  ['Vilket av de här ämnena är en ädelgas?',['Helium','Klor','Natrium','Väte'],'Helium står överst i sista gruppen.'],
+  ['Vilket av de här ämnena är en alkalimetall?',['Natrium','Väte','Neon','Klor'],'Natrium står i grupp 1. Väte står också där, men räknas inte som alkalimetall.'],
+  ['Hur många valenselektroner har övergångsmetaller?',['1–2','7','8','0'],'Övergångsmetallerna har 1–2 valenselektroner.'],
+  ['Varför passar halogener och alkalimetaller ihop?',['Den ena ger, den andra tar emot','Båda har fulla yttersta skal','Båda har sju valenselektroner','De har lika många protoner'],'Alkalimetallen lämnar bort en elektron som halogenen vill ha.']
+ ]},
+{id:6,namn:'Magnesium',under:'Joner',tema:'karna',portar:5,langd:68,svar:4,
+ fragor:[
+  ['Vad är en jon?',['En atom med laddning','En atom utan elektroner','En atom med två kärnor','En atom utan neutroner'],'En jon är en laddad atom. Den bildas när atomen lämnar bort eller tar upp elektroner.'],
+  ['Vad bildas när en atom får överskott på elektroner?',['En negativ jon','En positiv jon','En ädelgas','En neutron'],'Fler elektroner än protoner ger negativ laddning.'],
+  ['Vad bildas när en atom får underskott på elektroner?',['En positiv jon','En negativ jon','En ädelgas','En molekyl'],'Färre elektroner än protoner ger positiv laddning.'],
+  ['Hur blir en atom en positiv jon?',['Den lämnar bort elektroner','Den tar upp elektroner','Den tar upp protoner','Den lämnar bort neutroner'],'Elektroner är negativa. Lämnar atomen bort dem blir den positiv.'],
+  ['Hur blir en atom en negativ jon?',['Den tar upp elektroner','Den lämnar bort elektroner','Den lämnar bort protoner','Den tar upp neutroner'],'Fler negativa elektroner ger en negativ jon.'],
+  ['Vad betyder ädelgasstruktur?',['Fullt yttersta skal','Tomt innersta skal','Bara en elektron kvar','Lika många neutroner'],'Joner får fullt yttersta skal, precis som ädelgaserna.'],
+  ['Vilken laddning får jonerna som grupp 1 bildar?',['1+','1−','2+','2−'],'Grupp 1 lämnar bort sin enda valenselektron: Na⁺, Li⁺, K⁺.'],
+  ['Vilken laddning får jonerna som grupp 2 bildar?',['2+','2−','1+','1−'],'Grupp 2 lämnar bort två elektroner: Mg²⁺, Ca²⁺, Ba²⁺.'],
+  ['Vilken laddning får jonerna som grupp 17 bildar?',['1−','1+','7−','7+'],'Grupp 17 (7 i häftet) tar upp en elektron: Cl⁻, Br⁻, F⁻.'],
+  ['Vilken laddning får jonerna som grupp 16 bildar?',['2−','2+','6−','6+'],'Grupp 16 (6 i häftet) tar upp två elektroner: O²⁻, S²⁻.'],
+  ['Vilken laddning får aluminiumjonen?',['3+','3−','1+','2−'],'Aluminium står i grupp 13 (3 i häftet) och lämnar bort tre elektroner: Al³⁺.'],
+  ['Vad heter jonen som klor bildar?',['Kloridjon','Klorjon plus','Klorit','Klorgas'],'Klor tar upp en elektron och blir kloridjon, Cl⁻.'],
+  ['En natriumjon Na⁺ har 11 protoner. Hur många elektroner har den?',['10','11','12','1'],'Natrium har lämnat bort en elektron: 11 − 1 = 10.'],
+  ['En kloridjon Cl⁻ har 17 protoner. Hur många elektroner har den?',['18','17','16','7'],'Klor har tagit upp en elektron: 17 + 1 = 18.'],
+  ['En magnesiumjon Mg²⁺ har 12 protoner. Hur många elektroner?',['10','12','14','2'],'Magnesium har lämnat bort två elektroner: 12 − 2 = 10.'],
+  ['En kopparjon Cu²⁺ har 29 protoner. Hur många elektroner?',['27','29','31','2'],'Två elektroner har lämnats bort: 29 − 2 = 27.'],
+  ['Varför bildar argon inga joner?',['Det har redan fullt yttersta skal','Det har bara en elektron','Det saknar protoner','Det är en metall'],'Argon är en ädelgas och har redan ädelgasstruktur.']
+ ]},
+{id:7,namn:'Klor',under:'Jonföreningar',tema:'salt',portar:5,langd:70,svar:4,
+ fragor:[
+  ['Vad bildas när natrium och klor reagerar?',['Natriumklorid, NaCl','Natriumoxid, Na₂O','Klorgas, Cl₂','Natriumjon, Na⁺'],'Natriums valenselektron hoppar till klor. Det blir natriumklorid, vanligt koksalt.'],
+  ['Vilka joner finns i natriumklorid?',['Na⁺ och Cl⁻','Na⁻ och Cl⁺','Na²⁺ och Cl²⁻','Bara Na⁺'],'Natrium blir positiv jon, klor blir negativ jon.'],
+  ['Vad bildas när natrium och syre reagerar?',['Na₂O','NaO','NaO₂','Na₂O₂'],'Två Na⁺ behövs för en O²⁻, så formeln blir Na₂O.'],
+  ['Vad bildas när magnesium och syre reagerar?',['MgO','Mg₂O','MgO₂','Mg₂O₃'],'Mg²⁺ och O²⁻ tar ut varandra: MgO.'],
+  ['Vad bildas när kalium och brom reagerar?',['KBr','K₂Br','KBr₂','K₂Br₃'],'K⁺ och Br⁻ tar ut varandra: KBr.'],
+  ['Vad bildas när kalcium och fluor reagerar?',['CaF₂','CaF','Ca₂F','Ca₂F₃'],'Ca²⁺ behöver två F⁻: CaF₂.'],
+  ['Vad bildas när aluminium och syre reagerar?',['Al₂O₃','AlO','Al₃O₂','AlO₃'],'Två Al³⁺ (6+) och tre O²⁻ (6−) tar ut varandra: Al₂O₃.'],
+  ['Vad bildas när aluminium och klor reagerar?',['AlCl₃','AlCl','Al₃Cl','Al₂Cl'],'Al³⁺ behöver tre Cl⁻: AlCl₃.'],
+  ['Vilka joner finns i MgCl₂?',['1 Mg²⁺ och 2 Cl⁻','2 Mg⁺ och 1 Cl²⁻','1 Mg⁺ och 2 Cl⁺','2 Mg²⁺ och 2 Cl⁻'],'En magnesiumjon och två kloridjoner.'],
+  ['Vilka joner finns i CaO?',['1 Ca²⁺ och 1 O²⁻','1 Ca⁺ och 1 O⁻','2 Ca²⁺ och 1 O²⁻','1 Ca²⁺ och 2 O⁻'],'Ca²⁺ och O²⁻ tar ut varandra.'],
+  ['Vilka joner finns i Na₂S?',['2 Na⁺ och 1 S²⁻','1 Na²⁺ och 1 S²⁻','2 Na⁺ och 2 S⁻','1 Na⁺ och 2 S⁻'],'Två natriumjoner och en svaveljon.'],
+  ['Vilka joner finns i Al₂O₃?',['2 Al³⁺ och 3 O²⁻','3 Al²⁺ och 2 O³⁻','2 Al³⁺ och 2 O²⁻','1 Al³⁺ och 3 O²⁻'],'Sex plus och sex minus tar ut varandra.'],
+  ['I magnesiumklorid: vilket ämne har lämnat bort elektroner?',['Magnesium','Klor','Båda ämnena','Inget av dem'],'Metallen magnesium lämnar bort elektroner och blir Mg²⁺.'],
+  ['Leder magnesiumklorid ström när den är löst i vatten?',['Ja, jonerna kan röra sig','Nej, inte alls','Bara om den kokas','Bara i fast form'],'I vattenlösning kan jonerna röra sig och leda ström.'],
+  ['Vad har en jonförening för laddning totalt?',['Ingen laddning','Positiv laddning','Negativ laddning','Dubbel laddning'],'Plus och minus tar ut varandra.']
+ ]},
+{id:8,namn:'Kväve',under:'Formler och formelmassa',tema:'labb',portar:5,langd:72,svar:4,
+ fragor:[
+  ['Vad är ett grundämne?',['Ett ämne av bara ett slags atomer','Ett ämne av två slags atomer','En blandning av flera ämnen','En jon med laddning'],'Ett grundämne består av en enda sorts atomer.'],
+  ['Ungefär hur många naturliga grundämnen finns det?',['Ungefär 90','Ungefär 20','Ungefär 500','Ungefär 1000'],'Det finns ungefär 90 grundämnen i naturen. Fler har tillverkats i labb.'],
+  ['Vilka två huvudgrupper delas grundämnena in i?',['Metaller och ickemetaller','Joner och molekyler','Gaser och vätskor','Protoner och neutroner'],'Grundämnena delas in i metaller och ickemetaller.'],
+  ['Vad är en kemisk förening?',['Flera grundämnen som sitter ihop','Ett enda slags atomer','En atom utan elektroner','En blandning av två gaser'],'I en kemisk förening har två eller fler grundämnen gått ihop.'],
+  ['Vad visar den lilla siffran i H₂O?',['Att det finns 2 väteatomer','Att det finns 2 syreatomer','Att vattnet är 2 grader','Att det finns 2 molekyler'],'Den lilla siffran efter H betyder två väteatomer.'],
+  ['Hur många atomer finns i H₂O?',['3','2','1','4'],'2 väteatomer och 1 syreatom = 3 atomer.'],
+  ['Hur många grundämnen finns i NH₃?',['2','4','3','1'],'Kväve och väte: 2 grundämnen.'],
+  ['Hur många atomer finns i NH₃?',['4','3','2','5'],'1 kväveatom och 3 väteatomer = 4.'],
+  ['Hur många grundämnen finns i H₂SO₄?',['3','7','2','4'],'Väte, svavel och syre: 3 grundämnen.'],
+  ['Hur många atomer finns i H₂SO₄?',['7','3','6','4'],'2 H + 1 S + 4 O = 7 atomer.'],
+  ['Hur många atomer finns i O₂?',['2','1','3','4'],'Två syreatomer som sitter ihop.'],
+  ['Hur många atomer finns i druvsocker, C₆H₁₂O₆?',['24','18','6','3'],'6 + 12 + 6 = 24 atomer.'],
+  ['Vad är formelmassan för H₂O? (H = 1, O = 16)',['18 u','17 u','16 u','34 u'],'1 + 1 + 16 = 18 u.'],
+  ['Vad är formelmassan för CO₂? (C = 12, O = 16)',['44 u','28 u','40 u','32 u'],'12 + 16 + 16 = 44 u.'],
+  ['Vad är formelmassan för NH₃? (N = 14, H = 1)',['17 u','15 u','42 u','14 u'],'14 + 1 + 1 + 1 = 17 u.'],
+  ['Vad är formelmassan för druvsocker? (C = 12, H = 1, O = 16)',['180 u','90 u','24 u','144 u'],'6·12 + 12·1 + 6·16 = 72 + 12 + 96 = 180 u.']
+ ]},
+{id:9,namn:'Järn',under:'Balansera reaktionsformler',tema:'tabell',portar:5,langd:76,svar:4,
+ fragor:[
+  ['Vad betyder det att en reaktionsformel är balanserad?',['Lika många atomer på båda sidor','Lika många ämnen på båda sidor','Att pilen pekar åt höger','Att alla siffror är ettor'],'Atomer försvinner inte och skapas inte. Det ska vara lika många av varje sort på båda sidor.'],
+  ['Vad får man ändra när man balanserar?',['Siffran framför formeln','Den lilla siffran i formeln','Pilens riktning','Ämnenas namn'],'Man sätter siffror framför. Den lilla siffran ändrar ämnet och får inte ändras.'],
+  ['Balansera: __C + O₂ → __CO',['2C + O₂ → 2CO','C + O₂ → CO','C + 2O₂ → 2CO','2C + 2O₂ → CO'],'Två syreatomer till vänster kräver två CO till höger, och då två C till vänster.'],
+  ['Balansera: __Mg + O₂ → __MgO',['2Mg + O₂ → 2MgO','Mg + O₂ → MgO','Mg + 2O₂ → 2MgO','2Mg + 2O₂ → MgO'],'2 syreatomer → 2 MgO → 2 Mg.'],
+  ['Balansera: __CuO + C → __Cu + CO₂',['2CuO + C → 2Cu + CO₂','CuO + C → Cu + CO₂','CuO + 2C → Cu + 2CO₂','2CuO + 2C → 2Cu + CO₂'],'CO₂ har två syreatomer, så det behövs två CuO – och då två Cu.'],
+  ['Balansera: __PbO + C → __Pb + CO₂',['2PbO + C → 2Pb + CO₂','PbO + C → Pb + CO₂','PbO + 2C → Pb + 2CO₂','2PbO + 2C → 2Pb + CO₂'],'Samma mönster som med CuO: två PbO för en CO₂.'],
+  ['Balansera: __Al + __O₂ → __Al₂O₃',['4Al + 3O₂ → 2Al₂O₃','2Al + O₂ → Al₂O₃','Al + 3O₂ → Al₂O₃','4Al + 2O₂ → 2Al₂O₃'],'6 syreatomer på båda sidor (3·2 = 2·3) och 4 aluminium.'],
+  ['Balansera: CH₄ + __O₂ → CO₂ + __H₂O',['CH₄ + 2O₂ → CO₂ + 2H₂O','CH₄ + O₂ → CO₂ + H₂O','CH₄ + 3O₂ → CO₂ + 3H₂O','2CH₄ + O₂ → CO₂ + 2H₂O'],'4 väte → 2 H₂O. Syre: 2 + 2 = 4 till höger, alltså 2 O₂.'],
+  ['Balansera: __Fe₂O₃ + __C → __Fe + __CO₂',['2Fe₂O₃ + 3C → 4Fe + 3CO₂','Fe₂O₃ + C → 2Fe + CO₂','Fe₂O₃ + 3C → 2Fe + 3CO₂','2Fe₂O₃ + C → 4Fe + CO₂'],'6 syreatomer blir 3 CO₂, 4 järn till höger kräver 2 Fe₂O₃.'],
+  ['Hur många syreatomer finns i 2CO₂?',['4','2','3','6'],'2 molekyler med 2 syreatomer var = 4.'],
+  ['Hur många väteatomer finns i 2H₂O?',['4','2','3','6'],'2 molekyler med 2 väteatomer var = 4.'],
+  ['Varför måste en reaktionsformel balanseras?',['Atomer försvinner aldrig','Pilen kräver det','Ämnena väger lika mycket','Annars blir det ingen jon'],'Det som finns före reaktionen finns kvar efteråt, bara ihopsatt på nytt sätt.']
+ ]},
+{id:10,namn:'Provet',under:'Allt blandat',tema:'prov',portar:6,langd:88,svar:4,boss:true,fragor:[]}
+];
+
+/* plugglistan: begrepp + kort förklaring, med lärarens formuleringar */
+const PLUGG=[
+ ['Atomen',[['Proton','Positiv. Bestämmer vilket ämne det är.'],['Elektron','Negativ. Finns i skal runt kärnan.'],['Neutron','Neutral, saknar laddning.'],['Atomkärna','Protoner och neutroner.'],['Atom','Minsta delen av ett grundämne.'],['Lika många','Protoner och elektroner är lika många i en atom.']]],
+ ['Elektronskal',[['K-skalet','Innersta skalet. 2 platser.'],['L-skalet','Andra skalet. 8 platser, resten av skalen också.'],['Litium','3 elektroner: 2 i K-skalet, 1 i L-skalet.'],['Valenselektroner','Elektronerna i yttersta skalet.']]],
+ ['Atomnummer och atommassa',[['Atomnummer','Antal protoner. Står nere till vänster.'],['Atommassa','Protoner + neutroner. Står uppe till vänster.'],['Neutroner','Atommassa minus atomnummer. Syre 18 − 8 = 10.']]],
+ ['Periodiska systemet',[['Ordning','Från lägst atomnummer (väte, 1) till högst.'],['Grupper','Lodräta. Lika många valenselektroner – ämnena liknar varandra.'],['Perioder','Vågräta. Samma antal elektronskal.'],['Period 1','Bara väte och helium – alla andra har fler än två elektroner.'],['Sista gruppen','Fulla yttersta skal.']]],
+ ['Grundämnesfamiljer',[['Alkalimetaller','Grupp 1 utom väte. 1 valenselektron. Vill lämna bort den. Reagerar häftigt med vatten.'],['Halogener','Grupp 17 (7). Fluor och neråt. 7 valenselektroner, en ledig plats.'],['Ädelgaser','Sista gruppen, helium och neråt. Fulla skal – reagerar inte.'],['Övergångsmetaller','1–2 valenselektroner.'],['Koksalt','Natriums valenselektron hoppar till klor: natriumklorid, NaCl.']]],
+ ['Joner',[['Jon','En laddad atom. Bildas när atomen lämnar bort eller tar upp elektroner.'],['Positiv jon','Har lämnat bort elektroner (underskott). Metaller, t.ex. Na⁺, Mg²⁺, Al³⁺.'],['Negativ jon','Har tagit upp elektroner (överskott). Ickemetaller, t.ex. Cl⁻, O²⁻, N³⁻.'],['Laddning per grupp','Grupp 1: 1+ · grupp 2: 2+ · grupp 13: 3+ · grupp 16: 2− · grupp 17: 1− · ädelgaser: ingen jon.'],['Ädelgasstruktur','Fullt yttersta skal, som en ädelgas.'],['Namn','Kloridjon Cl⁻, bromidjon Br⁻, fluoridjon F⁻.']]],
+ ['Jonföreningar',[['Jonförening','Positiva och negativa joner som håller ihop. Totalt ingen laddning.'],['Exempel','NaCl, Na₂O, MgO, MgCl₂, CaF₂, Al₂O₃, AlCl₃.'],['Formeln','Lika mycket plus som minus: Al³⁺ + O²⁻ → Al₂O₃.'],['Leder ström','Löst i vatten kan jonerna röra sig och leda ström.']]],
+ ['Formler',[['Grundämne','Bara ett slags atomer. Metaller och ickemetaller.'],['Kemisk förening','Två eller fler grundämnen som sitter ihop.'],['Lilla siffran','Antal atomer: H₂O = 2 väte + 1 syre.'],['Formelmassa','Summan av atommassorna: CO₂ = 12 + 16 + 16 = 44 u.'],['Druvsocker','C₆H₁₂O₆: 24 atomer, 180 u.']]],
+ ['Balansera',[['Regeln','Lika många atomer av varje sort på båda sidor av pilen.'],['Så gör du','Ändra bara siffran framför formeln, aldrig den lilla siffran.'],['Exempel','2Mg + O₂ → 2MgO · CH₄ + 2O₂ → CO₂ + 2H₂O.']]]
+];
+
+/* personerna man möter */
+const FIGUR={
+ mira:{bg:'#24406A',hud:'#E8C39E',har:'#7A3B2E',lugg:1,mantel:'#F2F4F7',krage:'#5B87F0'},
+ bo:  {bg:'#3A2E4A',hud:'#D9A97E',har:'#D8D2C6',skagg:'kort',mantel:'#F2F4F7',krage:'#7FB069'}
+};
+const HAVSUPPDRAG=null;   // används inte i Atomresan
+
+const SCENER={
+ 1:{in:[['Kemisten Mira','mira','Välkommen till Atomresan! Vi börjar i väte, det första ämnet i periodiska systemet.'],
+        ['Kemisten Mira','mira','Allt består av atomer. Här lär du dig vad en atom är gjord av: protoner, neutroner och elektroner.']],
+   ut:[['Kemisten Mira','mira','Bra! Nu vet du vad atomen består av. Gå vidare till litium – där ska vi titta på elektronskalen.']]},
+ 2:{in:[['Professor Bo','bo','Litium har tre elektroner. Två får plats i det innersta skalet, K-skalet. Den tredje hamnar i L-skalet.']],
+   ut:[['Professor Bo','bo','Snyggt! Nästa stopp är syre. Där räknar vi protoner och neutroner.']]},
+ 3:{in:[['Kemisten Mira','mira','Atomnumret är antalet protoner. Atommassan är protoner plus neutroner. Med de två kan du räkna ut allt annat.']],
+   ut:[['Kemisten Mira','mira','Du kan räkna atomer nu! Gå till kol, mitt i tabellen.']]},
+ 4:{in:[['Professor Bo','bo','Periodiska systemet är en karta. Grupper är lodräta, perioder är vågräta. Titta på golvet du går på!']],
+   ut:[['Professor Bo','bo','Nu kan du läsa kartan. Gå ner till natrium – där möter du familjerna.']]},
+ 5:{in:[['Kemisten Mira','mira','Vissa grupper kallas familjer: alkalimetaller, halogener och ädelgaser. De beter sig på helt olika sätt.']],
+   ut:[['Kemisten Mira','mira','Bra jobbat! Familjerna vill ge bort eller ta upp elektroner. Gå till magnesium – där blir atomerna joner.']]},
+ 6:{in:[['Professor Bo','bo','När en atom lämnar bort eller tar upp elektroner blir den en jon. Då får den laddning – och ett fullt yttersta skal.']],
+   ut:[['Professor Bo','bo','Nu kan du joner! Gå till klor – där sätter vi ihop dem till jonföreningar.']]},
+ 7:{in:[['Kemisten Mira','mira','Plus och minus dras till varandra. Natrium och klor blir natriumklorid – vanligt koksalt.']],
+   ut:[['Kemisten Mira','mira','Snyggt! Gå upp till kväve. Där läser vi formler och räknar formelmassa.']]},
+ 8:{in:[['Professor Bo','bo','En formel berättar vilka atomer som finns och hur många. Den lilla siffran räknar atomerna.']],
+   ut:[['Professor Bo','bo','Bra! Sista biten före provet: balansera reaktionsformler. Gå ner till järn.']]},
+ 9:{in:[['Kemisten Mira','mira','Atomer försvinner aldrig. Därför ska det vara lika många av varje sort på båda sidor om pilen.']],
+   ut:[['Kemisten Mira','mira','Du kan balansera! Nu återstår provet, uppe vid helium.']]},
+ 10:{in:[['Professor Bo','bo','Det här är provet. Allt blandat. Ta det lugnt – fel svar ger bara en ny fråga.']],
+   ut:[['Professor Bo','bo','Du klarade hela Atomresan! Det här kan du nu.']]}
+};
+
+const UPPDRAG={
+ 1:[{t:'para',vem:'Kemisten Mira',bild:'mira',
+     f:'Para ihop partikeln med rätt beskrivning.',
+     parord:[['Proton','Positiv, finns i kärnan'],['Neutron','Saknar laddning, finns i kärnan'],['Elektron','Negativ, finns i skalen']],
+     facit:'Protoner och neutroner finns i atomkärnan. Elektronerna finns i skalen runt kärnan.'}],
+ 2:[{t:'ordning',vem:'Professor Bo',bild:'bo',
+     f:'Sätt skalen i ordning – det innersta överst.',
+     ord:['K-skalet','L-skalet','M-skalet'],
+     facit:'K-skalet är innerst med 2 platser. Sedan kommer L-skalet med 8 platser, och sedan nästa skal.'}],
+ 3:[{t:'para',vem:'Kemisten Mira',bild:'mira',
+     f:'Para ihop ordet med vad det betyder.',
+     parord:[['Atomnummer','Antalet protoner'],['Atommassa','Protoner plus neutroner'],['Neutroner','Atommassa minus atomnummer']],
+     facit:'Atomnummer = protoner. Atommassa = protoner + neutroner. Neutroner = atommassa − atomnummer.'}],
+ 4:[{t:'sortera',vem:'Professor Bo',bild:'bo',
+     f:'Gäller det grupper eller perioder?',
+     hogar:['Grupper','Perioder'],
+     items:[['Lodräta',0],['Lika många valenselektroner',0],['Ämnena liknar varandra',0],
+            ['Vågräta',1],['Samma antal elektronskal',1],['Väte och helium är ensamma här',1]],
+     facit:'Grupper är lodräta och har lika många valenselektroner. Perioder är vågräta och har samma antal skal.'}],
+ 5:[{t:'sortera',vem:'Kemisten Mira',bild:'mira',
+     f:'Vilken familj hör ämnet till?',
+     hogar:['Alkalimetaller','Halogener','Ädelgaser'],
+     items:[['Litium',0],['Natrium',0],['Kalium',0],['Fluor',1],['Klor',1],['Brom',1],['Helium',2],['Neon',2],['Argon',2]],
+     facit:'Grupp 1 utom väte är alkalimetaller, grupp 17 halogener och sista gruppen ädelgaser.'}],
+ 6:[{t:'sortera',vem:'Professor Bo',bild:'bo',
+     f:'Blir ämnet en positiv eller en negativ jon?',
+     hogar:['Positiv jon','Negativ jon'],
+     items:[['Natrium',0],['Magnesium',0],['Kalium',0],['Aluminium',0],['Klor',1],['Syre',1],['Fluor',1],['Svavel',1]],
+     facit:'Metallerna lämnar bort elektroner och blir positiva. Ickemetallerna tar upp elektroner och blir negativa.'}],
+ 7:[{t:'para',vem:'Kemisten Mira',bild:'mira',
+     f:'Para ihop föreningen med jonerna i den.',
+     parord:[['MgCl₂','1 Mg²⁺ och 2 Cl⁻'],['Na₂O','2 Na⁺ och 1 O²⁻'],['KBr','1 K⁺ och 1 Br⁻'],['Al₂O₃','2 Al³⁺ och 3 O²⁻']],
+     facit:'Plus och minus ska ta ut varandra. Därför behövs till exempel två Na⁺ för en O²⁻.'}],
+ 8:[{t:'sortera',vem:'Professor Bo',bild:'bo',
+     f:'Grundämne eller kemisk förening?',
+     hogar:['Grundämne','Kemisk förening'],
+     items:[['O₂',0],['Fe',0],['C',0],['Na',0],['H₂O',1],['CO₂',1],['NH₃',1],['NaCl',1]],
+     facit:'O₂ är bara syre, därför ett grundämne. H₂O har både väte och syre, därför en förening.'}],
+ 9:[{t:'ordning',vem:'Kemisten Mira',bild:'mira',
+     f:'Balansera Mg + O₂ → MgO. Sätt stegen i rätt ordning.',
+     ord:['Räkna atomerna på båda sidor','Syre stämmer inte: 2 till vänster, 1 till höger','Sätt en 2:a framför MgO','Nu stämmer inte magnesium: sätt en 2:a framför Mg','Kontrollera: 2 Mg och 2 O på båda sidor'],
+     facit:'Svaret är 2Mg + O₂ → 2MgO.'}]
+};
+
+
+</script>
+
+<script>
+/* =======================  GRUND  ======================= */
+const duk=document.getElementById('duk'), ctx=duk.getContext('2d');
+const W=400,H=288,TILE=24,ROWS=12,GR=9;
+let VH=288,OFF=0;   // synlig höjd anpassas efter skärmen              // GR = markens översta rad
+const overlagg=document.getElementById('overlagg');
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const slump=(a,b)=>a+Math.random()*(b-a);
+const slumpI=(a,b)=>Math.floor(slump(a,b+1));
+const valj=a=>a[Math.floor(Math.random()*a.length)];
+const blanda=a=>{const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function passaDuk(){
+  const l=document.getElementById('duk-lada');
+  const lw=Math.max(200,l.clientWidth), lh=Math.max(160,l.clientHeight);
+  VH=Math.round(clamp(lh/(lw/W),H,400)); OFF=VH-H;
+  duk.width=W; duk.height=VH;
+  const s=Math.min(lw/W,lh/VH);
+  duk.style.width=Math.floor(W*s)+'px'; duk.style.height=Math.floor(VH*s)+'px';
+}
+addEventListener('resize',passaDuk);
+
+/* =======================  SPARAT  ======================= */
+const NY='atomresan.v1';
+let spar={ljus:{},rullor:0,ljudEff:true,tal:true};
+try{const r=localStorage.getItem(NY); if(r)spar=Object.assign(spar,JSON.parse(r));}catch(e){}
+const spara=()=>{try{localStorage.setItem(NY,JSON.stringify(spar));}catch(e){}};
+const uppLast=id=>id===1||(spar.ljus[id-1]||0)>0;
+const totLjus=()=>Object.values(spar.ljus).reduce((a,b)=>a+b,0);
+
+/* =======================  LJUD  ======================= */
+let ac=null;
+function pip(f,t,typ,vol){
+  if(!spar.ljudEff)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==='suspended')ac.resume();
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type=typ||'square'; o.frequency.value=f;
+    g.gain.setValueAtTime(vol||.05,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+t);
+    o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+t);
+  }catch(e){}
+}
+const ljudHopp =()=>pip(430,.11,'square',.045);
+const ljudRulle=()=>{pip(760,.07,'triangle',.06);setTimeout(()=>pip(1150,.09,'triangle',.05),60);};
+const ljudRatt =()=>{[523,659,784,1047].forEach((f,i)=>setTimeout(()=>pip(f,.13,'triangle',.06),i*85));};
+const ljudFel  =()=>{pip(190,.18,'sawtooth',.045);setTimeout(()=>pip(140,.24,'sawtooth',.04),140);};
+const ljudAj   =()=>{pip(300,.1,'square',.05);setTimeout(()=>pip(180,.2,'square',.045),90);};
+const ljudPort =()=>{[392,523,659].forEach((f,i)=>setTimeout(()=>pip(f,.16,'sine',.06),i*70));};
+
+/* =======================  UPPLÄSNING  ======================= */
+let rost=null;
+function rosterLista(){
+  if(!('speechSynthesis' in window))return [];
+  const alla=speechSynthesis.getVoices()||[];
+  const sv=alla.filter(v=>/^sv/i.test(v.lang||''));
+  return sv.length?sv:alla;
+}
+function rostPoang(v){
+  const n=(v.name||'').toLowerCase(); let p=0;
+  if(/premium/.test(n))p+=120;
+  else if(/enhanced|förbättrad|forbattrad|neural|natural/.test(n))p+=90;
+  if(/siri/.test(n))p+=60;
+  if(v.localService===false)p+=40;          // t.ex. Googles nätröster
+  if(/compact|komprimerad|eloquence/.test(n))p-=60;
+  if(/alva|klara|oskar|joanna/.test(n))p+=10;
+  if(v.lang==='sv-SE')p+=6;
+  return p;
+}
+function valjRost(){
+  const l=rosterLista(); if(!l.length){rost=null;return;}
+  if(spar.rostNamn){ const t=l.find(v=>v.name===spar.rostNamn); if(t){rost=t;return;} }
+  rost=l.slice().sort((a,b)=>rostPoang(b)-rostPoang(a))[0];
+}
+if('speechSynthesis' in window){valjRost();speechSynthesis.onvoiceschanged=valjRost;}
+const tyst=()=>{if('speechSynthesis' in window)speechSynthesis.cancel();};
+function las(text){
+  if(!spar.tal||!('speechSynthesis' in window))return;
+  tyst(); if(!rost)valjRost();
+  // dela upp i korta meningar – bättre satsmelodi och mindre risk att iOS klipper av
+  const bitar=String(text).split(/(?<=[.!?])\s+/).filter(t=>t.trim());
+  setTimeout(()=>{
+    for(const bit of bitar){
+      const u=new SpeechSynthesisUtterance(bit);
+      u.lang='sv-SE'; if(rost)u.voice=rost; u.rate=.94; u.pitch=1.02;
+      speechSynthesis.speak(u);
+    }
+  },80);
+}
+
+/* =======================  STYRNING  ======================= */
+const tang={vanster:false,hoger:false,upp:false,ner:false,hopp:false};
+let hoppTryck=false;
+const KARTA={ArrowLeft:'vanster',KeyA:'vanster',ArrowRight:'hoger',KeyD:'hoger',
+  ArrowUp:'upp',KeyW:'upp',ArrowDown:'ner',KeyS:'ner',Space:'hopp',KeyZ:'hopp',Enter:'hopp',KeyX:'hopp'};
+addEventListener('keydown',e=>{const k=KARTA[e.code];if(k){if(!tang[k]&&k==='hopp')hoppTryck=true;tang[k]=true;e.preventDefault();}});
+addEventListener('keyup',e=>{const k=KARTA[e.code];if(k){tang[k]=false;e.preventDefault();}});
+function knappStyr(el,namn){
+  const ned=e=>{e.preventDefault();if(namn==='hopp'&&!tang.hopp)hoppTryck=true;tang[namn]=true;el.classList.add('ner');};
+  const upp=e=>{e.preventDefault();tang[namn]=false;el.classList.remove('ner');};
+  el.addEventListener('pointerdown',ned);
+  el.addEventListener('pointerup',upp); el.addEventListener('pointercancel',upp);
+  el.addEventListener('pointerleave',upp);
+  el.addEventListener('contextmenu',e=>e.preventDefault());
+}
+['vanster','hoger','upp','ner'].forEach(n=>knappStyr(document.getElementById(n),n));
+knappStyr(document.getElementById('hopp'),'hopp');
+
+/* =======================  BANBYGGE  ======================= */
+function tomGrid(cols){return Array.from({length:ROWS},()=>Array(cols).fill('.'));}
+function mark(g,c0,c1){for(let c=c0;c<c1;c++)for(let r=GR;r<ROWS;r++)if(g[r])g[r][c]='#';}
+function block(g,c0,c1,r0,r1){for(let c=c0;c<c1;c++)for(let r=r0;r<r1;r++)if(g[r]&&c>=0)g[r][c]='#';}
+
+function byggBana(v){
+  const svart=v.id;
+  const bitar=['plan','grop','plattform'];
+  if(svart>=2)bitar.push('trappa','grop');
+  if(svart>=3)bitar.push('hoppkedja');
+  if(svart>=4)bitar.push('taggar');
+  if(svart>=5)bitar.push('rorlig');
+  if(svart>=6)bitar.push('hoppkedja','rorlig');
+
+  const g=tomGrid(v.langd+40);
+  const rullor=[],portar=[],rorliga=[];
+  const npcar=[]; let hav=null;
+  const fragor=blanda(v.boss?bossFragor():v.fragor);
+  const stationer=[];
+  for(let k=0;k<v.portar;k++) stationer.push({typ:'port'});
+  const upp=(UPPDRAG[v.id]||[]);
+  if(upp.length){
+    const kliv=Math.max(1,Math.floor(v.portar/(upp.length+1)));
+    upp.forEach((u,k)=>stationer.splice(Math.min(stationer.length,(k+1)*kliv+k),0,{typ:'npc',u}));
+  }
+  let fi=0, c=0;
+  const steg=v.langd/(stationer.length+1); let nasta=steg+4;
+  mark(g,0,9); c=9;
+
+  while(stationer.length || c<v.langd){
+    if(stationer.length && c>=nasta){
+      const st=stationer.shift(); mark(g,c,c+7);
+      if(st.typ==='port')
+        portar.push({x:(c+3)*TILE+12,y:GR*TILE,oppen:false,fraga:fragor[fi++%fragor.length],glod:0});
+      else
+        npcar.push({x:(c+3)*TILE+12,y:GR*TILE,u:st.u,klar:false});
+      c+=7; nasta+=steg; continue;
+    }
+    const b=valj(bitar);
+    if(b==='plan'){const w=slumpI(5,8);mark(g,c,c+w);
+      if(Math.random()<.75)rullor.push({x:(c+Math.floor(w/2))*TILE+12,y:(GR-2)*TILE,tagen:false});
+      c+=w;}
+    else if(b==='grop'){const a=slumpI(3,4),gap=slumpI(2,Math.min(3,1+Math.ceil(svart/2))),b2=slumpI(3,4);
+      mark(g,c,c+a); mark(g,c+a+gap,c+a+gap+b2);
+      rullor.push({x:(c+a+gap/2)*TILE,y:(GR-3)*TILE,tagen:false});
+      c+=a+gap+b2;}
+    else if(b==='plattform'){const w=slumpI(7,9);mark(g,c,c+w);
+      const pr=GR-3,pc=c+1,pw=slumpI(2,3); block(g,pc,pc+pw,pr,pr+1);
+      rullor.push({x:(pc+pw/2)*TILE,y:(pr-2)*TILE,tagen:false});
+      if(w>7){const pr2=GR-5,pc2=c+4; block(g,pc2,pc2+2,pr2,pr2+1);
+        rullor.push({x:(pc2+1)*TILE,y:(pr2-2)*TILE,tagen:false});}
+      c+=w;}
+    else if(b==='trappa'){mark(g,c,c+9);
+      block(g,c+2,c+3,GR-1,GR); block(g,c+3,c+4,GR-2,GR); block(g,c+4,c+5,GR-3,GR);
+      rullor.push({x:(c+4.5)*TILE,y:(GR-5)*TILE,tagen:false});
+      c+=9;}
+    else if(b==='hoppkedja'){mark(g,c,c+3); let x=c+3;
+      for(let i=0;i<3;i++){const gap=2,pr=GR-1-i;block(g,x+gap,x+gap+2,pr,pr+1);
+        rullor.push({x:(x+gap+1)*TILE,y:(pr-2)*TILE,tagen:false}); x+=gap+2;}
+      mark(g,x+2,x+6); c=x+6;}
+    else if(b==='taggar'){const w=9;mark(g,c,c+w);
+      g[GR-1][c+4]='^'; if(svart>=6)g[GR-1][c+5]='^';
+      rullor.push({x:(c+4.5)*TILE+12,y:(GR-4)*TILE,tagen:false});
+      c+=w;}
+    else if(b==='rorlig'){mark(g,c,c+3);
+      const x0=(c+3)*TILE-10, x1=(c+8)*TILE-64+10;
+      rorliga.push({x:x0,y:(GR-1)*TILE,w:72,h:12,x0,x1,dir:1,fart:.8});
+      rullor.push({x:(c+5.5)*TILE,y:(GR-3)*TILE,tagen:false});
+      mark(g,c+8,c+12); c+=12;}
+  }
+  if(v.hav){                                   // Röda havet på väg ut ur Egypten
+    mark(g,c,c+6);
+    npcar.push({x:(c+3)*TILE,y:GR*TILE,u:HAVSUPPDRAG,klar:false,oppnarHav:true});
+    c+=6;
+    hav={c0:c,c1:c+7,oppet:false,anim:0};
+    c+=7; mark(g,c,c+6); c+=6;
+  }
+  mark(g,c,c+9); c+=9;
+  const cols=c;
+  for(let r=0;r<ROWS;r++){ const rad=g[r];
+    for(let i=0;i<cols;i++) if(rad[i]===undefined||rad[i]==='')rad[i]='.';
+    rad.length=cols; }
+  return {g,cols,rullor,portar,rorliga,npcar,hav,malX:(cols-5)*TILE};
+}
+function bossFragor(){
+  return VARLDAR.filter(v=>!v.boss).flatMap(v=>v.fragor).filter(f=>f[1].length>=3);
+}
+</script>
+
+<script>
+/* ===================================================================
+   MÖTEN, FIGURER OCH UPPDRAG  (allt hämtat ur SOS Religion kap. 5)
+   =================================================================== */
+
+/* ---- symbolbilder till para-ihop-uppdragen ---- */
+const IKON = {
+  ljus:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c2.5 3.2 4 5 4 7a4 4 0 0 1-8 0c0-2 1.5-3.8 4-7z" fill="currentColor"/></svg>',
+  hjarta:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.1-8-10.3A4.7 4.7 0 0 1 12 7a4.7 4.7 0 0 1 8 3.7C20 15.9 12 21 12 21z" fill="currentColor"/></svg>',
+  kippa:'<svg viewBox="0 0 100 100"><path d="M12 66c0-22 17-38 38-38s38 16 38 38z" fill="#5B87F0"/><path d="M8 66h84a4 4 0 0 1 0 8H8a4 4 0 0 1 0-8z" fill="#33488A"/><path d="M50 28v38M12 66c14-6 62-6 76 0" stroke="#0F1830" stroke-width="2.5" fill="none" opacity=".45"/></svg>',
+  menora:'<svg viewBox="0 0 100 100"><g stroke="#F2A83B" stroke-width="5" fill="none" stroke-linecap="round"><path d="M50 30v42"/><path d="M35 30V52c0 0-.5-14 15-14"/><path d="M65 30V52c0 0 .5-14-15-14"/><path d="M22 30v30c0 0-.5-22 28-22"/><path d="M78 30v30c0 0 .5-22-28-22"/><path d="M34 78h32M50 72v6"/></g><g fill="#F6EDDA"><circle cx="22" cy="26" r="4"/><circle cx="35" cy="26" r="4"/><circle cx="50" cy="26" r="4"/><circle cx="65" cy="26" r="4"/><circle cx="78" cy="26" r="4"/></g></svg>',
+  tora:'<svg viewBox="0 0 100 100"><rect x="26" y="22" width="48" height="56" rx="3" fill="#F6EDDA"/><g stroke="#8E9BC2" stroke-width="3" stroke-linecap="round"><path d="M36 36h28M36 46h28M36 56h20"/></g><rect x="14" y="16" width="14" height="68" rx="7" fill="#F2A83B"/><rect x="72" y="16" width="14" height="68" rx="7" fill="#F2A83B"/></svg>',
+  stjarna:'<svg viewBox="0 0 100 100"><g fill="none" stroke="#5B87F0" stroke-width="6" stroke-linejoin="round"><path d="M50 16 78 66H22z"/><path d="M50 84 22 34h56z"/></g></svg>',
+  synagoga:'<svg viewBox="0 0 100 100"><path d="M20 84V44l30-22 30 22v40z" fill="#1A2547" stroke="#5B87F0" stroke-width="4"/><path d="M50 84V62a8 8 0 0 1 16 0v22z" fill="#F2A83B"/><circle cx="50" cy="44" r="8" fill="none" stroke="#F6EDDA" stroke-width="3"/><path d="M14 46 50 18l36 28" fill="none" stroke="#F6EDDA" stroke-width="4" stroke-linecap="round"/></svg>',
+  matza:'<svg viewBox="0 0 100 100"><rect x="18" y="18" width="64" height="64" rx="6" fill="#F6EDDA"/><g fill="#C9A87A"><circle cx="32" cy="32" r="3"/><circle cx="50" cy="32" r="3"/><circle cx="68" cy="32" r="3"/><circle cx="32" cy="50" r="3"/><circle cx="50" cy="50" r="3"/><circle cx="68" cy="50" r="3"/><circle cx="32" cy="68" r="3"/><circle cx="50" cy="68" r="3"/><circle cx="68" cy="68" r="3"/></g></svg>',
+  sabbat:'<svg viewBox="0 0 100 100"><rect x="30" y="40" width="9" height="38" rx="3" fill="#F6EDDA"/><rect x="61" y="40" width="9" height="38" rx="3" fill="#F6EDDA"/><rect x="20" y="78" width="60" height="8" rx="4" fill="#33488A"/><path d="M34.5 24c4 5 6 7.5 6 10.5a6 6 0 0 1-12 0c0-3 2-5.5 6-10.5z" fill="#F2A83B"/><path d="M65.5 24c4 5 6 7.5 6 10.5a6 6 0 0 1-12 0c0-3 2-5.5 6-10.5z" fill="#F2A83B"/></svg>',
+  stentavlor:'<svg viewBox="0 0 100 100"><path d="M14 84V38a16 16 0 0 1 32 0v46z" fill="#8E9BC2"/><path d="M54 84V38a16 16 0 0 1 32 0v46z" fill="#8E9BC2"/><g stroke="#0F1830" stroke-width="3" stroke-linecap="round" opacity=".55"><path d="M22 48h16M22 58h16M22 68h12M62 48h16M62 58h16M62 68h12"/></g></svg>',
+  oken:'<svg viewBox="0 0 100 100"><circle cx="50" cy="34" r="14" fill="#F2A83B"/><path d="M6 78c12-16 20-16 30 0 8-14 16-14 24 0 8-12 16-12 34 0z" fill="#33488A"/><path d="M2 86h96" stroke="#8E9BC2" stroke-width="4" stroke-linecap="round"/></svg>',
+  dreidel:'<svg viewBox="0 0 100 100"><path d="M28 26h44v34L50 84 28 60z" fill="#5B87F0"/><rect x="44" y="12" width="12" height="14" rx="4" fill="#F2A83B"/><path d="M44 38h12v18H44z" fill="#F6EDDA"/></svg>'
+};
+
+/* ---- porträtt ritade som SVG ---- */
+function portratt(o){
+  const hud=o.hud||'#E8C39E', har=o.har||'#2B2136', mantel=o.mantel||'#4E7BE8';
+  let sv=`<svg viewBox="0 0 100 100" aria-hidden="true">
+    <circle cx="50" cy="50" r="48" fill="${o.bg||'#243158'}"/>
+    <path d="M14 100c0-20 16-30 36-30s36 10 36 30z" fill="${mantel}"/>`;
+  if(o.krage) sv+=`<path d="M34 72l16 14 16-14v-6H34z" fill="${o.krage}"/>`;
+  sv+=`<circle cx="50" cy="44" r="21" fill="${hud}"/>`;
+  if(o.skagg==='lang') sv+=`<path d="M29 46c0 26 8 40 21 40s21-14 21-40c0 14-42 14-42 0z" fill="${har}"/>`;
+  if(o.skagg==='kort') sv+=`<path d="M31 48c0 16 8 24 19 24s19-8 19-24c0 9-38 9-38 0z" fill="${har}"/>`;
+  if(o.har!=='ingen') sv+=`<path d="M27 42a23 23 0 0 1 46 0c0-12-6-19-23-19s-23 7-23 19z" fill="${har}"/>`;
+  if(o.lugg) sv+=`<rect x="29" y="30" width="42" height="10" rx="4" fill="${har}"/>`;
+  if(o.hatt==='kippa') sv+=`<path d="M33 27a17 12 0 0 1 34 0z" fill="${o.hattfarg||'#5B87F0'}"/>`;
+  if(o.hatt==='krona') sv+=`<path d="M30 28l4-14 8 8 8-12 8 12 8-8 4 14z" fill="#F2A83B"/><rect x="30" y="28" width="40" height="6" fill="#D68F22"/>`;
+  if(o.hatt==='nemes') sv+=`<path d="M26 44V32a24 24 0 0 1 48 0v12l-8-4V34a16 16 0 0 0-32 0v6z" fill="#3C86B8"/>
+    <path d="M26 34h48v6H26z" fill="#F2A83B"/><path d="M22 44l10-4 4 26-14 4z" fill="#3C86B8"/><path d="M78 44l-10-4-4 26 14 4z" fill="#3C86B8"/>`;
+  if(o.hatt==='hatt') sv+=`<rect x="24" y="24" width="52" height="6" rx="3" fill="#241E30"/><rect x="33" y="6" width="34" height="20" rx="3" fill="#241E30"/>`;
+  if(o.hatt==='sjal') sv+=`<path d="M25 46a25 25 0 0 1 50 0c0-18-10-26-25-26S25 28 25 46z" fill="${o.hattfarg||'#C9A46A'}"/>
+    <path d="M25 46l-4 30 12-4 3-26z" fill="${o.hattfarg||'#C9A46A'}"/>`;
+  if(o.hatt==='slojaflicka') sv+=`<path d="M26 48a24 24 0 0 1 48 0c0-16-10-24-24-24S26 32 26 48z" fill="${o.hattfarg||'#B36A8A'}"/>`;
+  sv+=`<circle cx="42" cy="44" r="2.4" fill="#2A2030"/><circle cx="58" cy="44" r="2.4" fill="#2A2030"/>`;
+  sv+=`</svg>`;
+  return sv;
+}
+
+const bildFor=n=>portratt(FIGUR[n]||FIGUR.rabbin);
+
+
+/* ---- möten före och efter varje bana ---- */
+
+
+/* ---- uppdrag: allt annat än vanliga frågor ---- */
+
+</script>
+
+<script>
+/* =======================  RITHJÄLP  ======================= */
+function rekt(x,y,w,h,f){ctx.fillStyle=f;ctx.fillRect(x,y,w,h);}
+function cirkel(x,y,r,f){ctx.fillStyle=f;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();}
+function tri(x1,y1,x2,y2,x3,y3,f){ctx.fillStyle=f;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.closePath();ctx.fill();}
+function grad(y0,y1,c0,c1){const g=ctx.createLinearGradient(0,y0,0,y1);g.addColorStop(0,c0);g.addColorStop(1,c1);return g;}
+
+const TEMA={
+  karna:  {himmel:['#0A0F2A','#1C2552'],mark:'#5B6B9A',mark2:'#3E4A72',kant:'#8EA2D8',dis:'#1B2550',stjarnor:true},
+  labb:   {himmel:['#20324F','#3B5578'],mark:'#8A95A8',mark2:'#646E82',kant:'#C7D0DE',dis:'#2C4062',stjarnor:false},
+  tabell: {himmel:['#2A2245','#463A6E'],mark:'#7C6FA8',mark2:'#5B5080',kant:'#B4A8E0',dis:'#352B58',stjarnor:false},
+  salt:   {himmel:['#7FC3E8','#E6F3F8'],mark:'#E8EEF2',mark2:'#B9C6D2',kant:'#FFFFFF',dis:'#A9D4EA',stjarnor:false},
+  neon:   {himmel:['#0B0718','#251538'],mark:'#4A3E66',mark2:'#33284A',kant:'#8E7CC0',dis:'#1A1030',stjarnor:true},
+  prov:   {himmel:['#0B1330','#22305C'],mark:'#6E7A5E',mark2:'#525C46',kant:'#9AA88A',dis:'#182246',stjarnor:true}
+};
+
+/* ---- bakgrunder (enkla former, inga detaljer som kan förväxlas med saker i banan) ---- */
+let tick=0;
+const pekskarm=()=>!matchMedia('(hover:hover) and (pointer:fine)').matches;
+function atomBild(x,y,r,f,fas){         // kärna + tre elektronbanor med elektroner
+  ctx.save(); ctx.translate(x,y);
+  ctx.strokeStyle=f; ctx.lineWidth=2; ctx.globalAlpha=.55;
+  for(let i=0;i<3;i++){ ctx.save(); ctx.rotate(i*Math.PI/3); ctx.beginPath(); ctx.ellipse(0,0,r,r*.38,0,0,7); ctx.stroke(); ctx.restore(); }
+  ctx.globalAlpha=1;
+  cirkel(0,0,r*.18,'#E0596F'); cirkel(r*.08,-r*.06,r*.1,'#5B87F0');
+  for(let i=0;i<3;i++){ const v=fas+i*2.1, a=i*Math.PI/3;
+    const ex=Math.cos(v)*r, ey=Math.sin(v)*r*.38;
+    cirkel(ex*Math.cos(a)-ey*Math.sin(a), ex*Math.sin(a)+ey*Math.cos(a), 3.2, '#9FE7FF'); }
+  ctx.restore();
+}
+function himmel(tema){
+  const t=TEMA[tema];
+  ctx.fillStyle=grad(0,VH,t.himmel[0],t.himmel[1]); ctx.fillRect(0,0,W,VH);
+  if(t.stjarnor){
+    const h=Math.max(120,VH-150);
+    for(let i=0;i<75;i++){
+      const x=(i*97)%W, y=(i*53)%h, r=(i%7===0)?1.4:.9;
+      ctx.globalAlpha=.35+.5*Math.abs(Math.sin(tick/60+i));
+      cirkel(x,y,r,i%9===0?'#F2A83B':'#DCE6FF');
+    }
+    ctx.globalAlpha=1;
+  }
+}
+function ritaBakgrund(tema,cam){
+  const t=TEMA[tema];
+  const p1=-cam*.15, p2=-cam*.35;
+  if(tema==='karna'){
+    for(let i=0;i<3;i++){ const x=((i*230+p1)%(W+330))-110; atomBild(x,110+(i%2)*40,46+(i%3)*10,'#8EA2D8',tick/40+i); }
+  }else if(tema==='labb'){
+    for(let i=0;i<4;i++){ const x=((i*160+p1)%(W+320))-160;
+      rekt(x,96,140,6,'#53688C'); rekt(x,146,140,6,'#53688C');
+      const f=['#E0596F','#7FB069','#5B87F0','#F2A83B'];
+      for(let j=0;j<4;j++){ const fx=x+12+j*32;
+        rekt(fx+6,74,8,22,'rgba(220,235,255,.55)'); cirkel(fx+10,86,9,'rgba(220,235,255,.45)'); cirkel(fx+10,88,6,f[(i+j)%4]);
+        rekt(fx+2,124,16,22,'rgba(220,235,255,.45)'); rekt(fx+2,134,16,12,f[(i+j+1)%4]); } }
+    for(let i=0;i<3;i++){ const x=((i*240+p2)%(W+480))-240; rekt(x,176,200,38,'#3A4A66'); rekt(x,172,200,6,'#7C8AA6'); }
+  }else if(tema==='tabell'){
+    for(let i=0;i<4;i++){ const x=((i*190+p1)%(W+380))-190;
+      for(let r=0;r<4;r++)for(let k=0;k<5;k++){ if(r===0&&k>0&&k<4)continue;
+        const f=k===0?'#F28B82':k===4?'#D5A6E6':'#9FC5E8'; ctx.globalAlpha=.55; rekt(x+k*24,70+r*24,21,21,f); ctx.globalAlpha=1; } }
+  }else if(tema==='salt'){
+    cirkel(W-80+p1*.3,58,26,'rgba(255,250,220,.9)');
+    rekt(0,170,W,44,'#5FA8D0');
+    for(let i=0;i<7;i++){ const x=((i*120+p2)%(W+240))-120;   // saltkristaller (kuber) på stranden
+      rekt(x,190,22,22,'#F4F8FB'); rekt(x+22,186,10,22,'#D7E3EC'); rekt(x,186,22,4,'#FFFFFF'); }
+  }else if(tema==='neon'){
+    const farg=['#FF6EC7','#7DF9FF','#FFD36E'], text=['Ne','Ar','He'];
+    for(let i=0;i<4;i++){ const x=((i*170+p1)%(W+340))-170, f=farg[i%3];
+      ctx.globalAlpha=.35+.25*Math.abs(Math.sin(tick/30+i)); ctx.strokeStyle=f; ctx.lineWidth=4;
+      ctx.strokeRect(x,80,96,54); ctx.globalAlpha=.9; ctx.fillStyle=f; ctx.font='800 30px Assistant,sans-serif';
+      ctx.textAlign='center'; ctx.fillText(text[i%3],x+48,118); ctx.textAlign='left'; ctx.globalAlpha=1; }
+  }else{ // prov
+    for(let i=0;i<5;i++){ const x=((i*150+p1)%(W+300))-150; rekt(x,120,110,70,'#2B3A63'); rekt(x+8,128,94,50,'#3E5288'); }
+  }
+}
+function dyner(off,bas,farg,amp){
+  ctx.fillStyle=farg;ctx.beginPath();ctx.moveTo(-20,H);
+  for(let x=-20;x<=W+20;x+=10){
+    const y=bas-amp*.5-Math.sin((x-off)/70)*amp*.32-Math.sin((x-off)/23)*amp*.12;
+    ctx.lineTo(x,y);
+  }
+  ctx.lineTo(W+20,H);ctx.closePath();ctx.fill();
+}
+function palm(x,y,s){
+  rekt(x,y-46*s,5*s,46*s,'#7A5A38');
+  for(let i=-2;i<=2;i++){
+    ctx.fillStyle='#4E7A46';ctx.beginPath();
+    ctx.ellipse(x+2.5*s+i*11*s,y-48*s-Math.abs(i)*2,13*s,4.5*s,i*.42,0,7);ctx.fill();
+  }
+}
+
+/* ---- rulle, port, mål, spelare ---- */
+function ritaRulle(x,y,f){
+  const b=Math.sin(tick/14+x)*2;
+  rekt(x-7,y-9+b,14,18,'#F6EDDA');
+  rekt(x-9,y-12+b,4,24,'#F2A83B'); rekt(x+5,y-12+b,4,24,'#F2A83B');
+  ctx.strokeStyle='rgba(142,155,194,.8)';ctx.lineWidth=1.4;
+  ctx.beginPath();ctx.moveTo(x-4,y-4+b);ctx.lineTo(x+3,y-4+b);ctx.moveTo(x-4,y+1+b);ctx.lineTo(x+3,y+1+b);ctx.stroke();
+}
+function ritaPort(p){
+  const x=p.x,y=p.y;
+  if(p.oppen){
+    ctx.globalAlpha=.42;
+    rekt(x-22,y-72,7,72,'#7FB069'); rekt(x+15,y-72,7,72,'#7FB069');
+    ctx.globalAlpha=1;
+    ctx.fillStyle='#7FB069';ctx.beginPath();ctx.arc(x,y-72,22,Math.PI,0);ctx.fill();
+    ctx.fillStyle='#1A2547';ctx.beginPath();ctx.arc(x,y-72,15,Math.PI,0);ctx.fill();
+    rekt(x-15,y-72,30,72,'rgba(26,37,71,.55)');
+    return;
+  }
+  p.glod=(p.glod+.05)%(Math.PI*2);
+  const gl=.55+.45*Math.sin(p.glod);
+  ctx.globalAlpha=.25*gl; cirkel(x,y-46,40,'#F2A83B'); ctx.globalAlpha=1;
+  rekt(x-24,y-78,10,78,'#B98A46'); rekt(x+14,y-78,10,78,'#B98A46');
+  ctx.fillStyle='#B98A46';ctx.beginPath();ctx.arc(x,y-78,24,Math.PI,0);ctx.fill();
+  ctx.fillStyle='#5B3E1E';ctx.beginPath();ctx.arc(x,y-78,15,Math.PI,0);ctx.fill();
+  rekt(x-15,y-78,30,78,'#5B3E1E');
+  ctx.fillStyle='#F2A83B';ctx.font='bold 20px "Frank Ruhl Libre",serif';ctx.textAlign='center';
+  ctx.fillText('?',x,y-32);
+  ctx.textAlign='left';
+}
+function ritaMal(x,y){
+  const b=Math.sin(tick/22)*1.5;
+  ctx.strokeStyle='#F2A83B'; ctx.lineWidth=4; ctx.lineCap='round';
+  const armar=[[0,54],[13,44],[-13,44],[24,44],[-24,44]];
+  ctx.beginPath();
+  ctx.moveTo(x,y-6); ctx.lineTo(x,y-54);
+  ctx.moveTo(x-13,y-44); ctx.quadraticCurveTo(x,y-16,x+13,y-44);
+  ctx.moveTo(x-24,y-44); ctx.quadraticCurveTo(x,y-6,x+24,y-44);
+  ctx.moveTo(x-16,y-4); ctx.lineTo(x+16,y-4);
+  ctx.stroke();
+  ctx.lineCap='butt';
+  for(const [dx,dy] of armar){
+    cirkel(x+dx,y-dy-4+b*.4,3.2,'#FFE3A6');
+    ctx.globalAlpha=.35; cirkel(x+dx,y-dy-4+b*.4,8,'#F2A83B'); ctx.globalAlpha=1;
+  }
+}
+function lem(hx,hy,fx,fy,l1,l2,farg,bredd,riktning){
+  let dx=fx-hx, dy=fy-hy, d=Math.hypot(dx,dy);
+  if(d<.001){dx=0;dy=.001;d=.001;}
+  const ux=dx/d, uy=dy/d;
+  const dd=Math.min(d,l1+l2-.01);
+  const aa=(l1*l1-l2*l2+dd*dd)/(2*dd);
+  const hh=Math.sqrt(Math.max(0,l1*l1-aa*aa))*riktning;
+  const kx=hx+ux*aa+uy*hh, ky=hy+uy*aa-ux*hh;
+  ctx.strokeStyle=farg; ctx.lineWidth=bredd; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(kx,ky); ctx.lineTo(fx,fy); ctx.stroke();
+  return [kx,ky];
+}
+function ritaNpcFigur(n){
+  const x=n.x, y=n.y, f=FIGUR[n.u.bild]||FIGUR.rabbin, b=Math.sin(tick/30)*1.1;
+  ctx.globalAlpha=.22;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y-1,11,3.4,0,0,7);ctx.fill();ctx.globalAlpha=1;
+  ctx.fillStyle=f.mantel;
+  ctx.beginPath(); ctx.moveTo(x-7.5,y); ctx.lineTo(x-5.4,y-19+b); ctx.lineTo(x+5.4,y-19+b);
+  ctx.lineTo(x+7.5,y); ctx.closePath(); ctx.fill();
+  if(f.krage){ctx.fillStyle=f.krage;ctx.fillRect(x-5.4,y-19+b,10.8,2.4);}
+  cirkel(x-6.6,y-13+b,2.2,f.hud); cirkel(x+6.6,y-13+b,2.2,f.hud);
+  cirkel(x,y-24.4+b,5.2,f.hud);
+  if(f.skagg){ctx.fillStyle=f.har;ctx.beginPath();
+    ctx.ellipse(x,y-19.6+b,4.2,f.skagg==='lang'?5.6:3.6,0,0,7);ctx.fill();}
+  if(f.har!=='ingen'){ctx.fillStyle=f.har;
+    ctx.beginPath();ctx.arc(x,y-24.8+b,5.3,Math.PI*1.04,Math.PI*2.06);ctx.fill();
+    if(f.lugg)ctx.fillRect(x-5,y-27+b,10,2.6);}
+  ctx.fillStyle='#2A2030'; ctx.fillRect(x+1.4,y-25+b,1.1,1.4); ctx.fillRect(x-2.4,y-25+b,1.1,1.4);
+  if(f.hatt==='hatt'){rekt(x-7.5,y-30+b,15,2.2,'#241E30');rekt(x-4.6,y-36.5+b,9.2,6.8,'#241E30');}
+  else if(f.hatt==='krona'){ctx.fillStyle='#F2A83B';
+    ctx.beginPath();ctx.moveTo(x-5.6,y-29+b);ctx.lineTo(x-5.6,y-34+b);ctx.lineTo(x-2.2,y-31.4+b);
+    ctx.lineTo(x,y-35+b);ctx.lineTo(x+2.2,y-31.4+b);ctx.lineTo(x+5.6,y-34+b);ctx.lineTo(x+5.6,y-29+b);
+    ctx.closePath();ctx.fill();}
+  else if(f.hatt==='nemes'){rekt(x-6.4,y-30.6+b,12.8,2.6,'#F2A83B');
+    ctx.fillStyle='#3C86B8';ctx.beginPath();ctx.arc(x,y-29.2+b,6.2,Math.PI,0);ctx.fill();
+    rekt(x-8.4,y-27+b,2.6,9,'#3C86B8'); rekt(x+5.8,y-27+b,2.6,9,'#3C86B8');}
+  else if(f.hatt==='kippa'){ctx.fillStyle=f.hattfarg||'#5B87F0';
+    ctx.beginPath();ctx.ellipse(x,y-28.6+b,4.4,2.6,0,Math.PI,0);ctx.fill();}
+  else if(f.hatt==='sjal'||f.hatt==='slojaflicka'){ctx.fillStyle=f.hattfarg||'#C9A46A';
+    ctx.beginPath();ctx.arc(x,y-24.6+b,6.1,Math.PI*1.02,Math.PI*2.08);ctx.fill();
+    ctx.fillRect(x-6.1,y-24.6+b,2.6,7);}
+  const by=y-42+Math.sin(tick/16)*1.8;
+  cirkel(x,by,7.6,'#F6EDDA'); tri(x-3.4,by+5,x+3.4,by+5,x+.5,by+11.5,'#F6EDDA');
+  ctx.fillStyle='#1A2547';ctx.font='bold 13px "Frank Ruhl Libre",serif';ctx.textAlign='center';
+  ctx.fillText('!',x,by+4.6);ctx.textAlign='left';
+}
+function ritaHav(h){
+  const x0=h.c0*TILE, br=(h.c1-h.c0)*TILE, yb=ROWS*TILE, yt=(GR-2)*TILE;
+  const vag=(x,y,w,hh,fas)=>{
+    ctx.fillStyle='#2F6E93'; ctx.beginPath(); ctx.moveTo(x,y+hh);
+    for(let i=0;i<=w;i+=8) ctx.lineTo(x+i,y+Math.sin((i+fas)/14)*3);
+    ctx.lineTo(x+w,y+hh); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha=.35; ctx.fillStyle='#8FD0EA';
+    ctx.beginPath(); ctx.moveTo(x,y+4);
+    for(let i=0;i<=w;i+=8) ctx.lineTo(x+i,y+Math.sin((i+fas)/14)*3);
+    ctx.lineTo(x+w,y+6); ctx.lineTo(x,y+6); ctx.closePath(); ctx.fill(); ctx.globalAlpha=1;
+  };
+  if(!h.oppet){ vag(x0,yt,br,yb-yt,tick*1.4); return; }
+  h.anim=Math.min(60,(h.anim||0)+1);
+  const t=h.anim/60, hoj=(yb-yt)+70*t;
+  vag(x0-TILE*1.2,GR*TILE-hoj*t-4,TILE*1.4,hoj,tick*1.4);
+  vag(x0+br-TILE*.2,GR*TILE-hoj*t-4,TILE*1.4,hoj,tick*1.4+40);
+  ctx.globalAlpha=.16*t; rekt(x0,GR*TILE-46,br,46,'#8FD0EA'); ctx.globalAlpha=1;
+}
+function ritaSpelare(p){
+  const x=p.x+p.w/2, y=p.y+p.h, v=p.riktning||1;
+  const vx=p.vx||0, vy=p.vy||0, fart=Math.min(Math.abs(vx),3.6);
+  const paMark=p.paMark!==false;
+  const fas=p.steg||0;
+  const sq=clamp(p.squash||0,-1,1);
+  const gar=paMark&&fart>.3;
+  const HOFT=-9, AXEL=-17.4, HUVUD=-23.0, HR=4.5;
+  const HUD='#EBC7A2', HAR='#2B2136', MANTEL='#4E7BE8', MANTEL2='#3A62C4',
+        BEN='#38304A', BEN2='#241E30', SKO='#7A5A38', SJAL='#F2A83B';
+
+  ctx.save();
+  ctx.translate(Math.round(x),Math.round(y));
+  ctx.scale(v*(1+sq*.18), 1-sq*.24);
+  ctx.rotate(clamp(fart*.03,0,.12));
+
+  let fx1,fy1,fx2,fy2,hx1,hy1,hx2,hy2,and=0;
+  if(!paMark){
+    const upp=vy<-1;
+    fx1= upp?3.8:5.0;  fy1= upp?-3.6:-1.4;
+    fx2= upp?-3.2:-4.4; fy2= upp?-1.0:-.2;
+    hx1= upp?3.0:4.6;  hy1= upp?-18.6:-13.4;
+    hx2= upp?-3.2:-4.2; hy2= upp?-19.4:-12.4;
+  }else if(gar){
+    const s1=Math.sin(fas), s2=Math.sin(fas+Math.PI);
+    const c1=Math.cos(fas), c2=Math.cos(fas+Math.PI);
+    const amp=2.6+fart*.62, lyft=1.2+fart*.85;
+    fx1=c1*amp; fy1=-Math.max(0,s1)*lyft;
+    fx2=c2*amp; fy2=-Math.max(0,s2)*lyft;
+    hx1=c2*amp*.95; hy1=-8.4+Math.max(0,s2)*.9;
+    hx2=c1*amp*.95; hy2=-8.4+Math.max(0,s1)*.9;
+    and=Math.abs(Math.sin(fas))*.6;
+  }else{
+    const b=Math.sin(tick/36)*.45;
+    fx1=2.0; fy1=0; fx2=-2.2; fy2=0;
+    hx1=3.4; hy1=-8.6+b; hx2=-3.6; hy2=-8.6+b;
+    and=b;
+  }
+  const sko=(fx,fy)=>{ctx.fillStyle=SKO;ctx.fillRect(fx-2.1,fy-1.4,4.4,2.2);};
+  const hand=(hx,hy)=>cirkel(hx,hy,1.5,HUD);
+
+  // ---- sjal som fladdrar bakom ----
+  const svans=2.2+fart*1.15, sv=gar?Math.sin(fas)*1.1:Math.sin(tick/30)*.55;
+  ctx.fillStyle=SJAL;
+  ctx.beginPath();
+  ctx.moveTo(-3.4,AXEL+1.2+and);
+  ctx.quadraticCurveTo(-5.2-svans*.5,AXEL+1.0-svans*.3, -4.0-svans,AXEL+3.4-svans*.45+sv);
+  ctx.lineTo(-3.4-svans*.9,AXEL+4.7-svans*.35+sv);
+  ctx.quadraticCurveTo(-4.0-svans*.3,AXEL+3.4, -2.4,AXEL+3.2+and);
+  ctx.closePath(); ctx.fill();
+
+  // ---- bakre ben och arm ----
+  lem(-.8,HOFT+and*.3, fx2,fy2, 4.9,4.9,BEN2,3.8,1); sko(fx2,fy2);
+  lem(-1.4,AXEL+.6+and, hx2,hy2, 3.9,3.9,MANTEL2,3.0,-1); hand(hx2,hy2);
+
+  // ---- mantel ----
+  const hem=gar?Math.sin(fas)*1.3:0;
+  ctx.fillStyle=MANTEL;
+  ctx.beginPath();
+  ctx.moveTo(-5.2,AXEL+and); ctx.lineTo(5.2,AXEL+and);
+  ctx.quadraticCurveTo(6.4,HOFT-2.5, 5.9+hem,HOFT+1.6);
+  ctx.lineTo(-5.9+hem,HOFT+1.6);
+  ctx.quadraticCurveTo(-6.4,HOFT-2.5, -5.2,AXEL+and);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle=MANTEL2;
+  ctx.beginPath();
+  ctx.moveTo(-5.2,AXEL+and); ctx.lineTo(-2.4,AXEL+and);
+  ctx.lineTo(-3.0+hem,HOFT+1.6); ctx.lineTo(-5.9+hem,HOFT+1.6);
+  ctx.quadraticCurveTo(-6.4,HOFT-2.5,-5.2,AXEL+and);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle='rgba(0,0,0,.16)'; ctx.fillRect(-5.6+hem*.7,HOFT+.4,11.4,1.4);
+
+  // ---- väska ----
+  ctx.strokeStyle='#8A6A44'; ctx.lineWidth=1.3;
+  ctx.beginPath(); ctx.moveTo(1.8,AXEL+1+and); ctx.lineTo(-4.2,HOFT-2.6); ctx.stroke();
+  ctx.fillStyle='#B98A46'; ctx.fillRect(-6.6,HOFT-3.6,4.2,3.6);
+  ctx.fillStyle='#8A6A44'; ctx.fillRect(-6.6,HOFT-3.6,4.2,1.1);
+
+  // ---- huvud ----
+  const hy=HUVUD+and*.8, ph=gar?Math.sin(fas+1)*.9:0;
+  ctx.fillStyle=HAR;
+  ctx.beginPath(); ctx.ellipse(-4.6,hy+1.4+ph*.4,2.5,3.3,-.35-fart*.06+ph*.06,0,7); ctx.fill();
+  cirkel(.4,hy,HR,HUD);
+  ctx.fillStyle=HAR;
+  ctx.beginPath(); ctx.arc(.4,hy,HR+.15,Math.PI*1.03,Math.PI*2.06); ctx.fill();
+  ctx.fillRect(-4.2,hy-1.6,4.6,2.3);
+  ctx.fillStyle='#2A2030'; ctx.fillRect(2.2,hy-.4,1.1,1.4);
+  ctx.fillStyle='rgba(200,120,110,.5)'; ctx.fillRect(-1.6,hy+1.4,1.8,1.1);
+  ctx.strokeStyle='#8A5F52'; ctx.lineWidth=.7;
+  ctx.beginPath(); ctx.moveTo(2.0,hy+2.2); ctx.lineTo(3.4,hy+2.2); ctx.stroke();
+
+  // ---- främre ben och arm ----
+  lem(.8,HOFT+and*.3, fx1,fy1, 4.9,4.9,BEN,4.0,1); sko(fx1,fy1);
+  lem(1.4,AXEL+.6+and, hx1,hy1, 3.9,3.9,MANTEL,3.2,-1); hand(hx1,hy1);
+  ctx.restore();
+}
+</script>
+
+<script>
+/* =======================  TILLSTÅND  ======================= */
+let lage='karta', spel=null, pausad=false;
+const HJARTA='<svg viewBox="0 0 24 24"><path d="M12 21s-8-5.1-8-10.3A4.7 4.7 0 0 1 12 7a4.7 4.7 0 0 1 8 3.7C20 15.9 12 21 12 21z" fill="currentColor"/></svg>';
+const RULLE='<svg viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="1" fill="#F6EDDA"/><rect x="4" y="2" width="3.5" height="20" rx="1.7" fill="currentColor"/><rect x="16.5" y="2" width="3.5" height="20" rx="1.7" fill="currentColor"/></svg>';
+const LJUSIK='<svg viewBox="0 0 24 24"><path d="M12 2c2.5 3.2 4 5 4 7a4 4 0 0 1-8 0c0-2 1.5-3.8 4-7z" fill="currentColor"/></svg>';
+
+function uppdateraHud(){
+  const hn=document.getElementById('hudnamn'), hs=document.getElementById('hudsmall');
+  const hj=document.getElementById('hjartan'), ru=document.getElementById('rullor');
+  if(lage==='bana'&&spel){
+    hs.textContent='Bana '+spel.v.id; hn.textContent=spel.v.namn;
+    hj.innerHTML=Array.from({length:spel.maxHjartan},(_,i)=>
+      HJARTA.replace('<svg','<svg class="'+(i<spel.hjartan?'':'bort')+'"')).join('');
+    ru.innerHTML=RULLE+'<span>'+spel.rullor+'/'+spel.bana.rullor.length+'</span>';
+  }else{
+    hs.textContent='Kartan'; hn.textContent='Atomresan';
+    hj.innerHTML=''; ru.innerHTML=LJUSIK+'<span>'+totLjus()+'/'+(VARLDAR.length*3)+'</span>';
+  }
+}
+
+/* =======================  ÖVERLÄGG  ======================= */
+function visa(html){ overlagg.innerHTML='<div class="panel">'+html+'</div>'; overlagg.classList.remove('dold'); pausad=true; }
+function dolj(){ overlagg.classList.add('dold'); overlagg.innerHTML=''; pausad=false; tyst(); }
+
+function visaFraga(port){
+  const [f,alt,facit]=port.fraga;
+  const ordn=blanda(alt.map((_,i)=>i)), bok='ABCD';
+  visa(`<p class="etikett">Stängd port</p>
+    <h2 class="fraga">${esc(f)}</h2>
+    <div class="alt" id="alt">${ordn.map((idx,n)=>
+      `<button class="altknapp" data-i="${idx}"><span class="bok">${bok[n]}</span><span>${esc(alt[idx])}</span></button>`).join('')}</div>
+    <div id="efter"></div>`);
+  las(f+'. '+ordn.map((i,n)=>`${bok[n]}. ${alt[i]}`).join('. '));
+  overlagg.querySelectorAll('#alt .altknapp').forEach(b=>b.onclick=()=>{
+    const ratt=+b.dataset.i===0;
+    overlagg.querySelectorAll('#alt .altknapp').forEach(x=>{
+      x.disabled=true;
+      if(+x.dataset.i===0)x.classList.add('ratt');
+      else if(x===b)x.classList.add('fel'); else x.classList.add('blek');
+    });
+    if(ratt){ ljudRatt(); port.oppen=true; spel.oppnade++;
+      spel.checkpoint={x:port.x+40,y:port.y-40};
+      document.getElementById('efter').innerHTML=
+        `<div class="facit bra"><b>${valj(['Snyggt!','Precis!','Helt rätt!','Där satt den!'])}</b><p>${esc(facit)}</p></div>
+         <div class="rad"><button class="knapp primar" id="vidare">Porten öppnas →</button></div>`;
+      las('Rätt! '+facit);
+    }else{ ljudFel(); spel.fel++; skada(true);
+      document.getElementById('efter').innerHTML=
+        `<div class="facit daligt"><b>Nästan!</b><p>Rätt svar: <strong>${esc(alt[0])}</strong>. ${esc(facit)}</p></div>
+         <div class="rad"><button class="knapp primar" id="vidare">${spel.hjartan>0?'Försök med en ny fråga':'Se resultat'}</button></div>`;
+      las('Fel. Rätt svar: '+alt[0]+'. '+facit);
+      if(spel.hjartan>0){ port.fraga=nyFraga(port); }
+    }
+    document.getElementById('vidare').onclick=()=>{
+      if(spel.hjartan<=0){ dolj(); visaResultat(false); return; }
+      dolj();
+      if(port.oppen){ ljudPort(); }
+      else { spel.p.x=port.x-46; spel.p.vx=0; }
+      uppdateraHud();
+    };
+    document.getElementById('vidare').focus({preventScroll:true});
+    uppdateraHud();
+  });
+}
+function nyFraga(port){
+  const pool=spel.v.boss?bossFragor():spel.v.fragor;
+  const anv=spel.bana.portar.map(p=>p.fraga&&p.fraga[0]);
+  const kvar=pool.filter(f=>!anv.includes(f[0]));
+  return kvar.length?valj(kvar):valj(pool);
+}
+
+function visaResultat(klarad){
+  const antalRullor=spel.bana.rullor.length;
+  const ljus = !klarad ? 0
+    : (spel.fel===0 && spel.rullor===antalRullor) ? 3
+    : (spel.fel<=1) ? 2 : 1;
+  if(ljus>0){
+    spar.ljus[spel.v.id]=Math.max(spar.ljus[spel.v.id]||0,ljus);
+    spar.rullor+=spel.rullor; spara();
+  }
+  const nasta=VARLDAR.find(v=>v.id===spel.v.id+1);
+  visa(`<h2>${klarad?(ljus===3?'Perfekt!':'Bana klar!'):'Slut på liv'}</h2>
+    <div class="ljusrad">${[0,1,2].map(i=>`<span data-i="${i}">${LJUSIK}</span>`).join('')}</div>
+    <p class="mitt">${klarad
+      ? (ljus===3?'Alla skriftrullar och inte ett enda fel svar. Du kan det här.'
+        :'Ta alla skriftrullar och svara rätt på alla portar så tänds alla tre ljusen.')
+      : 'Ingen fara. Portarna får nya frågor om du kör igen – läs plugglistan först.'}</p>
+    <div class="siffror">
+      <div><b>${spel.oppnade}/${spel.bana.portar.length}</b><span>Portar</span></div>
+      <div><b>${spel.uppdragKlara}/${spel.bana.npcar.length}</b><span>Möten</span></div>
+      <div><b>${spel.rullor}/${antalRullor}</b><span>Rullar</span></div>
+      <div><b>${spel.fel}</b><span>Fel svar</span></div>
+    </div>
+    ${klarad&&nasta&&uppLast(nasta.id)?
+      `<p class="mitt" style="color:var(--flame);font-weight:700;margin-top:6px">Nästa mål: ${esc(nasta.namn)} – vandra dit på kartan.</p>`:''}
+    <div class="rad">
+      <button class="knapp" id="omigen">Spela banan igen</button>
+      <button class="knapp primar" id="tillKarta">Ut på kartan</button>
+    </div>`);
+  overlagg.querySelectorAll('.ljusrad span').forEach((el,i)=>{
+    if(i<ljus) setTimeout(()=>{el.classList.add('tand');pip(660+i*160,.2,'sine',.05);},280+i*300);
+  });
+  document.getElementById('omigen').onclick=()=>{dolj();startaBana(spel.v.id);};
+  document.getElementById('tillKarta').onclick=()=>{dolj();tillKarta();};
+  las(klarad?`Bana klar! Du tände ${ljus} ljus.`:'Slut på liv. Testa igen!');
+}
+
+function visaMeny(){
+  visa(`<h2>Paus</h2>
+    <div class="rad">
+      <button class="knapp primar" id="fortsatt">Fortsätt spela</button>
+      <button class="knapp" id="plugg">📖 Plugglista</button>
+      <button class="knapp" id="rostval">🎙 Röst</button>
+      ${lage==='bana'?'<button class="knapp" id="avbryt">Lämna banan</button>':''}
+      <button class="knapp" id="effekt">${spar.ljudEff?'🔈 Ljudeffekter på':'🔇 Ljudeffekter av'}</button>
+      <button class="knapp" id="nolla">Nollställ framsteg</button>
+    </div>`);
+  document.getElementById('fortsatt').onclick=dolj;
+  document.getElementById('plugg').onclick=visaPlugg;
+  document.getElementById('rostval').onclick=visaRoster;
+  document.getElementById('effekt').onclick=()=>{spar.ljudEff=!spar.ljudEff;spara();visaMeny();};
+  const a=document.getElementById('avbryt'); if(a)a.onclick=()=>{dolj();tillKarta();};
+  document.getElementById('nolla').onclick=()=>{
+    visa(`<h2>Nollställa allt?</h2><p class="mitt">Alla ljus och upplåsta banor försvinner.</p>
+      <div class="rad"><button class="knapp" id="ja">Ja, nollställ</button><button class="knapp primar" id="nej">Nej, tillbaka</button></div>`);
+    document.getElementById('ja').onclick=()=>{spar.ljus={};spar.rullor=0;spara();dolj();tillKarta();};
+    document.getElementById('nej').onclick=visaMeny;
+  };
+}
+function visaRoster(){
+  const l=rosterLista();
+  visa(`<h2>Röst för uppläsningen</h2>
+    ${l.length?`<p class="mitt">Tryck på en röst för att höra den.</p>
+    <div class="alt" id="roster">${l.map((v,i)=>
+      `<button class="altknapp${rost&&rost.name===v.name?' ratt':''}" data-n="${esc(v.name)}">
+         <span class="bok">${i+1}</span><span>${esc(v.name)}<br><span style="font-size:.8rem;opacity:.65">${esc(v.lang||'')}${v.localService===false?' · nätröst':''}</span></span></button>`).join('')}</div>`
+    :'<p class="mitt">Ingen talsyntes hittades i den här webbläsaren.</p>'}
+    <div class="facit bra" style="border-color:var(--line);background:rgba(255,255,255,.04);margin-top:16px">
+      <b style="color:var(--flame)">Låter rösten robotig?</b>
+      <p><strong>iPad/iPhone:</strong> Inställningar → Hjälpmedel → Uppläst innehåll → Röster → Svenska → ladda ner Alva (Premium).<br>
+      <strong>Mac:</strong> Systeminställningar → Hjälpmedel → Uppläst innehåll → Systemröst → Hantera röster → Svenska → hämta Premium/Förbättrad.<br>
+      Kom sedan tillbaka hit och välj den i listan.</p>
+    </div>
+    <div class="rad"><button class="knapp primar" id="tillbakaMeny">Klar</button></div>`);
+  overlagg.querySelectorAll('#roster .altknapp').forEach(b=>b.onclick=()=>{
+    spar.rostNamn=b.dataset.n; spara(); valjRost();
+    overlagg.querySelectorAll('#roster .altknapp').forEach(x=>x.classList.remove('ratt'));
+    b.classList.add('ratt');
+    spar.tal=true; visaLjud();
+    las('Hej! Vad heter atomens positiva partiklar? Protoner.');
+  });
+  document.getElementById('tillbakaMeny').onclick=visaMeny;
+}
+function visaPlugg(){
+  visa(`<h2>Plugglista</h2>
+    <div class="dkropp">${PLUGG.map(([r,rader])=>
+      `<h3>${esc(r)}</h3><dl>${rader.map(([o,f])=>`<dt>${esc(o)}</dt><dd>${esc(f)}</dd>`).join('')}</dl>`).join('')}</div>
+    <div class="rad"><button class="knapp primar" id="stang">Stäng</button></div>`);
+  document.getElementById('stang').onclick=dolj;
+}
+</script>
+
+<script>
+/* =======================  BANSPEL  ======================= */
+const GRAV=.66, HOPPV=-10.9, MAXFART=3.5;
+const ACC_MARK=.145, ACC_LUFT=.095, VAND=2.4, BROMS_MARK=.26, BROMS_LUFT=.035;
+
+function startaBana(id){
+  const v=VARLDAR.find(x=>x.id===id);
+  const bana=byggBana(v);
+  spel={v,bana,
+    p:{x:2*TILE,y:(GR-2)*TILE,vx:0,vy:0,w:15,h:26,paMark:false,coyote:0,buffert:0,riktning:1,blink:0,hoppTid:0,steg:0,squash:0},
+    cam:0, hjartan:v.boss?5:4, maxHjartan:v.boss?5:4, rullor:0, fel:0, oppnade:0, uppdragKlara:0,
+    checkpoint:{x:2*TILE,y:(GR-2)*TILE}, trygg:{x:2*TILE,y:(GR-2)*TILE}, klar:false, partiklar:[]};
+  lage='bana'; dolj(); uppdateraHud();
+  const sc=SCENER[v.id];
+  if(sc&&sc.in) visaScen(sc.in);
+  else las(`Bana ${v.id}. ${v.namn}. ${v.under}.`);
+}
+function tillKarta(){
+  lage='karta'; dolj(); uppdateraHud();
+  if(spel){ const pl=PLATSER.find(q=>q.id===spel.v.id);
+    if(pl){ karta.x=pl.x; karta.y=pl.y+26; } }
+}
+
+function fastRuta(c,r){
+  const b=spel.bana;
+  if(c<0)return true;
+  if(c>=b.cols)return true;
+  if(r<0||r>=ROWS)return false;
+  return b.g[r][c]==='#';
+}
+function skada(utanRespawn){
+  if(spel.hjartan<=0)return;
+  spel.hjartan--; ljudAj(); spel.p.blink=40;
+  if(!utanRespawn){
+    const t=spel.trygg.x>spel.checkpoint.x?spel.trygg:spel.checkpoint;
+    spel.p.x=t.x; spel.p.y=t.y; spel.p.vx=0; spel.p.vy=0;
+  }
+  uppdateraHud();
+  if(spel.hjartan<=0 && !utanRespawn) setTimeout(()=>visaResultat(false),400);
+}
+
+function stegBana(){
+  const p=spel.p, b=spel.bana;
+  // styrning – mjuk acceleration, snabb vändning, tydlig inbromsning
+  const acc=p.paMark?ACC_MARK:ACC_LUFT, broms=p.paMark?BROMS_MARK:BROMS_LUFT;
+  const in_=(tang.hoger?1:0)-(tang.vanster?1:0);
+  if(in_){
+    const vander=(in_>0&&p.vx<0)||(in_<0&&p.vx>0);
+    p.vx+=in_*acc*(vander?VAND:1);
+    p.riktning=in_;
+  }else{
+    if(p.vx>broms)p.vx-=broms; else if(p.vx<-broms)p.vx+=broms; else p.vx=0;
+  }
+  p.vx=clamp(p.vx,-MAXFART,MAXFART);
+  p.steg=(p.steg||0)+(p.paMark?Math.abs(p.vx)*.21:0);
+  if(p.squash>0)p.squash=Math.max(0,p.squash-.075);
+  if(p.squash<0)p.squash=Math.min(0,p.squash+.06);
+
+  if(hoppTryck){p.buffert=9;hoppTryck=false;}
+  if(p.buffert>0)p.buffert--;
+  if(p.paMark)p.coyote=8; else if(p.coyote>0)p.coyote--;
+  if(p.buffert>0&&p.coyote>0){
+    p.vy=HOPPV-Math.abs(p.vx)*.13;      // fart ger extra höjd
+    p.paMark=false;p.coyote=0;p.buffert=0;p.hoppTid=8;p.squash=-.5;ljudHopp();
+    for(let i=0;i<5;i++)spel.partiklar.push({x:p.x+p.w/2+slump(-5,5),y:p.y+p.h,
+      vx:slump(-.7,.7)-p.vx*.25,vy:slump(-.5,.3),liv:16,r:1.6,f:'#FFFFFF'});
+  }
+  if(p.hoppTid>0)p.hoppTid--;
+  if(!tang.hopp&&p.hoppTid<=0&&p.vy<-4.5)p.vy=-4.5;
+  const lang=Math.abs(p.vy)<2.2;                       // svävar lite i toppen
+  const g=p.vy<0?(lang?GRAV*.74:GRAV):(lang?GRAV*.86:GRAV*1.12);
+  p.vy=Math.min(p.vy+g,12);
+  const forreVy=p.vy;
+
+  // x
+  p.x+=p.vx;
+  let r0=Math.floor(p.y/TILE), r1=Math.floor((p.y+p.h-1)/TILE);
+  if(p.vx>0){const c=Math.floor((p.x+p.w-1)/TILE);
+    for(let r=r0;r<=r1;r++) if(fastRuta(c,r)){p.x=c*TILE-p.w;p.vx=0;break;}}
+  else if(p.vx<0){const c=Math.floor(p.x/TILE);
+    for(let r=r0;r<=r1;r++) if(fastRuta(c,r)){p.x=(c+1)*TILE;p.vx=0;break;}}
+
+  // y
+  const forreBotten=p.y+p.h;
+  p.y+=p.vy; p.paMark=false;
+  let c0=Math.floor(p.x/TILE), c1=Math.floor((p.x+p.w-1)/TILE);
+  if(p.vy>0){const r=Math.floor((p.y+p.h)/TILE);
+    for(let c=c0;c<=c1;c++) if(fastRuta(c,r)){
+      p.y=r*TILE-p.h;
+      if(forreVy>5.5&&!p.paMark){ p.squash=Math.min(1,forreVy/13); pip(150,.06,'sine',.035);
+        for(let i=0;i<6;i++)spel.partiklar.push({x:p.x+p.w/2+slump(-7,7),y:p.y+p.h,
+          vx:slump(-1.3,1.3),vy:slump(-.9,-.1),liv:18,r:1.8,f:'#FFFFFF'}); }
+      p.vy=0;p.paMark=true;break;}}
+  else if(p.vy<0){const r=Math.floor(p.y/TILE);
+    for(let c=c0;c<=c1;c++) if(fastRuta(c,r)){p.y=(r+1)*TILE;p.vy=0;break;}}
+
+  // rörliga plattformar
+  for(const m of b.rorliga){
+    m.x+=m.dir*m.fart;
+    if(m.x<m.x0){m.x=m.x0;m.dir=1;} if(m.x>m.x1){m.x=m.x1;m.dir=-1;}
+    if(p.vy>=0 && forreBotten<=m.y+4 && p.y+p.h>=m.y && p.y+p.h<=m.y+14 &&
+       p.x+p.w>m.x+2 && p.x<m.x+m.w-2){
+      p.y=m.y-p.h; p.vy=0; p.paMark=true; p.x+=m.dir*m.fart;
+    }
+  }
+
+  // taggar
+  const tc0=Math.floor((p.x+5)/TILE), tc1=Math.floor((p.x+p.w-6)/TILE);
+  const tr0=Math.floor((p.y+p.h-8)/TILE), tr1=Math.floor((p.y+p.h-1)/TILE);
+  if(p.blink<=0)
+    for(let c=tc0;c<=tc1;c++) for(let r=tr0;r<=tr1;r++)
+      if(r>=0&&r<ROWS&&c>=0&&c<b.cols&&b.g[r][c]==='^'){skada();break;}
+
+  // damm under fötterna vid fart
+  if(p.paMark&&Math.abs(p.vx)>2.2&&tick%5===0)
+    spel.partiklar.push({x:p.x+p.w/2-p.riktning*4,y:p.y+p.h-1,
+      vx:-p.riktning*slump(.2,.8),vy:slump(-.5,-.05),liv:14,r:1.5,f:'#FFFFFF'});
+  // trygg mark att återvända till
+  if(p.paMark && p.blink<=0){
+    const cm=Math.floor((p.x+p.w/2)/TILE), rm=Math.floor((p.y+p.h+2)/TILE);
+    if(fastRuta(cm-1,rm)&&fastRuta(cm,rm)&&fastRuta(cm+1,rm)&&
+       b.g[rm-1]&&b.g[rm-1][cm]!=='^'&&b.g[rm-1][cm+1]!=='^'&&b.g[rm-1][cm-1]!=='^'&&
+       p.x>spel.trygg.x){ spel.trygg={x:p.x,y:p.y}; }
+  }
+  // fall
+  if(p.y>H+40){skada();}
+  if(p.blink>0)p.blink--;
+
+  // rullar
+  for(const rl of b.rullor){
+    if(rl.tagen)continue;
+    if(Math.abs(rl.x-(p.x+p.w/2))<20 && Math.abs(rl.y-(p.y+p.h/2))<24){
+      rl.tagen=true; spel.rullor++; ljudRulle(); uppdateraHud();
+      for(let i=0;i<8;i++)spel.partiklar.push({x:rl.x,y:rl.y,vx:slump(-1.6,1.6),vy:slump(-2.4,-.4),liv:26});
+    }
+  }
+  // figurer att prata med
+  for(const n of b.npcar){
+    if(n.klar)continue;
+    if(p.x+p.w>n.x-20 && p.x<n.x+20 && p.y+p.h>n.y-72){ p.vx=0; visaUppdrag(n); return; }
+  }
+  // portar
+  for(const po of b.portar){
+    if(po.oppen)continue;
+    if(p.x+p.w>po.x-18 && p.x<po.x+18 && p.y+p.h>po.y-70){
+      p.vx=0; visaFraga(po); return;
+    }
+  }
+  // mål
+  if(p.x>b.malX && !spel.klar){
+    spel.klar=true; ljudPort();
+    const sc=SCENER[spel.v.id];
+    setTimeout(()=>{ if(sc&&sc.ut) visaScen(sc.ut,()=>visaResultat(true)); else visaResultat(true); },320);
+  }
+  // partiklar
+  spel.partiklar=spel.partiklar.filter(q=>{q.x+=q.vx;q.y+=q.vy;q.vy+=.14;q.liv--;return q.liv>0;});
+  // kamera
+  const mal=clamp(p.x+p.w/2-W/2,0,b.cols*TILE-W);
+  spel.cam+=(mal-spel.cam)*.14;
+}
+
+function ritaBana(){
+  const b=spel.bana, cam=Math.round(spel.cam), t=TEMA[spel.v.tema];
+  himmel(spel.v.tema);
+  ctx.save(); ctx.translate(0,OFF);
+  ritaBakgrund(spel.v.tema,cam);
+  ctx.translate(-cam,0);
+  const c0=Math.max(0,Math.floor(cam/TILE)-1), c1=Math.min(b.cols,Math.ceil((cam+W)/TILE)+1);
+  for(let c=c0;c<c1;c++)for(let r=0;r<ROWS;r++){
+    const ch=b.g[r][c]; if(ch==='.')continue;
+    const x=c*TILE,y=r*TILE;
+    if(ch==='#'){
+      const topp=!fastRuta(c,r-1);
+      rekt(x,y,TILE,TILE,topp?t.mark:t.mark2);
+      if(topp){rekt(x,y,TILE,5,t.kant); rekt(x,y+5,TILE,2,'rgba(0,0,0,.10)');}
+      ctx.globalAlpha=.16;
+      rekt(x+((c*7+r*3)%12),y+9,7,4,'#000'); rekt(x+((c*5+r*11)%14),y+17,5,3,'#000');
+      ctx.globalAlpha=1;
+    }else if(ch==='^'){
+      rekt(x,y+TILE-4,TILE,4,'#6B3040');
+      for(let i=0;i<3;i++){
+        tri(x+i*8,y+TILE-3,x+i*8+8,y+TILE-3,x+i*8+4,y+4,'#E0596F');
+        tri(x+i*8+2,y+TILE-3,x+i*8+4,y+TILE-3,x+i*8+4,y+8,'#FFD3DA');
+      }
+    }
+  }
+  for(const m of b.rorliga){
+    rekt(m.x,m.y,m.w,m.h,'#8A6A44'); rekt(m.x,m.y,m.w,4,'#B98A46');
+    ctx.globalAlpha=.35;rekt(m.x+4,m.y+m.h,m.w-8,3,'#000');ctx.globalAlpha=1;
+  }
+  for(const rl of b.rullor) if(!rl.tagen) ritaRulle(rl.x,rl.y,'#F2A83B');
+  if(b.hav) ritaHav(b.hav);
+  for(const n of b.npcar) if(!n.klar) ritaNpcFigur(n);
+  for(const po of b.portar) ritaPort(po);
+  ritaMal(b.malX+34,GR*TILE);
+  for(const q of spel.partiklar){ctx.globalAlpha=(q.liv/(q.f?20:26))*(q.f?.5:1);cirkel(q.x,q.y,q.r||2,q.f||'#F2A83B');ctx.globalAlpha=1;}
+  if(!(spel.p.blink>0 && Math.floor(tick/4)%2)) ritaSpelare(spel.p);
+  ctx.restore();
+
+  if(spel.cam<40){
+    ctx.globalAlpha=clamp((40-spel.cam)/25,0,1);
+    ctx.fillStyle='rgba(10,16,34,.75)'; ctx.fillRect(8,10,W-16,30);
+    ctx.fillStyle='#F6EDDA'; ctx.font='600 12px Assistant,sans-serif'; ctx.textAlign='center';
+    ctx.fillText(pekskarm()?'◀ ▶ springer · HOPP hoppar · portarna kräver rätt svar'
+      :'Pilarna springer · mellanslag hoppar · portarna kräver rätt svar',W/2,29);
+    ctx.textAlign='left'; ctx.globalAlpha=1;
+  }
+}
+</script>
+
+<script>
+/* ===================================================================
+   SCENER OCH UPPDRAG – gränssnitt
+   =================================================================== */
+function scenHuvud(vem,bild,text){
+  return `<div class="scenrad">
+    <div class="portratt">${bildFor(bild)}</div>
+    <div class="talbubbla"><span class="vem">${esc(vem)}</span><p style="margin:0">${esc(text)}</p></div>
+  </div>`;
+}
+function visaScen(rader,klart){
+  let i=0;
+  const rita=()=>{
+    const [vem,bild,text]=rader[i];
+    visa(scenHuvud(vem,bild,text)+
+      `<div class="rad"><button class="knapp primar" id="vidare">${i<rader.length-1?'Vidare →':'Sätt igång'}</button></div>`);
+    las(text);
+    document.getElementById('vidare').onclick=()=>{ i++; if(i<rader.length)rita(); else{ dolj(); if(klart)klart(); } };
+  };
+  rita();
+}
+
+function efterUppdrag(npc){
+  if(npc.oppnarHav && spel.bana.hav && !spel.bana.hav.oppet){
+    const h=spel.bana.hav; h.oppet=true; h.anim=0;
+    for(let c=h.c0;c<h.c1;c++) for(let r=GR;r<ROWS;r++) spel.bana.g[r][c]='#';
+    ljudPort(); pip(220,.5,'sine',.06);
+    las('Havet delar sig! Spring igenom.');
+  }
+}
+function avsluta(npc,u,fel){
+  document.getElementById('efter').innerHTML=
+    `<div class="facit ${fel?'daligt':'bra'}"><b>${fel?'Nästan!':valj(['Snyggt!','Precis!','Helt rätt!'])}</b><p>${esc(u.facit||'')}</p></div>
+     <div class="rad"><button class="knapp primar" id="klart">Fortsätt →</button></div>`;
+  las(u.facit||'');
+  document.getElementById('klart').onclick=()=>{
+    npc.klar=true; spel.uppdragKlara++; ljudPort(); efterUppdrag(npc); dolj();
+    if(spel.hjartan<=0) visaResultat(false);
+  };
+  document.getElementById('klart').focus({preventScroll:true});
+}
+const misslyck=()=>{ ljudFel(); skada(true); uppdateraHud(); };
+
+function visaUppdrag(npc){
+  const u=npc.u;
+  if(u.t==='para')      uiPara(u,npc);
+  else if(u.t==='ordning') uiOrdning(u,npc);
+  else if(u.t==='sortera') uiSortera(u,npc);
+  else if(u.t==='prata')   uiPrata(u,npc);
+  else if(u.t==='tandning')uiTandning(u,npc);
+}
+
+/* ---- para ihop ---- */
+function uiPara(u,npc){
+  const rader=u.par||u.parord, ikoner=!!u.par;
+  const V=blanda(rader.map((r,i)=>({t:r[0],i}))), Hh=blanda(rader.map((r,i)=>({t:r[1],i})));
+  let kvar=rader.length, fel=0, vald=null;
+  visa(scenHuvud(u.vem,u.bild,u.f)+
+   `<div class="parspel" id="par">
+      <div class="kol">${V.map(o=>`<button class="altknapp" data-s="v" data-i="${o.i}"><span>${esc(o.t)}</span></button>`).join('')}</div>
+      <div class="kol">${Hh.map(o=>ikoner
+        ? `<button class="ikonknapp" data-s="h" data-i="${o.i}" aria-label="bild">${IKON[o.t]||''}</button>`
+        : `<button class="altknapp" data-s="h" data-i="${o.i}"><span>${esc(o.t)}</span></button>`).join('')}</div>
+    </div><div id="efter"></div>`);
+  las(u.f+' '+V.map(o=>o.t).join(', ')+'.');
+  overlagg.querySelectorAll('#par button').forEach(b=>b.onclick=()=>{
+    if(b.classList.contains('klar'))return;
+    if(b.dataset.s==='v'){
+      overlagg.querySelectorAll('[data-s="v"]').forEach(x=>x.classList.remove('vald'));
+      b.classList.add('vald'); vald=b; las(b.textContent.trim()); return;
+    }
+    if(!vald){ las('Välj ett ord till vänster först.'); return; }
+    if(vald.dataset.i===b.dataset.i){
+      vald.classList.remove('vald'); vald.classList.add('klar'); b.classList.add('klar');
+      ljudRulle(); vald=null; kvar--;
+      if(kvar===0) avsluta(npc,u,fel>0);
+    }else{
+      fel++; misslyck(); b.classList.add('fel');
+      setTimeout(()=>b.classList.remove('fel'),450);
+      vald.classList.remove('vald'); vald=null;
+      if(spel.hjartan<=0) avsluta(npc,u,true);
+    }
+  });
+}
+
+/* ---- rätt ordning ---- */
+function uiOrdning(u,npc){
+  let steg=0, fel=0;
+  visa(scenHuvud(u.vem,u.bild,u.f)+
+   `<div class="bricklada" id="valda"></div>
+    <div class="alt" id="ord">${blanda(u.ord).map(o=>`<button class="altknapp" data-o="${esc(o)}"><span>${esc(o)}</span></button>`).join('')}</div>
+    <div id="efter"></div>`);
+  las(u.f+' '+u.ord.slice().sort().join('. '));
+  const valda=document.getElementById('valda');
+  overlagg.querySelectorAll('#ord .altknapp').forEach(b=>b.onclick=()=>{
+    if(b.disabled)return;
+    if(b.dataset.o===u.ord[steg]){
+      b.disabled=true; b.classList.add('blek'); ljudRulle();
+      valda.insertAdjacentHTML('beforeend',`<span class="brick ratt">${steg+1}. ${esc(b.dataset.o)}</span>`);
+      steg++;
+      if(steg===u.ord.length) avsluta(npc,u,fel>0);
+    }else{
+      fel++; misslyck(); b.classList.add('fel');
+      setTimeout(()=>b.classList.remove('fel'),450);
+      if(spel.hjartan<=0) avsluta(npc,u,true);
+    }
+  });
+}
+
+/* ---- sortera i högar ---- */
+function uiSortera(u,npc){
+  let kvar=u.items.length, fel=0, vald=null;
+  visa(scenHuvud(u.vem,u.bild,u.f)+
+   `<div class="bricklada" id="lada">${blanda(u.items.map(it=>({t:it[0],h:it[1]}))).map(o=>
+      `<button class="brick" data-h="${o.h}">${esc(o.t)}</button>`).join('')}</div>
+    <div class="hogar" id="hogar">${u.hogar.map((h,i)=>
+      `<div class="hog" data-h="${i}"><h4>${esc(h)}</h4><div class="innehall"></div></div>`).join('')}</div>
+    <div id="efter"></div>`);
+  las(u.f+' Högarna heter '+u.hogar.join(' och ')+'.');
+  overlagg.querySelectorAll('#lada .brick').forEach(b=>b.onclick=()=>{
+    overlagg.querySelectorAll('#lada .brick').forEach(x=>x.classList.remove('vald'));
+    b.classList.add('vald'); vald=b; las(b.textContent);
+  });
+  overlagg.querySelectorAll('.hog').forEach(h=>h.onclick=()=>{
+    if(!vald)return;
+    if(vald.dataset.h===h.dataset.h){
+      const k=document.createElement('span'); k.className='brick ratt'; k.textContent=vald.textContent;
+      h.querySelector('.innehall').appendChild(k); vald.remove(); vald=null; kvar--; ljudRulle();
+      if(kvar===0) avsluta(npc,u,fel>0);
+    }else{
+      fel++; misslyck(); h.style.borderColor='var(--pomegranate)';
+      setTimeout(()=>h.style.borderColor='',450);
+      if(spel.hjartan<=0) avsluta(npc,u,true);
+    }
+  });
+}
+
+/* ---- samtal ---- */
+function uiPrata(u,npc){
+  let i=0, fel=false;
+  const rita=()=>{
+    const [sag,alt,facit]=u.steg[i];
+    const ordn=blanda(alt.map((_,k)=>k)), bok='ABC';
+    visa(scenHuvud(u.vem,u.bild,sag)+
+     `<p class="instr">Vad svarar du?</p>
+      <div class="alt" id="svar">${ordn.map((k,n)=>
+        `<button class="altknapp" data-i="${k}"><span class="bok">${bok[n]}</span><span>${esc(alt[k])}</span></button>`).join('')}</div>
+      <div id="efter"></div>`);
+    las(sag+' '+ordn.map((k,n)=>`${bok[n]}. ${alt[k]}`).join('. '));
+    overlagg.querySelectorAll('#svar .altknapp').forEach(b=>b.onclick=()=>{
+      const ratt=+b.dataset.i===0;
+      overlagg.querySelectorAll('#svar .altknapp').forEach(x=>{x.disabled=true;
+        if(+x.dataset.i===0)x.classList.add('ratt'); else if(x===b)x.classList.add('fel'); else x.classList.add('blek');});
+      if(!ratt){ fel=true; misslyck(); }else ljudRatt();
+      document.getElementById('efter').innerHTML=
+        `<div class="facit ${ratt?'bra':'daligt'}"><b>${ratt?'Precis!':'Nästan!'}</b><p>${ratt?'':'Rätt svar: <strong>'+esc(alt[0])+'</strong>. '}${esc(facit)}</p></div>
+         <div class="rad"><button class="knapp primar" id="vidare">${i<u.steg.length-1?'Vidare →':'Klart'}</button></div>`;
+      las((ratt?'Rätt. ':'Fel. Rätt svar: '+alt[0]+'. ')+facit);
+      document.getElementById('vidare').onclick=()=>{
+        if(spel.hjartan<=0){ npc.klar=true; dolj(); visaResultat(false); return; }
+        i++;
+        if(i<u.steg.length) rita();
+        else{ npc.klar=true; spel.uppdragKlara++; ljudPort(); efterUppdrag(npc); dolj(); }
+      };
+    });
+  };
+  rita();
+}
+
+/* ---- tänd chanukkastaken ---- */
+const LAGA='<svg viewBox="0 0 24 24"><path d="M12 2c4 6 6.5 9 6.5 13a6.5 6.5 0 0 1-13 0C5.5 11 8 8 12 2z" fill="#F2A83B"/></svg>';
+function uiTandning(u,npc){
+  const N=9, mitt=4; let tanda=[], fel=0;
+  const rita=()=>{
+    const txt = tanda.length===0 ? 'Tjänaren är det höga ljuset i mitten.'
+      : tanda.length===1 ? 'Bra! Nu tänder Tjänaren de åtta andra ljusen.'
+      : (tanda.length-1)+' av 8 ljus tända.';
+    visa(scenHuvud(u.vem,u.bild,u.f)+
+      `<div class="stake">${Array.from({length:N},(_,i)=>
+        `<button class="ljusk${i===mitt?' tjanare':''}${tanda.includes(i)?' tand':''}" data-i="${i}"
+           aria-label="${i===mitt?'Tjänaren':'Ljus '+(i+1)}">
+           <span class="laga">${LAGA}</span><span class="kropp"></span><span class="stang"></span></button>`).join('')}</div>
+       <p class="instr" style="text-align:center">${esc(txt)}</p>
+       <div id="efter"></div>`);
+    overlagg.querySelectorAll('.ljusk').forEach(kn=>kn.onclick=()=>{
+      const i=+kn.dataset.i;
+      if(tanda.includes(i))return;
+      if(tanda.length===0 && i!==mitt){
+        fel++; misslyck(); las('Nej. Tjänaren tänds först – det är det höga ljuset i mitten.');
+        if(spel.hjartan<=0){ rita(); avsluta(npc,u,true); return; }
+        rita(); return;
+      }
+      tanda.push(i); pip(620+tanda.length*45,.1,'sine',.05);
+      rita();
+      if(tanda.length===N) avsluta(npc,u,fel>0);
+    });
+  };
+  rita();
+  las(u.f+' Tjänaren är det höga ljuset i mitten.');
+}
+</script>
+
+<script>
+/* =======================  VÄRLDSKARTAN  =======================
+   Riktig geografi: ekvirektangulär projektion över Främre Orienten,
+   lon 22–50 °O, lat 24–43 °N. Alla platser ligger på sina verkliga
+   koordinater.                                                     */
+let mask=null;
+/* ---- översiktskartan: periodiska systemet (period 1–5) som golv att vandra på ----
+   Kolumn = grupp (1–18, lodrätt), rad = period (1–5, vågrätt). Platserna ligger på riktiga grundämnen. */
+const CELL=64, MARG=78;
+const GEO={k:CELL};
+const MW=MARG*2+18*CELL;
+const MH=MARG*2+5*CELL+30;
+const P=(kol,per)=>[MARG+(kol-.5)*CELL, MARG+(per-.5)*CELL];
+const ELEMENT=[
+ ['H',1,1,1],['He',2,18,1],
+ ['Li',3,1,2],['Be',4,2,2],['B',5,13,2],['C',6,14,2],['N',7,15,2],['O',8,16,2],['F',9,17,2],['Ne',10,18,2],
+ ['Na',11,1,3],['Mg',12,2,3],['Al',13,13,3],['Si',14,14,3],['P',15,15,3],['S',16,16,3],['Cl',17,17,3],['Ar',18,18,3],
+ ['K',19,1,4],['Ca',20,2,4],['Sc',21,3,4],['Ti',22,4,4],['V',23,5,4],['Cr',24,6,4],['Mn',25,7,4],['Fe',26,8,4],['Co',27,9,4],['Ni',28,10,4],['Cu',29,11,4],['Zn',30,12,4],['Ga',31,13,4],['Ge',32,14,4],['As',33,15,4],['Se',34,16,4],['Br',35,17,4],['Kr',36,18,4],
+ ['Rb',37,1,5],['Sr',38,2,5],['Y',39,3,5],['Zr',40,4,5],['Nb',41,5,5],['Mo',42,6,5],['Tc',43,7,5],['Ru',44,8,5],['Rh',45,9,5],['Pd',46,10,5],['Ag',47,11,5],['Cd',48,12,5],['In',49,13,5],['Sn',50,14,5],['Sb',51,15,5],['Te',52,16,5],['I',53,17,5],['Xe',54,18,5]
+];
+function familj(sym,kol){
+  if(sym==='H') return ['#B9C6E4','#2A3350'];
+  if(kol===1) return ['#F28B82','#4A1410'];        // alkalimetaller
+  if(kol===2) return ['#F6B26B','#4A2A08'];        // alkaliska jordartsmetaller
+  if(kol>=3&&kol<=12) return ['#9FC5E8','#10304A']; // övergångsmetaller
+  if(kol===17) return ['#B6D7A8','#183A12'];       // halogener
+  if(kol===18) return ['#D5A6E6','#3A1450'];       // ädelgaser
+  return ['#FFE599','#4A3E08'];                    // övriga
+}
+const FAMILJNAMN=[['Alkalimetaller',1,1],['Övergångsmetaller',3,12],['Halogener',17,17],['Ädelgaser',18,18]];
+
+function byggMask(){                 // allt går att gå på: ingen båt på den här kartan
+  const m=document.createElement('canvas'); m.width=MW; m.height=MH;
+  const q=m.getContext('2d'); q.fillStyle='#fff'; q.fillRect(0,0,MW,MH);
+  mask=q.getImageData(0,0,MW,MH).data;
+}
+function arVatten(){ return false; }
+function bana(pts,slut){ ctx.beginPath(); pts.forEach((pt,i)=>{const[x,y]=P(pt[0],pt[1]);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}); if(slut)ctx.closePath(); }
+function fyllGeo(pts,farg){ bana(pts,true); ctx.fillStyle=farg; ctx.fill(); }
+function strackGeo(pts,farg,bredd){ bana(pts,false); ctx.strokeStyle=farg; ctx.lineWidth=bredd; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke(); }
+
+function ritaTabell(){
+  // labbgolv
+  ctx.fillStyle='#1B2440'; ctx.fillRect(0,0,MW,MH);
+  ctx.strokeStyle='rgba(120,140,190,.10)'; ctx.lineWidth=1;
+  for(let x=0;x<MW;x+=32){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,MH);ctx.stroke();}
+  for(let y=0;y<MH;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(MW,y);ctx.stroke();}
+  // rutor
+  for(const [sym,nr,kol,per] of ELEMENT){
+    const [x,y]=P(kol,per), s=CELL-6, [bg,fg]=familj(sym,kol);
+    ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(x-s/2+3,y-s/2+4,s,s);
+    ctx.fillStyle=bg; ctx.fillRect(x-s/2,y-s/2,s,s);
+    ctx.fillStyle='rgba(255,255,255,.35)'; ctx.fillRect(x-s/2,y-s/2,s,4);
+    ctx.fillStyle=fg; ctx.textAlign='left'; ctx.font='700 11px Assistant,sans-serif'; ctx.fillText(nr,x-s/2+5,y-s/2+15);
+    ctx.textAlign='center'; ctx.font='800 24px Assistant,sans-serif'; ctx.fillText(sym,x,y+12);
+  }
+  // grupper och perioder
+  ctx.fillStyle='rgba(246,237,218,.85)'; ctx.font='700 13px Assistant,sans-serif'; ctx.textAlign='center';
+  for(let k=1;k<=18;k++){const [x]=P(k,1); ctx.fillText(k,x,MARG-30);}
+  for(let p=1;p<=5;p++){const [,y]=P(1,p); ctx.fillText(p,MARG-26,y+5);}
+  ctx.font='800 15px Assistant,sans-serif'; ctx.fillStyle='#F2C14E';
+  ctx.textAlign='left'; ctx.fillText('Grupp →  (lodräta)',MARG,MARG-52);
+  ctx.save(); ctx.translate(MARG-50,MARG+10); ctx.rotate(Math.PI/2); ctx.fillText('Period →  (vågräta)',0,0); ctx.restore();
+  // familjenamn ovanför kolumnerna
+  ctx.font='700 12px Assistant,sans-serif'; ctx.textAlign='center';
+  for(const [namn,k0,k1] of FAMILJNAMN){
+    const [x0]=P(k0,1),[x1]=P(k1,1), per=(k0===1||k0===18)?1:(k0===17?2:4), [,yy]=P(k0,per);
+    ctx.fillStyle='rgba(246,237,218,.7)'; ctx.fillText(namn,(x0+x1)/2,yy-CELL/2-8);
+  }
+  ctx.textAlign='left';
+}
+/* platserna ligger på riktiga grundämnen: [id, grupp, period, ikon, etikett]
+   platsikonen ligger nere till höger i rutan, så att grundämnets bokstav syns */
+const PLATSER=[
+ [1,1,1,'atom','hoger'],     // Väte
+ [2,1,2,'atom','hoger'],     // Litium
+ [3,16,2,'atom','under'],    // Syre
+ [4,14,2,'atom','under'],    // Kol
+ [5,1,3,'atom','hoger'],     // Natrium
+ [6,2,3,'atom','under'],     // Magnesium
+ [7,17,3,'atom','under'],    // Klor
+ [8,15,2,'atom','under'],    // Kväve
+ [9,8,4,'atom','under'],     // Järn
+ [10,18,1,'tempel','vanster'] // Provet – vid helium, högst upp till höger
+].map(([id,kol,per,ikon,lbl])=>{ const [x,y]=P(kol,per); return {id,x:x+18,y:y+30,ikon,lbl}; });
+const karta={x:0,y:0,cam:{x:0,y:0},riktning:1,narmast:null,bat:false,steg:0,fart:0};
+(function(){const u=PLATSER[0];karta.x=u.x+30;karta.y=u.y+22;})();
+
+function ritaPlatsIkon(p,oppen){
+  const x=p.x,y=p.y, g=oppen?'#C9A46A':'#6A7290', m=oppen?'#8E6E42':'#4E5570';
+  ctx.globalAlpha=.22;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y+4,20,6,0,0,7);ctx.fill();ctx.globalAlpha=1;
+  if(p.ikon==='atom'){ atomBild(x,y-12,13,oppen?'#F6EDDA':'#6A7290',tick/30+x); }
+  else if(p.ikon==='ziggurat'){ rekt(x-20,y-8,40,8,g); rekt(x-14,y-16,28,8,g); rekt(x-8,y-24,16,8,m); }
+  else if(p.ikon==='pyramid'){ tri(x-20,y,x+20,y,x,y-28,g); tri(x,y-28,x+20,y,x+6,y,m); }
+  else if(p.ikon==='berg'){ tri(x-22,y,x+22,y,x,y-32,g); tri(x-9,y-19,x+9,y-19,x,y-32,'#F4F0E2');
+    rekt(x-7,y-14,6,9,m); rekt(x+1,y-14,6,9,m); }
+  else if(p.ikon==='stad'){ rekt(x-20,y-16,40,16,g);
+    for(let i=0;i<5;i++)rekt(x-20+i*9,y-20,5,5,g);
+    ctx.fillStyle=oppen?'#E0B45C':m;ctx.beginPath();ctx.arc(x,y-20,9,Math.PI,0);ctx.fill(); }
+  else if(p.ikon==='port'){ rekt(x-18,y-22,7,22,g); rekt(x+11,y-22,7,22,g);
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y-22,18,Math.PI,0);ctx.fill();
+    ctx.fillStyle=oppen?'#3C6E8F':m;ctx.beginPath();ctx.arc(x,y-22,11,Math.PI,0);ctx.fill();
+    rekt(x-11,y-22,22,22,oppen?'#3C6E8F':m); }
+  else if(p.ikon==='hus'){ rekt(x-19,y-14,17,14,g); rekt(x+1,y-18,17,18,m);
+    tri(x-22,y-14,x+1,y-14,x-10,y-24,'#E8EEF8'); tri(x-2,y-18,x+21,y-18,x+9,y-28,'#E8EEF8');
+    if(oppen){rekt(x-14,y-10,6,6,'#F2A83B'); rekt(x+6,y-13,6,6,'#F2A83B');} }
+  else { rekt(x-19,y-26,8,26,g); rekt(x+11,y-26,8,26,g);
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y-26,19,Math.PI,0);ctx.fill();
+    ctx.fillStyle=oppen?'#F2A83B':m;ctx.beginPath();ctx.arc(x,y-26,11,Math.PI,0);ctx.fill();
+    rekt(x-11,y-26,22,26,oppen?'#2A2038':m);
+    if(oppen){ctx.globalAlpha=.3;cirkel(x,y-30,26,'#F2A83B');ctx.globalAlpha=1;} }
+}
+
+function ritaEtikett(p){
+  const v=VARLDAR.find(v=>v.id===p.id), oppen=uppLast(p.id), ljus=spar.ljus[p.id]||0;
+  ctx.font='700 12px Assistant,sans-serif';
+  const txt=p.id+'. '+v.namn, w=ctx.measureText(txt).width+12;
+  let lx=p.x, ly=p.y+18;
+  if(p.lbl==='over')ly=p.y-42; else if(p.lbl==='vanster'){lx=p.x-w/2-24;ly=p.y-12;}
+  else if(p.lbl==='hoger'){lx=p.x+w/2+24;ly=p.y-12;}
+  ctx.textAlign='center';
+  ctx.fillStyle='rgba(12,20,40,.78)'; ctx.fillRect(lx-w/2,ly-12,w,17);
+  ctx.fillStyle=oppen?'#F6EDDA':'#96A2C4'; ctx.fillText(txt,lx,ly);
+  if(!oppen){ ctx.font='11px sans-serif'; ctx.fillText('🔒',p.x,p.y-4); }
+  else if(ljus>0){ for(let i=0;i<3;i++){ ctx.globalAlpha=i<ljus?1:.2;
+      cirkel(p.x-11+i*11,ly+11,3.2,'#F2A83B'); ctx.globalAlpha=1; } }
+  ctx.textAlign='left';
+}
+
+function stegKarta(){
+  if(!mask)byggMask();
+  karta.bat=arVatten(karta.x,karta.y);
+  const fart=karta.bat?1.7:2.6; let dx=0,dy=0;
+  if(tang.vanster)dx-=1; if(tang.hoger)dx+=1;
+  if(tang.upp)dy-=1; if(tang.ner)dy+=1;
+  if(dx||dy){const l=Math.hypot(dx,dy);karta.x+=dx/l*fart;karta.y+=dy/l*fart;
+    if(dx)karta.riktning=dx>0?1:-1;
+    karta.fart=fart; karta.steg+=fart*.24;}
+  else karta.fart=0;
+  karta.x=clamp(karta.x,10,MW-10); karta.y=clamp(karta.y,16,MH-10);
+  karta.narmast=null;
+  for(const p of PLATSER) if(Math.hypot(p.x-karta.x,p.y-karta.y)<34) karta.narmast=p;
+  if(hoppTryck){
+    hoppTryck=false;
+    if(karta.narmast){
+      if(uppLast(karta.narmast.id)) startaBana(karta.narmast.id);
+      else { pip(180,.2,'square',.05); las('Den här platsen är låst. Klara banan innan först.'); }
+    }
+  }
+  karta.cam.x+=(clamp(karta.x-W/2,0,Math.max(0,MW-W))-karta.cam.x)*.15;
+  karta.cam.y+=(clamp(karta.y-VH/2,0,Math.max(0,MH-VH))-karta.cam.y)*.15;
+}
+
+function ritaKarta(){
+  if(!mask)byggMask();
+  const cx=Math.round(karta.cam.x), cy=Math.round(karta.cam.y);
+  ctx.fillStyle='#0B1226'; ctx.fillRect(0,0,W,VH);
+  ctx.save(); ctx.translate(-cx,-cy);
+
+  ritaTabell();
+  // resvägen
+  ctx.strokeStyle='rgba(246,237,218,.5)';ctx.lineWidth=3;ctx.setLineDash([7,8]);
+  ctx.beginPath();ctx.moveTo(PLATSER[0].x,PLATSER[0].y);
+  for(let i=1;i<PLATSER.length;i++){const a=PLATSER[i-1],b=PLATSER[i];
+    ctx.quadraticCurveTo((a.x+b.x)/2+((i%2)?34:-34),(a.y+b.y)/2-18,b.x,b.y);}
+  ctx.stroke();ctx.setLineDash([]);
+  // hänvisningsstreck
+  for(const p of PLATSER) if(p.pekar){
+    const m=PLATSER.find(q=>q.id===p.pekar);
+    ctx.strokeStyle='rgba(246,237,218,.45)';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);
+    ctx.beginPath();ctx.moveTo(p.x,p.y+2);ctx.lineTo(m.x,m.y-24);ctx.stroke();ctx.setLineDash([]);
+  }
+  // platser
+  for(const p of PLATSER) ritaPlatsIkon(p,uppLast(p.id));
+  for(const p of PLATSER) ritaEtikett(p);
+  // spelaren (med båt på vatten)
+  if(karta.bat){
+    const b=Math.sin(tick/12)*1.5;
+    ritaSpelare({x:karta.x-8,y:karta.y-26+b,w:15,h:24,riktning:karta.riktning,paMark:true,vx:0,steg:0});
+    ctx.fillStyle='#8A6A44';ctx.beginPath();
+    ctx.moveTo(karta.x-15,karta.y-4+b);ctx.lineTo(karta.x+15,karta.y-4+b);
+    ctx.lineTo(karta.x+10,karta.y+4+b);ctx.lineTo(karta.x-10,karta.y+4+b);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=.6;
+    for(let i=0;i<3;i++)rekt(karta.x-16-i*5,karta.y+6+((tick/6+i)%3),9,2,'#CFE9F5');
+    ctx.globalAlpha=1;
+  }else{
+    ritaSpelare({x:karta.x-8,y:karta.y-24,w:15,h:24,riktning:karta.riktning,paMark:true,
+      vx:karta.fart*1.25,steg:karta.steg});
+  }
+  ctx.restore();
+
+  // minikarta
+  const mw=92,mh=Math.round(mw*MH/MW),mx=W-mw-10,my=10;
+  ctx.fillStyle='rgba(10,16,34,.8)';ctx.fillRect(mx-3,my-3,mw+6,mh+6);
+  ctx.fillStyle='rgba(214,188,138,.5)';ctx.fillRect(mx,my,mw,mh);
+  ctx.strokeStyle='rgba(246,237,218,.35)';ctx.lineWidth=1;
+  ctx.beginPath();
+  PLATSER.forEach((q,i)=>{const px=mx+q.x/MW*mw,py=my+q.y/MH*mh;i?ctx.lineTo(px,py):ctx.moveTo(px,py);});
+  ctx.stroke();
+  for(const q of PLATSER){const px=mx+q.x/MW*mw,py=my+q.y/MH*mh;
+    cirkel(px,py,3,(spar.ljus[q.id]||0)>0?'#F2A83B':uppLast(q.id)?'#5B87F0':'#5A6280');}
+  const pxs=mx+karta.x/MW*mw,pys=my+karta.y/MH*mh;
+  ctx.globalAlpha=.5+.5*Math.abs(Math.sin(tick/22)); cirkel(pxs,pys,5,'#FFFFFF'); ctx.globalAlpha=1;
+  cirkel(pxs,pys,2.4,'#FFFFFF');
+
+  // pil mot nästa mål
+  const mal=PLATSER.find(q=>uppLast(q.id)&&!((spar.ljus[q.id]||0)>0));
+  if(mal && karta.narmast!==mal){
+    const sx=mal.x-cx, sy=mal.y-cy;
+    if(sx<24||sx>W-24||sy<24||sy>VH-70){
+      const mx2=W/2, my2=(VH-38)/2, dx=sx-mx2, dy=sy-my2, l=Math.hypot(dx,dy)||1;
+      const r=Math.min(W,VH-38)/2-30, ax=mx2+dx/l*r, ay=my2+dy/l*r;
+      ctx.save(); ctx.translate(ax,ay); ctx.rotate(Math.atan2(dy,dx));
+      ctx.globalAlpha=.55+.45*Math.abs(Math.sin(tick/18));
+      tri(-10,-9,-10,9,12,0,'#F2A83B'); ctx.globalAlpha=1; ctx.restore();
+    }
+  }
+  // banner
+  ctx.fillStyle='rgba(10,16,34,.78)';ctx.fillRect(0,VH-38,W,38);
+  ctx.fillStyle='#F6EDDA';ctx.font='600 13px Assistant,sans-serif';ctx.textAlign='center';
+  if(karta.narmast){
+    const v=VARLDAR.find(v=>v.id===karta.narmast.id);
+    const g=pekskarm()?'tryck HOPP':'tryck mellanslag';
+    ctx.fillText(uppLast(v.id)? `${v.namn} – ${g} för att gå in` : `${v.namn} är låst – klara bana ${v.id-1} först`, W/2,VH-15);
+  }else if(karta.bat){
+    ctx.fillText('Du seglar · styr mot land med pilarna',W/2,VH-15);
+  }else if(mal){
+    ctx.fillStyle='#F2A83B';
+    ctx.fillText('Nästa mål: '+VARLDAR.find(v=>v.id===mal.id).namn+' – vandra dit',W/2,VH-15);
+  }else{
+    ctx.fillText(pekskarm()?'Gå omkring med pilarna · gå fram till en plats och tryck HOPP'
+      :'Gå omkring med piltangenterna · tryck mellanslag vid en plats',W/2,VH-15);
+  }
+  ctx.textAlign='left';
+}
+
+/* =======================  LOOP  ======================= */
+let sist=0,ack=0;
+function loop(nu){
+  requestAnimationFrame(loop);
+  const dt=Math.min(50,nu-sist); sist=nu; ack+=dt;
+  let steg=0;
+  while(ack>=16.7 && steg<3){ ack-=16.7; steg++;
+    tick++;
+    if(!pausad){ if(lage==='bana')stegBana(); else stegKarta(); }
+    else hoppTryck=false;
+  }
+  if(lage==='bana'&&spel) ritaBana(); else ritaKarta();
+}
+
+/* =======================  START  ======================= */
+document.getElementById('menyknapp').onclick=()=>{ if(overlagg.classList.contains('dold'))visaMeny(); else dolj(); };
+const lj=document.getElementById('ljudknapp');
+function visaLjud(){ lj.setAttribute('aria-pressed',String(spar.tal)); lj.textContent=spar.tal?'🔊':'🔇'; }
+lj.onclick=()=>{ spar.tal=!spar.tal; spara(); visaLjud(); tyst(); if(spar.tal)las('Uppläsning på.'); };
+visaLjud();
+
+function startskarm(){
+  const klara=Object.keys(spar.ljus).length, n=VARLDAR.length;
+  visa(`<h2>Atomresan</h2>
+    <p class="mitt">${klara?`Du har klarat ${klara} av ${n} banor och tänt ${totLjus()} ljus.`
+      :'Vandra genom periodiska systemet. En bana per del av atomkemin – portarna öppnas bara om du svarar rätt.'}</p>
+    <div class="siffror"><div><b>${totLjus()}/${n*3}</b><span>Ljus</span></div>
+      <div><b>${klara}/${n}</b><span>Banor</span></div></div>
+    <div class="rad">
+      <button class="knapp primar" id="start">${klara?'Fortsätt resan':'Börja resan'}</button>
+      <button class="knapp" id="pl">📖 Plugglista</button>
+    </div>
+    <p class="mitt" style="margin-top:14px;font-size:.88rem">Frågorna kommer från lärarens material i atomkemi.</p>`);
+  document.getElementById('start').onclick=()=>{ dolj(); pip(523,.1,'sine',.05); las('Välkommen till Atomresan. Gå till en plats på kartan och tryck hopp.'); };
+  document.getElementById('pl').onclick=()=>{ visaPlugg();
+    const s=document.getElementById('stang'); s.onclick=startskarm; };
+}
+if(!(navigator.maxTouchPoints>0||'ontouchstart' in window))
+  document.getElementById('kontroller').style.display='none';
+passaDuk(); uppdateraHud(); startskarm(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

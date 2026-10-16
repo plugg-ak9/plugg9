@@ -33,7 +33,10 @@
     jerusalem: ['sand', ['remsa-oken'], false], synagoga: ['gras', ['remsa-gron2', 'remsa-gron'], true], hogtid: ['gras', ['remsa-gron', 'remsa-gron2'], true],
     // Pengakollen
     affar: ['gras', ['remsa-gron', 'remsa-gron2'], false], bank: ['sand', ['remsa-oken'], false], lan: ['gras', ['remsa-gron2', 'remsa-gron'], true],
-    kok: ['gras', ['remsa-gron', 'remsa-gron2'], false]
+    kok: ['gras', ['remsa-gron', 'remsa-gron2'], false],
+    // Atomresan
+    karna: ['sno', ['remsa-sno2', 'remsa-sno'], true], labb: ['gras', ['remsa-gron2', 'remsa-gron'], false],
+    tabell: ['sno', ['remsa-sno', 'remsa-sno2'], false], salt: ['sand', ['remsa-oken'], false], neon: ['gras', ['remsa-gron2', 'remsa-gron'], true]
   };
   // bara sådant som tydligt är bakgrund (inga svampar eller kaktusar: de ser ut som saker man kan ta eller skada sig på)
   var DEKOR = { gras: ['gran', 'busk1', 'busk2', 'gran', 'busk2'], sand: ['busk1', 'busk2', 'busk1'], sno: ['gran', 'gran', 'busk1'] };
