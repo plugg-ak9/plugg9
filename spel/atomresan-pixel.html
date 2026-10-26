@@ -165,7 +165,7 @@ canvas{display:block;image-rendering:auto;max-width:100%;max-height:100%}
 <div id="skarm">
   <div id="hud"><a href="../index.html" class="hem-lank" aria-label="Till startsidan">‹ <span>Hem</span></a>
     <button class="miniknapp" id="menyknapp" title="Meny">☰</button>
-    <div class="plats"><small id="hudsmall">Kartan</small><span id="hudnamn">Judendomsresan</span></div>
+    <div class="plats"><small id="hudsmall">Kartan</small><span id="hudnamn">Atomresan</span></div>
     <div class="raknare" id="rullor"></div>
     <div class="hjartan" id="hjartan"></div>
     <button class="miniknapp" id="ljudknapp" aria-pressed="true" title="Uppläsning">🔊</button>
@@ -188,45 +188,69 @@ canvas{display:block;image-rendering:auto;max-width:100%;max-height:100%}
 </div>
 
 <script>
-/* =======================================================================
-   FRÅGEBANK – allt hämtat ur SOS Religion, kap. 5 Judendom (s. 72–99)
-   ======================================================================= */
 /* =====  BYT UT: banor och frågor (Atomresan, atomkemi åk 9)  =====
-   Källa: lärarens material i atomkemi (NO/Kemi/_kalla/ATOMKEMI-LARARMATERIAL*.md).
-   Rätt svar står alltid först – motorn blandar. Alternativen är ungefär lika långa (inget ska avslöjas av längden). */
+   Källa: lärarens material i atomkemi (NO/Kemi/_kalla/ATOMKEMI-LARARMATERIAL*.md), del 3 = bokens facit,
+   arbetshäftet om familjerna och labben om vatten som leder ström.
+   Rätt svar står alltid först – motorn blandar. Alternativen är ungefär lika långa (inget ska avslöjas av längden).
+   12 banor: 1–9 grunderna, 10 molekyler och bindningar, 11 lösningar som leder ström, 12 provet (allt blandat). */
+
+/* Banorna blev 12: ny bana 10 och 11, provet flyttat från id 10 till id 12.
+   Ett gammalt ljus på provet (id 10) ska inte visas som en klar molekylbana – ta bort det en gång. */
+(function(){ try{ const k='atomresan.v1', r=localStorage.getItem(k);
+  if(!r){ localStorage.setItem(k,JSON.stringify({banor:12})); return; }   // ny spelare: inget att flytta
+  const s=JSON.parse(r); if(s.banor===12) return;
+  const ny=s.ljus && (s.ljus[11] || s.ljus[12]);                          // redan spelat med 12 banor
+  if(!ny && s.ljus && s.ljus[10]) delete s.ljus[10];
+  s.banor=12; localStorage.setItem(k,JSON.stringify(s)); }catch(e){} })();
+
 const VARLDAR=[
-{id:1,namn:'Väte',under:'Atomens byggstenar',tema:'karna',portar:3,langd:44,svar:2,
+{id:1,namn:'Väte',under:'Atomens byggstenar',tema:'karna',portar:3,langd:44,svar:3,
  fragor:[
-  ['Vilken laddning har en proton?',['Positiv','Negativ'],'Protoner är positiva.'],
-  ['Vilken laddning har en elektron?',['Negativ','Positiv'],'Elektroner är negativa.'],
-  ['Vilken laddning har en neutron?',['Ingen laddning','Positiv'],'Neutroner är neutrala – de saknar laddning.'],
-  ['Var finns protonerna och neutronerna?',['I atomkärnan','I elektronskalen'],'Atomkärnan består av protoner och neutroner.'],
-  ['Var finns elektronerna?',['I skal runt kärnan','Inne i atomkärnan'],'Elektronerna finns i elektronskal runt atomkärnan.'],
-  ['Vilken partikel bestämmer vilket ämne det är?',['Protonen','Elektronen'],'Antalet protoner bestämmer vilket ämne atomen är.'],
-  ['Vad är en atom?',['Minsta delen av ett grundämne','Största delen av ett grundämne'],'En atom är den minsta delen av ett grundämne.'],
-  ['Hur många elektroner har en atom jämfört med protoner?',['Lika många','Hälften'],'I en atom är protonerna och elektronerna lika många.'],
-  ['Vilka partiklar finns i atomkärnan?',['Protoner och neutroner','Protoner och elektroner'],'Kärnan = protoner och neutroner. Elektronerna finns i skalen.'],
-  ['En heliumatom har 2 protoner. Hur många elektroner har den?',['2','4'],'Protoner och elektroner är lika många i en atom.']
+  ['Vilken laddning har en proton?',['Positiv','Negativ','Neutral'],'Protoner är positiva.'],
+  ['Vilken laddning har en elektron?',['Negativ','Positiv','Neutral'],'Elektroner är negativa.'],
+  ['Vilken laddning har en neutron?',['Neutral','Positiv','Negativ'],'Neutroner är neutrala – de saknar laddning.'],
+  ['Var finns protonerna och neutronerna?',['I atomkärnan','I K-skalet','Utanför kärnan'],'Atomkärnan består av protoner och neutroner.'],
+  ['Var finns elektronerna?',['I skal runt kärnan','Inne i atomkärnan','Mellan kärnans protoner'],'Elektronerna finns i elektronskal runt atomkärnan.'],
+  ['Vilken partikel bestämmer vilket ämne det är?',['Protonen','Elektronen','Neutronen'],'Antalet protoner bestämmer vilket ämne atomen är.'],
+  ['Vad är en atom?',['Minsta delen av ett grundämne','Två grundämnen som sitter ihop','En laddad partikel i kärnan'],'En atom är den minsta delen av ett grundämne.'],
+  ['Hur många elektroner har en atom jämfört med protoner?',['Lika många','Hälften','Dubbelt så många'],'I en atom är protonerna och elektronerna lika många.'],
+  ['Vilka partiklar finns i atomkärnan?',['Protoner och neutroner','Bara protoner','Protoner och elektroner'],'Kärnan = protoner och neutroner. Elektronerna finns i skalen.'],
+  ['En heliumatom har 2 protoner. Hur många elektroner har den?',['2','4','0'],'Protoner och elektroner är lika många i en atom.'],
+  ['Vad består en atom mest av?',['Tomrum','Protoner','Neutroner'],'En atom är till största delen tomrum. Kärnan är pytteliten.'],
+  ['Elektronerna dras mot kärnan. Varför åker de inte in i den?',['De rör sig så fort','De saknar laddning','Kärnan stöter bort dem'],'Elektronerna har så hög fart att de inte dras in i kärnan.'],
+  ['Vem kom på idén att allt består av atomer?',['Demokritos','Rutherford','Chadwick'],'Demokritos fick idén för över 2000 år sedan. Långt senare visade Dalton att atomer finns.'],
+  ['Vem upptäckte elektronen?',['Thomson','Chadwick','Rutherford'],'Thomson hittade elektronen. Hans modell kallas russinkaksmodellen.'],
+  ['Vem upptäckte neutronen?',['Chadwick','Rutherford','Thomson'],'Chadwick hittade neutronen. Den saknar laddning och var svår att upptäcka.'],
+  ['Vem kom på att elektronerna finns i skal?',['Bohr','Dalton','Rutherford'],'I Bohrs atommodell går elektronerna i skal runt kärnan.'],
+  ['Vilka fyra element trodde man förr att allt bestod av?',['Jord, eld, luft och vatten','Väte, syre, kol och kväve','Guld, silver, järn och koppar'],'Empedokles och Aristoteles trodde på jord, eld, luft och vatten. Thales trodde att allt var vatten.'],
+  ['Vad består protoner och neutroner av?',['Kvarkar','Elektroner','Atomer'],'Enligt standardmodellen består de av ännu mindre partiklar, kvarkar.'],
+  ['Varför ritar vi atomen med skal och prickar?',['Det är en förenklad modell','Så ser atomen ut i mikroskop','Elektronerna är små kulor'],'Skalmodellen är en partikelmodell. Den är förenklad, men hjälper oss förstå hur atomer reagerar.']
  ]},
 {id:2,namn:'Litium',under:'Elektronskalen',tema:'labb',portar:4,langd:52,svar:3,
  fragor:[
   ['Vad heter det innersta elektronskalet?',['K-skalet','L-skalet','M-skalet'],'Det innersta skalet heter K-skalet, det andra L-skalet.'],
-  ['Vad heter det andra elektronskalet?',['L-skalet','K-skalet','A-skalet'],'K-skalet är innerst, sedan kommer L-skalet.'],
+  ['Vad heter det andra elektronskalet?',['L-skalet','K-skalet','M-skalet'],'K-skalet är innerst, sedan kommer L-skalet.'],
   ['Hur många platser har K-skalet?',['2','8','18'],'K-skalet har 2 platser.'],
   ['Hur många platser har L-skalet?',['8','2','4'],'L-skalet har 8 platser, och resten av skalen också.'],
   ['Litium har 3 elektroner. Hur många finns i K-skalet?',['2','3','1'],'K-skalet fylls med 2. Den tredje elektronen hamnar i L-skalet.'],
   ['Litium har 3 elektroner. Hur många finns i L-skalet?',['1','3','2'],'2 i K-skalet och 1 i L-skalet.'],
   ['Helium har 2 elektroner. Var finns de?',['I K-skalet','I L-skalet','I kärnan'],'K-skalet har plats för 2, så båda får plats där.'],
-  ['En atom har 3 protoner. Hur många elektroner har den?',['3','6','1'],'Protoner och elektroner är lika många.'],
+  ['Kol har 6 elektroner. Hur fördelas de i skalen?',['2 och 4','4 och 2','2, 2 och 2'],'2 i K-skalet och 4 i L-skalet. Kol har alltså 4 valenselektroner.'],
   ['Natrium har 11 elektroner. Hur fördelas de i skalen?',['2, 8 och 1','8, 2 och 1','1, 8 och 2'],'K-skalet 2, L-skalet 8 och den sista i tredje skalet.'],
   ['Klor har 17 elektroner. Hur fördelas de i skalen?',['2, 8 och 7','8, 8 och 1','2, 7 och 8'],'2 i K-skalet, 8 i L-skalet och 7 i det yttersta skalet.'],
-  ['Vad heter elektronerna i det yttersta skalet?',['Valenselektroner','Kärnelektroner','Skalneutroner'],'Valenselektroner är elektronerna i det yttersta skalet.']
+  ['Magnesium har 12 elektroner. Hur fördelas de i skalen?',['2, 8 och 2','8, 2 och 2','2, 2 och 8'],'2 i K-skalet, 8 i L-skalet och 2 i det yttersta skalet.'],
+  ['Kalium har 19 elektroner. Hur fördelas de i skalen?',['2, 8, 8 och 1','2, 8 och 9','1, 8, 8 och 2'],'2 i K-skalet, 8 i L-skalet, 8 i nästa skal och 1 i det yttersta skalet.'],
+  ['Syre har 8 elektroner. Hur många av dem är valenselektroner?',['6','8','2'],'2 i K-skalet och 6 i L-skalet. De 6 i yttersta skalet är valenselektroner.'],
+  ['Aluminium har 13 elektroner. Hur många valenselektroner har det?',['3','13','5'],'2 + 8 + 3. De 3 i yttersta skalet är valenselektroner.'],
+  ['Vad heter elektronerna i det yttersta skalet?',['Valenselektroner','Elektronpar','Kemiska bindningar'],'Valenselektroner är elektronerna i det yttersta skalet.'],
+  ['Vad styr ett ämnes kemiska egenskaper?',['Valenselektronerna','Neutronerna','Atomkärnans storlek'],'Valenselektronerna i yttersta skalet styr hur ämnet reagerar.']
  ]},
 {id:3,namn:'Syre',under:'Atomnummer och atommassa',tema:'tabell',portar:4,langd:58,svar:3,
  fragor:[
   ['Vad är atomnumret?',['Antalet protoner','Antalet neutroner','Antalet skal'],'Antal protoner = atomnummer.'],
-  ['Vad är atommassan?',['Protoner plus neutroner','Protoner plus elektroner','Bara neutronerna'],'Atommassa = protoner + neutroner.'],
+  ['Vad är atommassan?',['Protoner plus neutroner','Protoner plus elektroner','Bara neutronerna'],'Atommassa = protoner + neutroner. Det kallas också masstal.'],
   ['Helium har atomnummer 2. Hur många protoner har det?',['2','4','1'],'Atomnumret är antalet protoner.'],
+  ['Guld har atomnummer 79. Hur många protoner har en guldatom?',['79','197','118'],'Atomnumret är antalet protoner: 79.'],
   ['Var står atomnumret när en atom skrivs i text?',['Nere till vänster','Uppe till vänster','Till höger'],'Atomnumret står nere till vänster om den kemiska beteckningen.'],
   ['Var står atommassan när en atom skrivs i text?',['Uppe till vänster','Nere till vänster','Till höger'],'Atommassan står uppe till vänster, beteckningen till höger.'],
   ['En syreatom har atomnummer 8 och atommassa 18. Hur många protoner?',['8','18','10'],'Atomnumret 8 = 8 protoner.'],
@@ -235,24 +259,36 @@ const VARLDAR=[
   ['Zink har atomnummer 30 och atommassa 70. Hur många neutroner?',['40','30','70'],'70 − 30 = 40 neutroner.'],
   ['Zink har atomnummer 30. Hur många elektroner har en zinkatom?',['30','40','70'],'Elektronerna är lika många som protonerna: 30.'],
   ['Kol har atomnummer 6 och atommassa 12. Hur många neutroner?',['6','12','18'],'12 − 6 = 6 neutroner.'],
-  ['Litium har atomnummer 3. Hur många elektroner har litium?',['3','6','1'],'Lika många elektroner som protoner: 3.']
+  ['Litium har atomnummer 3. Hur många elektroner har litium?',['3','6','1'],'Lika många elektroner som protoner: 3.'],
+  ['I vilken enhet anges atomens massa?',['u','kg','mol'],'Atommassa anges i u, den universella massenheten.'],
+  ['Ungefär vad väger en proton?',['1 u','1/2000 u','12 u'],'En proton och en neutron väger ungefär 1 u var.'],
+  ['Vad väger en elektron jämfört med en proton?',['Nästan ingenting','Lika mycket','Dubbelt så mycket'],'En elektron väger bara cirka 1/2000 u. Därför räknas bara protoner och neutroner.'],
+  ['Vad är isotoper?',['Samma ämne, olika antal neutroner','Samma ämne, olika antal protoner','Olika ämnen, lika många neutroner'],'Isotoper har lika många protoner men olika många neutroner.'],
+  ['Kol-14 har 6 protoner. Hur många neutroner har den?',['8','14','6'],'Kol-14 väger 14 u: 14 − 6 = 8 neutroner.'],
+  ['Kol-13 har atomnummer 6. Hur många neutroner har den?',['7','13','6'],'13 − 6 = 7 neutroner.'],
+  ['Väte har tre isotoper. Vad väger de?',['1 u, 2 u och 3 u','1 u, 1 u och 1 u','2 u, 4 u och 6 u'],'Alla har 1 proton. De har 0, 1 eller 2 neutroner.']
  ]},
 {id:4,namn:'Kol',under:'Periodiska systemet',tema:'tabell',portar:5,langd:64,svar:4,
  fragor:[
-  ['I vilken ordning står ämnena i periodiska systemet?',['Efter atomnummer','I bokstavsordning','Efter färg','Efter ålder'],'Från lägst atomnummer (väte, 1) till högst.'],
+  ['I vilken ordning står ämnena i periodiska systemet?',['Efter atomnummer','Efter antal neutroner','I bokstavsordning','Efter storlek'],'Från lägst atomnummer (väte, 1) till högst.'],
+  ['Vem gjorde det första periodiska systemet?',['Mendelejev','Rutherford','Dalton'],'Mendelejev ordnade grundämnena i det första periodiska systemet.'],
   ['Vilket ämne har atomnummer 1?',['Väte','Helium','Syre','Kol'],'Väte står först, med atomnummer 1.'],
   ['Vad kallas de lodräta raderna?',['Grupper','Perioder','Skal','Serier'],'Grupper är lodräta.'],
   ['Vad kallas de vågräta raderna?',['Perioder','Grupper','Skal','Serier'],'Perioder är vågräta.'],
-  ['Vad har ämnen i samma grupp gemensamt?',['Lika många valenselektroner','Lika många protoner','Lika stor atommassa','Lika många neutroner'],'Ämnen i en grupp har lika många valenselektroner.'],
+  ['Vad har ämnen i samma grupp gemensamt?',['Lika många valenselektroner','Lika många elektronskal','Lika många neutroner i kärnan','Ungefär lika stor atommassa'],'Ämnen i en grupp har lika många valenselektroner.'],
   ['Vad har ämnen i samma period gemensamt?',['Lika många elektronskal','Lika många valenselektroner','Samma atomnummer','Lika många neutroner'],'Ämnen i en period har samma antal elektronskal.'],
   ['Vad är valenselektroner?',['Elektronerna i yttersta skalet','Elektronerna i innersta skalet','Protonerna i kärnan','Neutronerna i kärnan'],'Valenselektroner = elektronerna i yttersta elektronskalet.'],
-  ['Varför liknar ämnen i samma grupp varandra?',['Valenselektronerna styr egenskaperna','De har samma atomnummer','De väger exakt lika mycket','De har lika många neutroner'],'Valenselektronerna styr ämnets kemiska egenskaper.'],
-  ['Varför är väte och helium ensamma i period 1?',['Alla andra har fler än två elektroner','De är de tyngsta ämnena','De har inga elektroner','De saknar protoner'],'Period 1 har bara K-skalet, med 2 platser.'],
+  ['Varför liknar ämnen i samma grupp varandra?',['Valenselektronerna styr egenskaperna','Elektronskalen är lika många till antalet','Atomkärnorna är ungefär lika tunga','Neutronerna i kärnan är lika många'],'Valenselektronerna styr ämnets kemiska egenskaper.'],
+  ['Varför är väte och helium ensamma i period 1?',['K-skalet rymmer bara två','De är de enda gaserna','De har inga neutroner','De saknar valenselektroner'],'Period 1 har bara K-skalet, med 2 platser. Alla andra ämnen har fler än två elektroner.'],
   ['Vad har ämnena i den sista gruppen?',['Fulla yttersta skal','Tomma yttersta skal','En valenselektron','Inga elektronskal'],'I sista gruppen har alla ämnen fulla yttersta skal.'],
   ['Ett ämne står i period 3. Hur många elektronskal har det?',['3','1','8','18'],'Perioden visar antalet elektronskal.'],
+  ['Syre har två elektronskal. I vilken period står syre?',['Period 2','Period 8','Period 16'],'Antalet skal är samma som perioden. Två skal ger period 2.'],
   ['Hur många valenselektroner har ämnena i grupp 1?',['1','2','7','8'],'Grupp 1 har en valenselektron.'],
   ['Hur många valenselektroner har ämnena i grupp 17?',['7','1','8','17'],'Grupp 17 (7 i häftet) har 7 valenselektroner.'],
-  ['Syre är en gas och svavel är fast. Varför står de i samma grupp?',['De har lika många valenselektroner','De har samma atomnummer','De är båda metaller','De har samma atommassa'],'Gruppen bestäms av valenselektronerna, inte av om ämnet är gas eller fast.']
+  ['Syre är en gas och svavel är fast. Varför står de i samma grupp?',['Valenselektronerna är lika många','De har lika många elektronskal','De reagerar inte med andra ämnen','De har nästan samma atommassa'],'Gruppen bestäms av valenselektronerna, inte av om ämnet är gas eller fast.'],
+  ['Var finns nästan alla ickemetaller?',['Till höger i systemet','Till vänster i systemet','Längst ner i systemet'],'Ickemetallerna står nästan alla i grupperna till höger. Metallerna står till vänster och i mitten.'],
+  ['Kisel står under kol. Varför liknar de varandra?',['De står i samma grupp','De står i samma period','De har samma atommassa'],'Samma grupp betyder lika många valenselektroner – fyra för både kol och kisel.'],
+  ['Helium har två valenselektroner. Varför står det i sista gruppen?',['Skalet är redan fullt','Det reagerar lätt','Det har två elektronskal'],'Heliums enda skal, K-skalet, är fullt med 2. Därför räknas helium som ädelgas.']
  ]},
 {id:5,namn:'Natrium',under:'Grundämnesfamiljer',tema:'neon',portar:5,langd:68,svar:4,
  fragor:[
@@ -264,49 +300,90 @@ const VARLDAR=[
   ['Varför reagerar ädelgaser nästan inte alls?',['De har fulla yttersta skal','De har en valenselektron','De saknar helt protoner','De är för tunga'],'Ädelgaserna har redan fulla yttersta skal.'],
   ['Vad vill en alkalimetall göra med sin valenselektron?',['Lämna bort den','Behålla den','Få en till','Dela den'],'Alkalimetaller vill lämna bort sin valenselektron och bilda joner.'],
   ['Vad vill en halogen göra?',['Ta emot en elektron','Ge bort sju elektroner','Behålla sitt skal','Få en till proton'],'Halogener vill fylla sin sista lediga plats med en elektron.'],
-  ['Vad händer när en alkalimetall kommer i vatten?',['Den reagerar häftigt','Ingenting alls händer','Den blir en ädelgas','Den löses upp lugnt'],'Alkalimetaller reagerar gärna, och väldigt häftigt, med vatten.'],
+  ['Vad händer när en alkalimetall läggs i vatten?',['Den reagerar häftigt','Ingenting alls händer','Den sjunker och rostar','Den löses upp lugnt'],'Alkalimetaller reagerar gärna, och väldigt häftigt, med vatten.'],
+  ['Vad bildas när natrium reagerar med vatten?',['Vätgas och hydroxidjoner','Syrgas och kloridjoner','Koldioxid och natriumatomer'],'Natrium + vatten ger vätgas, H₂, och hydroxidjoner, OH⁻.'],
+  ['Varför är natrium i vatten farligt?',['Vätgasen kan explodera','Det bildas giftig klorgas','Natriumet blir radioaktivt'],'Vätgasen kan explodera. Frätande hydroxidjoner kan också skvätta.'],
+  ['Vilken alkalimetall reagerar häftigast med vatten?',['Francium','Rubidium','Litium','Natrium'],'Francium står längst ner i grupp 1. Valenselektronen är längst från kärnan och lossnar lättast.'],
+  ['Varför finns det bara natriumjoner i naturen, inga natriumatomer?',['Natrium reagerar för lätt','Natrium är för tungt','Natrium har för få protoner'],'Natrium reagerar så lätt att det redan har lämnat bort sin valenselektron.'],
+  ['Vilken reagerar häftigast: fluor eller klor?',['Fluor','Klor','Lika häftigt'],'Fluor är en mindre atom. Kärnan är närmare och drar lättare till sig en elektron.'],
+  ['Hur är fluor som rent grundämne?',['En giftig gas','En ofarlig vätska','En mjuk metall'],'Fluor är en giftig gas som reagerar lätt. I tandkräm finns fluor som jon, inte som gas.'],
+  ['Vad betyder ordet halogen?',['Saltbildare','Ljusbärare','Vattenbildare'],'Halogenerna bildar salter, till exempel natriumklorid (koksalt).'],
+  ['Varför fyller man ballonger med helium och inte väte?',['Helium kan inte explodera','Helium lyfter mer än väte','Helium är billigare än väte'],'Helium är en ädelgas och reagerar inte. Vätgas kan explodera.'],
+  ['Varför fyller man glödlampor med argon?',['Den reagerar inte','Den lyser starkare','Den gör lampan lätt'],'Argon är en ädelgas. Den reagerar inte med den heta glödtråden.'],
+  ['Vilken ädelgas ger gulrött ljus i lysrör?',['Neon','Argon','Helium'],'Neon lyser gulrött i lysrör och skyltar.'],
+  ['Varför har man klor i simbassänger?',['Det dödar bakterier','Det värmer vattnet','Det gör vattnet blått'],'Klor dödar bakterier. Klorin ger också lite klorgas, som bleker.'],
+  ['Vilken ädelgas är vanligast i luften?',['Argon','Neon','Helium'],'Efter kväve och syre är argon vanligast i luften.'],
+  ['Hur är alla ädelgaser i rumstemperatur?',['Gaser','Vätskor','Fasta'],'Ädelgaserna har mycket låg kokpunkt. Därför är de gaser.'],
+  ['Hur vanliga är ädelgaserna i jordskorpan?',['Mycket sällsynta','Mycket vanliga','Vanligast av alla'],'Ädelgaserna är sällsynta i jordskorpan. De har låg densitet och mycket låg kokpunkt.'],
+  ['Hydroxidjonen OH⁻ består av två atomer. Vad kallas en sådan jon?',['Sammansatt jon','En isotop','En jonförening'],'En jon som består av flera atomer kallas sammansatt jon. Den bildas när natrium reagerar med vatten.'],
   ['Vilket av de här ämnena är en halogen?',['Fluor','Natrium','Helium','Litium'],'Fluor står överst i grupp 17.'],
   ['Vilket av de här ämnena är en ädelgas?',['Helium','Klor','Natrium','Väte'],'Helium står överst i sista gruppen.'],
   ['Vilket av de här ämnena är en alkalimetall?',['Natrium','Väte','Neon','Klor'],'Natrium står i grupp 1. Väte står också där, men räknas inte som alkalimetall.'],
-  ['Hur många valenselektroner har övergångsmetaller?',['1–2','7','8','0'],'Övergångsmetallerna har 1–2 valenselektroner.'],
+  ['Hur många valenselektroner har övergångsmetaller?',['1–2','3–5','6–7','8'],'Övergångsmetallerna har 1–2 valenselektroner.'],
   ['Varför passar halogener och alkalimetaller ihop?',['Den ena ger, den andra tar emot','Båda har fulla yttersta skal','Båda har sju valenselektroner','De har lika många protoner'],'Alkalimetallen lämnar bort en elektron som halogenen vill ha.']
  ]},
 {id:6,namn:'Magnesium',under:'Joner',tema:'karna',portar:5,langd:68,svar:4,
  fragor:[
-  ['Vad är en jon?',['En atom med laddning','En atom utan elektroner','En atom med två kärnor','En atom utan neutroner'],'En jon är en laddad atom. Den bildas när atomen lämnar bort eller tar upp elektroner.'],
+  ['Vad är en jon?',['En atom med laddning','En atom utan elektroner','En atom utan skal','En atom utan neutroner'],'I en jon är protonerna och elektronerna olika många. Därför har den laddning.'],
+  ['Varför bildar atomer joner?',['För att få fullt yttersta skal','För att få fler protoner i kärnan','För att bli av med alla skal'],'Atomer bildar joner för att tömma eller fylla yttersta skalet. Då når de ädelgasstruktur.'],
   ['Vad bildas när en atom får överskott på elektroner?',['En negativ jon','En positiv jon','En ädelgas','En neutron'],'Fler elektroner än protoner ger negativ laddning.'],
   ['Vad bildas när en atom får underskott på elektroner?',['En positiv jon','En negativ jon','En ädelgas','En molekyl'],'Färre elektroner än protoner ger positiv laddning.'],
   ['Hur blir en atom en positiv jon?',['Den lämnar bort elektroner','Den tar upp elektroner','Den tar upp protoner','Den lämnar bort neutroner'],'Elektroner är negativa. Lämnar atomen bort dem blir den positiv.'],
   ['Hur blir en atom en negativ jon?',['Den tar upp elektroner','Den lämnar bort elektroner','Den lämnar bort protoner','Den tar upp neutroner'],'Fler negativa elektroner ger en negativ jon.'],
+  ['Vad avgör om ett ämne lämnar eller hämtar elektroner?',['Antalet valenselektroner','Antalet neutroner i kärnan','Ämnets atommassa i u'],'Få valenselektroner: atomen lämnar. Nästan fullt skal: atomen hämtar.'],
+  ['Vilka grupper lämnar gärna bort elektroner?',['Grupp 1 och 2','Grupp 16 och 17','Bara grupp 18'],'Grupp 1 och 2 har få valenselektroner och lämnar gärna bort dem.'],
+  ['Vilka grupper tar gärna upp elektroner?',['Grupp 15–17','Grupp 1 och 2','Bara grupp 18'],'Grupp 15–17 har nästan fulla skal och tar gärna upp elektroner.'],
+  ['Varför lämnar natrium hellre bort 1 elektron än tar upp 7?',['Skalet innanför är redan fullt','Då får natrium fler protoner i kärnan','Det yttersta skalet har inga lediga platser'],'Innanför valenselektronen finns ett fullt skal. När elektronen är borta blir det skalet yttersta.'],
   ['Vad betyder ädelgasstruktur?',['Fullt yttersta skal','Tomt innersta skal','Bara en elektron kvar','Lika många neutroner'],'Joner får fullt yttersta skal, precis som ädelgaserna.'],
   ['Vilken laddning får jonerna som grupp 1 bildar?',['1+','1−','2+','2−'],'Grupp 1 lämnar bort sin enda valenselektron: Na⁺, Li⁺, K⁺.'],
   ['Vilken laddning får jonerna som grupp 2 bildar?',['2+','2−','1+','1−'],'Grupp 2 lämnar bort två elektroner: Mg²⁺, Ca²⁺, Ba²⁺.'],
-  ['Vilken laddning får jonerna som grupp 17 bildar?',['1−','1+','7−','7+'],'Grupp 17 (7 i häftet) tar upp en elektron: Cl⁻, Br⁻, F⁻.'],
+  ['Vilken laddning får jonerna som grupp 17 bildar?',['1−','1+','7−','7+'],'Grupp 17 (7 i häftet) tar upp en elektron. Jonerna är alltid 1−: Cl⁻, Br⁻, F⁻.'],
+  ['Kloridjonen kallas envärt negativ. Vad betyder det?',['Laddningen är 1−','Den har en elektron','Den har ett skal'],'Envärd betyder laddningen 1. Cl⁻ har en elektron mer än protoner.'],
+  ['Kväve har 5 valenselektroner. Vilken jon bildar det?',['N³⁻','N³⁺','N⁵⁻','N⁵⁺'],'Kväve tar upp tre elektroner och blir kvävejon, N³⁻.'],
   ['Vilken laddning får jonerna som grupp 16 bildar?',['2−','2+','6−','6+'],'Grupp 16 (6 i häftet) tar upp två elektroner: O²⁻, S²⁻.'],
+  ['Beryllium har 2 valenselektroner. Vilken jon bildar det?',['Be²⁺','Be²⁻','Be⁺'],'Beryllium lämnar bort två elektroner och blir Be²⁺.'],
   ['Vilken laddning får aluminiumjonen?',['3+','3−','1+','2−'],'Aluminium står i grupp 13 (3 i häftet) och lämnar bort tre elektroner: Al³⁺.'],
-  ['Vad heter jonen som klor bildar?',['Kloridjon','Klorjon plus','Klorit','Klorgas'],'Klor tar upp en elektron och blir kloridjon, Cl⁻.'],
+  ['Vad heter jonen som klor bildar?',['Kloridjon, Cl⁻','Kloridjon, Cl⁺','Klorgas, Cl₂','Kloratom, Cl'],'Klor tar upp en elektron och blir kloridjon, Cl⁻.'],
+  ['Syre tar upp två elektroner. Vad heter jonen?',['Oxidjon, O²⁻','Oxidjon, O²⁺','Syreatom, O'],'Syre blir oxidjon, O²⁻. Den kallas också syrejon.'],
   ['En natriumjon Na⁺ har 11 protoner. Hur många elektroner har den?',['10','11','12','1'],'Natrium har lämnat bort en elektron: 11 − 1 = 10.'],
   ['En kloridjon Cl⁻ har 17 protoner. Hur många elektroner har den?',['18','17','16','7'],'Klor har tagit upp en elektron: 17 + 1 = 18.'],
-  ['En magnesiumjon Mg²⁺ har 12 protoner. Hur många elektroner?',['10','12','14','2'],'Magnesium har lämnat bort två elektroner: 12 − 2 = 10.'],
+  ['En magnesiumjon Mg²⁺ har 12 protoner. Hur många elektroner?',['10','12','14','2'],'Magnesium har lämnat bort två valenselektroner: 12 − 2 = 10.'],
   ['En kopparjon Cu²⁺ har 29 protoner. Hur många elektroner?',['27','29','31','2'],'Två elektroner har lämnats bort: 29 − 2 = 27.'],
-  ['Varför bildar argon inga joner?',['Det har redan fullt yttersta skal','Det har bara en elektron','Det saknar protoner','Det är en metall'],'Argon är en ädelgas och har redan ädelgasstruktur.']
+  ['En svaveljon S²⁻ har 16 protoner. Hur många elektroner?',['18','16','14','2'],'Svavel har tagit upp två elektroner: 16 + 2 = 18.'],
+  ['En kromjon Cr³⁺ har 24 protoner. Hur många elektroner?',['21','24','27','3'],'Tre elektroner har lämnats bort: 24 − 3 = 21.'],
+  ['En silverjon Ag⁺ har 47 protoner. Hur många elektroner?',['46','47','48','1'],'En elektron har lämnats bort: 47 − 1 = 46.'],
+  ['Cesium har 55 protoner och står i grupp 1. Hur många elektroner har cesiumjonen?',['54','55','56','1'],'Cs⁺ har lämnat bort en elektron: 55 − 1 = 54.'],
+  ['Varför bildar argon inga joner?',['Fullt yttersta skal','Bara en valenselektron','Inga protoner i kärnan','Det är en metall'],'Argon är en ädelgas och har redan ädelgasstruktur.']
  ]},
 {id:7,namn:'Klor',under:'Jonföreningar',tema:'salt',portar:5,langd:70,svar:4,
  fragor:[
+  ['Vad är en jonförening?',['Joner som dras till varandra','Atomer som delar elektronpar','Metallatomer i ett elektronmoln'],'Positiva och negativa joner dras till varandra – motsatser attraherar. Salter, syror och baser är jonföreningar.'],
   ['Vad bildas när natrium och klor reagerar?',['Natriumklorid, NaCl','Natriumoxid, Na₂O','Klorgas, Cl₂','Natriumjon, Na⁺'],'Natriums valenselektron hoppar till klor. Det blir natriumklorid, vanligt koksalt.'],
+  ['Varför reagerar natrium och klor så gärna?',['Natrium ger, klor tar emot','Båda vill ge bort elektroner','Båda har fulla yttersta skal'],'Natrium har en valenselektron att ge. Klor har en ledig plats och tar emot den.'],
+  ['Varför reagerar natriumklorid ogärna?',['Jonerna har redan fulla skal','Jonerna saknar helt elektroner','Saltet är för tungt att reagera'],'Både Na⁺ och Cl⁻ har fulla yttersta skal. De är nöjda.'],
   ['Vilka joner finns i natriumklorid?',['Na⁺ och Cl⁻','Na⁻ och Cl⁺','Na²⁺ och Cl²⁻','Bara Na⁺'],'Natrium blir positiv jon, klor blir negativ jon.'],
-  ['Vad bildas när natrium och syre reagerar?',['Na₂O','NaO','NaO₂','Na₂O₂'],'Två Na⁺ behövs för en O²⁻, så formeln blir Na₂O.'],
+  ['Vad håller ihop en saltkristall?',['Jonbindningar','Metallbindningar','Molekylbindningar'],'Plus och minus drar i varandra. Det kallas jonbindning.'],
+  ['NaCl, KCl och CaCl₂ är samma sorts salter. Vad kallas de?',['Klorider','Oxider','Sulfider'],'Salter med kloridjoner, Cl⁻, kallas klorider. Koksalt är natriumklorid.'],
+  ['Vilken jonförening bildas av Na⁺ och O²⁻?',['Na₂O','NaO','Na₃O','Na₂O₃'],'Två Na⁺ behövs för en O²⁻, så formeln blir Na₂O.'],
   ['Vad bildas när magnesium och syre reagerar?',['MgO','Mg₂O','MgO₂','Mg₂O₃'],'Mg²⁺ och O²⁻ tar ut varandra: MgO.'],
+  ['När magnesium brinner, vad händer med elektronerna?',['Mg ger två elektroner till syre','Syre ger två elektroner till Mg','Mg och syre delar fyra elektroner'],'Magnesium ger två valenselektroner till syre. Båda får fulla yttersta skal: MgO.'],
+  ['Vad bildas när natrium och fluor reagerar?',['NaF, natriumfluorid','NaF₂, natriumfluorid','Na₂F, natriumfluorid'],'Na⁺ och F⁻ tar ut varandra: NaF, natriumfluorid.'],
   ['Vad bildas när kalium och brom reagerar?',['KBr','K₂Br','KBr₂','K₂Br₃'],'K⁺ och Br⁻ tar ut varandra: KBr.'],
   ['Vad bildas när kalcium och fluor reagerar?',['CaF₂','CaF','Ca₂F','Ca₂F₃'],'Ca²⁺ behöver två F⁻: CaF₂.'],
-  ['Vad bildas när aluminium och syre reagerar?',['Al₂O₃','AlO','Al₃O₂','AlO₃'],'Två Al³⁺ (6+) och tre O²⁻ (6−) tar ut varandra: Al₂O₃.'],
+  ['Varför behöver kalcium två fluoratomer i CaF₂?',['Kalcium lämnar två elektroner','Fluor lämnar två elektroner','Kalcium tar upp två elektroner'],'Kalcium vill lämna två elektroner. Varje fluor vill bara ha en.'],
+  ['Varför blir det KCl men CaCl₂?',['Kalcium ger två elektroner, kalium en','Kalium ger två elektroner, kalcium en','Klor tar två elektroner från kalium'],'Kalium ger en elektron till en klor. Kalcium ger två, en till var kloratom.'],
+  ['Vad bildas när aluminium och syre reagerar?',['Al₂O₃','AlO','Al₃O₂','AlO₃'],'Två Al ger bort 6 elektroner och tre O tar emot 6. Det går jämnt upp: Al₂O₃.'],
   ['Vad bildas när aluminium och klor reagerar?',['AlCl₃','AlCl','Al₃Cl','Al₂Cl'],'Al³⁺ behöver tre Cl⁻: AlCl₃.'],
+  ['Vad bildas när litium och syre reagerar?',['Li₂O','LiO','Li₃O','Li₂O₃'],'Två Li⁺ behövs för en O²⁻: Li₂O.'],
+  ['Vad bildas när litium och svavel reagerar?',['Li₂S','LiS','Li₃S','LiS₂'],'Två Li⁺ behövs för en S²⁻: Li₂S.'],
+  ['Vad bildas när magnesium och kväve reagerar?',['Mg₃N₂','MgN','Mg₂N₃','Mg₃N'],'Mg²⁺ och N³⁻. Tre Mg²⁺ ger 6 plus, två N³⁻ ger 6 minus: Mg₃N₂.'],
   ['Vilka joner finns i MgCl₂?',['1 Mg²⁺ och 2 Cl⁻','2 Mg⁺ och 1 Cl²⁻','1 Mg⁺ och 2 Cl⁺','2 Mg²⁺ och 2 Cl⁻'],'En magnesiumjon och två kloridjoner.'],
   ['Vilka joner finns i CaO?',['1 Ca²⁺ och 1 O²⁻','1 Ca⁺ och 1 O⁻','2 Ca²⁺ och 1 O²⁻','1 Ca²⁺ och 2 O⁻'],'Ca²⁺ och O²⁻ tar ut varandra.'],
   ['Vilka joner finns i Na₂S?',['2 Na⁺ och 1 S²⁻','1 Na²⁺ och 1 S²⁻','2 Na⁺ och 2 S⁻','1 Na⁺ och 2 S⁻'],'Två natriumjoner och en svaveljon.'],
   ['Vilka joner finns i Al₂O₃?',['2 Al³⁺ och 3 O²⁻','3 Al²⁺ och 2 O³⁻','2 Al³⁺ och 2 O²⁻','1 Al³⁺ och 3 O²⁻'],'Sex plus och sex minus tar ut varandra.'],
+  ['Vilka joner finns i Ca₃P₂?',['3 Ca²⁺ och 2 P³⁻','2 Ca³⁺ och 3 P²⁻','3 Ca⁺ och 2 P⁻','1 Ca²⁺ och 2 P³⁻'],'Kalcium blir Ca²⁺ och fosfor P³⁻. 3 · 2 = 6 plus och 2 · 3 = 6 minus.'],
   ['I magnesiumklorid: vilket ämne har lämnat bort elektroner?',['Magnesium','Klor','Båda ämnena','Inget av dem'],'Metallen magnesium lämnar bort elektroner och blir Mg²⁺.'],
-  ['Leder magnesiumklorid ström när den är löst i vatten?',['Ja, jonerna kan röra sig','Nej, inte alls','Bara om den kokas','Bara i fast form'],'I vattenlösning kan jonerna röra sig och leda ström.'],
+  ['Leder magnesiumklorid ström när den är löst i vatten?',['Ja, jonerna kan röra sig','Nej, jonerna sitter fast','Nej, det finns inga joner','Bara när saltet är torrt'],'I vattenlösning kan jonerna röra sig och leda ström.'],
   ['Vad har en jonförening för laddning totalt?',['Ingen laddning','Positiv laddning','Negativ laddning','Dubbel laddning'],'Plus och minus tar ut varandra.']
  ]},
 {id:8,namn:'Kväve',under:'Formler och formelmassa',tema:'labb',portar:5,langd:72,svar:4,
@@ -314,8 +391,8 @@ const VARLDAR=[
   ['Vad är ett grundämne?',['Ett ämne av bara ett slags atomer','Ett ämne av två slags atomer','En blandning av flera ämnen','En jon med laddning'],'Ett grundämne består av en enda sorts atomer.'],
   ['Ungefär hur många naturliga grundämnen finns det?',['Ungefär 90','Ungefär 20','Ungefär 500','Ungefär 1000'],'Det finns ungefär 90 grundämnen i naturen. Fler har tillverkats i labb.'],
   ['Vilka två huvudgrupper delas grundämnena in i?',['Metaller och ickemetaller','Joner och molekyler','Gaser och vätskor','Protoner och neutroner'],'Grundämnena delas in i metaller och ickemetaller.'],
-  ['Vad är en kemisk förening?',['Flera grundämnen som sitter ihop','Ett enda slags atomer','En atom utan elektroner','En blandning av två gaser'],'I en kemisk förening har två eller fler grundämnen gått ihop.'],
-  ['Vad visar den lilla siffran i H₂O?',['Att det finns 2 väteatomer','Att det finns 2 syreatomer','Att vattnet är 2 grader','Att det finns 2 molekyler'],'Den lilla siffran efter H betyder två väteatomer.'],
+  ['Vad är en kemisk förening?',['Flera grundämnen som sitter ihop','Ett ämne med bara ett slags atomer','Flera ämnen som bara är blandade','En atom som har fått laddning'],'I en kemisk förening har två eller fler grundämnen gått ihop.'],
+  ['Vad visar den lilla siffran i H₂O?',['Att det finns 2 väteatomer','Att det finns 2 syreatomer','Att det finns 2 elektroner','Att det finns 2 molekyler'],'Den lilla siffran efter H betyder två väteatomer.'],
   ['Hur många atomer finns i H₂O?',['3','2','1','4'],'2 väteatomer och 1 syreatom = 3 atomer.'],
   ['Hur många grundämnen finns i NH₃?',['2','4','3','1'],'Kväve och väte: 2 grundämnen.'],
   ['Hur många atomer finns i NH₃?',['4','3','2','5'],'1 kväveatom och 3 väteatomer = 4.'],
@@ -323,40 +400,107 @@ const VARLDAR=[
   ['Hur många atomer finns i H₂SO₄?',['7','3','6','4'],'2 H + 1 S + 4 O = 7 atomer.'],
   ['Hur många atomer finns i O₂?',['2','1','3','4'],'Två syreatomer som sitter ihop.'],
   ['Hur många atomer finns i druvsocker, C₆H₁₂O₆?',['24','18','6','3'],'6 + 12 + 6 = 24 atomer.'],
+  ['Hur många atomer finns i etanol, C₂H₅OH?',['9','8','3','7'],'2 C + 5 H + 1 O + 1 H = 9 atomer. Väte står på två ställen.'],
+  ['Hur många grundämnen finns i NaOH?',['3','1','2','4'],'Natrium, syre och väte: 3 grundämnen.'],
+  ['Hur många atomer finns i HNO₃?',['5','3','4','6'],'1 H + 1 N + 3 O = 5 atomer.'],
+  ['Vad är formelmassa?',['Summan av atommassorna','Antalet atomer i formeln','Antalet grundämnen'],'Lägg ihop atommassorna för alla atomer i formeln.'],
   ['Vad är formelmassan för H₂O? (H = 1, O = 16)',['18 u','17 u','16 u','34 u'],'1 + 1 + 16 = 18 u.'],
   ['Vad är formelmassan för CO₂? (C = 12, O = 16)',['44 u','28 u','40 u','32 u'],'12 + 16 + 16 = 44 u.'],
   ['Vad är formelmassan för NH₃? (N = 14, H = 1)',['17 u','15 u','42 u','14 u'],'14 + 1 + 1 + 1 = 17 u.'],
-  ['Vad är formelmassan för druvsocker? (C = 12, H = 1, O = 16)',['180 u','90 u','24 u','144 u'],'6·12 + 12·1 + 6·16 = 72 + 12 + 96 = 180 u.']
+  ['Vad är formelmassan för druvsocker? (C = 12, H = 1, O = 16)',['180 u','90 u','24 u','144 u'],'6 · 12 + 12 · 1 + 6 · 16 = 72 + 12 + 96 = 180 u.'],
+  ['Hur stor del av druvsockrets massa (180 u) kommer från kol? (C = 12)',['40 %','25 %','6 %','72 %'],'6 · 12 = 72 u. 72 av 180 är 0,4, alltså 40 %.'],
+  ['Vad är formelmassan för H₂SO₄? (H = 1, S = 32, O = 16)',['98 u','49 u','96 u','7 u'],'2 · 1 + 32 + 4 · 16 = 98 u.'],
+  ['Vad är formelmassan för H₂CO₃? (H = 1, C = 12, O = 16)',['62 u','29 u','46 u','60 u'],'2 + 12 + 3 · 16 = 62 u.'],
+  ['Hur många protoner finns totalt i MgCl₂? (Mg 12, Cl 17)',['46','29','34','24'],'12 + 2 · 17 = 46 protoner.'],
+  ['Vad är formelmassan för MgCl₂? (Mg = 24, Cl = 35)',['94 u','59 u','70 u','47 u'],'24 + 2 · 35 = 94 u.'],
+  ['Syreatomen väger 16 u. Vad väger en mol syreatomer?',['16 g','16 u','32 g'],'En mol väger lika många gram som massan i u: 16 g.'],
+  ['Vad väger en mol vatten, H₂O? (H = 1, O = 16)',['18 g','17 g','34 g'],'2 g + 16 g = 18 g.']
  ]},
 {id:9,namn:'Järn',under:'Balansera reaktionsformler',tema:'tabell',portar:5,langd:76,svar:4,
  fragor:[
   ['Vad betyder det att en reaktionsformel är balanserad?',['Lika många atomer på båda sidor','Lika många ämnen på båda sidor','Att pilen pekar åt höger','Att alla siffror är ettor'],'Atomer försvinner inte och skapas inte. Det ska vara lika många av varje sort på båda sidor.'],
   ['Vad får man ändra när man balanserar?',['Siffran framför formeln','Den lilla siffran i formeln','Pilens riktning','Ämnenas namn'],'Man sätter siffror framför. Den lilla siffran ändrar ämnet och får inte ändras.'],
-  ['Balansera: __C + O₂ → __CO',['2C + O₂ → 2CO','C + O₂ → CO','C + 2O₂ → 2CO','2C + 2O₂ → CO'],'Två syreatomer till vänster kräver två CO till höger, och då två C till vänster.'],
-  ['Balansera: __Mg + O₂ → __MgO',['2Mg + O₂ → 2MgO','Mg + O₂ → MgO','Mg + 2O₂ → 2MgO','2Mg + 2O₂ → MgO'],'2 syreatomer → 2 MgO → 2 Mg.'],
-  ['Balansera: __CuO + C → __Cu + CO₂',['2CuO + C → 2Cu + CO₂','CuO + C → Cu + CO₂','CuO + 2C → Cu + 2CO₂','2CuO + 2C → 2Cu + CO₂'],'CO₂ har två syreatomer, så det behövs två CuO – och då två Cu.'],
-  ['Balansera: __PbO + C → __Pb + CO₂',['2PbO + C → 2Pb + CO₂','PbO + C → Pb + CO₂','PbO + 2C → Pb + 2CO₂','2PbO + 2C → 2Pb + CO₂'],'Samma mönster som med CuO: två PbO för en CO₂.'],
-  ['Balansera: __Al + __O₂ → __Al₂O₃',['4Al + 3O₂ → 2Al₂O₃','2Al + O₂ → Al₂O₃','Al + 3O₂ → Al₂O₃','4Al + 2O₂ → 2Al₂O₃'],'6 syreatomer på båda sidor (3·2 = 2·3) och 4 aluminium.'],
-  ['Balansera: CH₄ + __O₂ → CO₂ + __H₂O',['CH₄ + 2O₂ → CO₂ + 2H₂O','CH₄ + O₂ → CO₂ + H₂O','CH₄ + 3O₂ → CO₂ + 3H₂O','2CH₄ + O₂ → CO₂ + 2H₂O'],'4 väte → 2 H₂O. Syre: 2 + 2 = 4 till höger, alltså 2 O₂.'],
-  ['Balansera: __Fe₂O₃ + __C → __Fe + __CO₂',['2Fe₂O₃ + 3C → 4Fe + 3CO₂','Fe₂O₃ + C → 2Fe + CO₂','Fe₂O₃ + 3C → 2Fe + 3CO₂','2Fe₂O₃ + C → 4Fe + CO₂'],'6 syreatomer blir 3 CO₂, 4 järn till höger kräver 2 Fe₂O₃.'],
-  ['Hur många syreatomer finns i 2CO₂?',['4','2','3','6'],'2 molekyler med 2 syreatomer var = 4.'],
-  ['Hur många väteatomer finns i 2H₂O?',['4','2','3','6'],'2 molekyler med 2 väteatomer var = 4.'],
-  ['Varför måste en reaktionsformel balanseras?',['Atomer försvinner aldrig','Pilen kräver det','Ämnena väger lika mycket','Annars blir det ingen jon'],'Det som finns före reaktionen finns kvar efteråt, bara ihopsatt på nytt sätt.']
+  ['Balansera: C + O₂ → CO',['2 C + O₂ → 2 CO','C + O₂ → CO','C + 2 O₂ → 2 CO','2 C + 2 O₂ → CO'],'Två syreatomer till vänster kräver två CO till höger, och då två C till vänster.'],
+  ['Balansera: Mg + O₂ → MgO',['2 Mg + O₂ → 2 MgO','Mg + O₂ → MgO','Mg + 2 O₂ → 2 MgO','2 Mg + 2 O₂ → MgO'],'2 syreatomer → 2 MgO → 2 Mg.'],
+  ['Balansera: H₂ + O₂ → H₂O',['2 H₂ + O₂ → 2 H₂O','H₂ + O₂ → H₂O','2 H₂ + 2 O₂ → 2 H₂O','H₂ + 2 O₂ → 2 H₂O'],'2 syreatomer → 2 H₂O. Då behövs 4 väte, alltså 2 H₂.'],
+  ['Balansera: Na + Cl₂ → NaCl',['2 Na + Cl₂ → 2 NaCl','Na + Cl₂ → NaCl','2 Na + 2 Cl₂ → 2 NaCl','Na + 2 Cl₂ → 2 NaCl'],'Cl₂ har 2 kloratomer → 2 NaCl → 2 Na.'],
+  ['Balansera: Na + H₂O → NaOH + H₂',['2 Na + 2 H₂O → 2 NaOH + H₂','Na + H₂O → NaOH + H₂','2 Na + H₂O → 2 NaOH + H₂','2 Na + 2 H₂O → 2 NaOH + 2 H₂'],'2 H₂O ger 4 väte: 2 i de två NaOH och 2 i H₂.'],
+  ['Balansera: N + O₂ → N₂O',['4 N + O₂ → 2 N₂O','2 N + O₂ → N₂O','2 N + O₂ → 2 N₂O','N + O₂ → N₂O'],'O₂ ger 2 syre, alltså 2 N₂O. Då behövs 4 N till vänster.'],
+  ['Balansera: CuO + C → Cu + CO₂',['2 CuO + C → 2 Cu + CO₂','CuO + C → Cu + CO₂','CuO + 2 C → Cu + 2 CO₂','2 CuO + 2 C → 2 Cu + CO₂'],'CO₂ har två syreatomer, så det behövs två CuO – och då två Cu.'],
+  ['Balansera: PbO + C → Pb + CO₂',['2 PbO + C → 2 Pb + CO₂','PbO + C → Pb + CO₂','PbO + 2 C → Pb + 2 CO₂','2 PbO + 2 C → 2 Pb + CO₂'],'Samma mönster som med CuO: två PbO för en CO₂.'],
+  ['Balansera: Al + O₂ → Al₂O₃',['4 Al + 3 O₂ → 2 Al₂O₃','2 Al + O₂ → Al₂O₃','Al + 3 O₂ → Al₂O₃','4 Al + 2 O₂ → 2 Al₂O₃'],'6 syreatomer på båda sidor (3·2 = 2·3) och 4 aluminium.'],
+  ['Balansera: CH₄ + O₂ → CO₂ + H₂O',['CH₄ + 2 O₂ → CO₂ + 2 H₂O','CH₄ + O₂ → CO₂ + H₂O','CH₄ + 3 O₂ → CO₂ + 3 H₂O','2 CH₄ + O₂ → CO₂ + 2 H₂O'],'4 väte → 2 H₂O. Syre: 2 + 2 = 4 till höger, alltså 2 O₂.'],
+  ['Balansera: Fe₂O₃ + C → Fe + CO₂',['2 Fe₂O₃ + 3 C → 4 Fe + 3 CO₂','Fe₂O₃ + C → 2 Fe + CO₂','Fe₂O₃ + 3 C → 2 Fe + 3 CO₂','2 Fe₂O₃ + C → 4 Fe + CO₂'],'6 syreatomer blir 3 CO₂, 4 järn till höger kräver 2 Fe₂O₃.'],
+  ['Hur många syreatomer finns i 2 CO₂?',['4','2','3','6'],'2 molekyler med 2 syreatomer var = 4.'],
+  ['Hur många väteatomer finns i 2 H₂O?',['4','2','3','6'],'2 molekyler med 2 väteatomer var = 4.'],
+  ['Varför måste en reaktionsformel balanseras?',['Atomer försvinner aldrig','Pilen kräver det','Det bildas nya atomer','Annars blir det ingen jon'],'Det som finns före reaktionen finns kvar efteråt, bara ihopsatt på nytt sätt.']
  ]},
-{id:10,namn:'Provet',under:'Allt blandat',tema:'prov',portar:6,langd:88,svar:4,boss:true,fragor:[]}
+{id:10,namn:'Fluor',under:'Molekyler och bindningar',tema:'molekyl',portar:5,langd:76,svar:4,
+ fragor:[
+  ['Vad är en molekyl?',['Atomer som delar elektronpar','Joner som drar i varandra','En atom som lämnat bort elektroner'],'En molekyl är flera atomer som sitter ihop. De delar valenselektroner med varandra.'],
+  ['Hur når atomerna i en molekyl ädelgasstruktur?',['Genom att dela elektroner','Genom att lämna bort alla skal','Genom att ta upp fler protoner'],'Atomerna delar valenselektroner. Det delade paret räknas till båda atomerna.'],
+  ['Vad kallas bindningen när atomer delar elektronpar?',['Molekylbindning','Jonbindning','Metallbindning'],'Molekylbindning kallas också elektronparbindning. Atomerna delar elektroner.'],
+  ['Vad är ett annat ord för molekylbindning?',['Kovalent bindning','Jonisk bindning','Metallisk bindning'],'Molekylbindning kallas också kovalent bindning eller elektronparbindning.'],
+  ['Vad händer i en elektronparbindning?',['Två atomer delar elektroner','En atom ger bort elektroner','Elektronerna rör sig fritt'],'Atomerna delar på ett par elektroner. Då får båda fullare yttersta skal.'],
+  ['Vilket av de här är en molekyl?',['H₂','He','Na⁺','Cl⁻'],'H₂ är två väteatomer som delar ett elektronpar. He är en ensam atom, Na⁺ och Cl⁻ är joner.'],
+  ['I en vätemolekyl, H₂: vad bidrar varje atom med?',['En elektron var','Två elektroner var','En proton var'],'Atomerna delar två elektroner. Då blir K-skalet fullt för båda.'],
+  ['Hur finns syre i luften?',['Som molekyler, O₂','Som fria syreatomer, O','Som joner, O²⁻'],'Syre i luften är molekyler med två atomer: O₂.'],
+  ['Vilka grundämnen är gaser av molekyler med två atomer?',['Väte, syre, kväve och klor','Helium, neon och argon','Natrium, kalium och litium'],'H₂, O₂, N₂ och Cl₂ är molekyler. Ädelgaserna är ensamma atomer.'],
+  ['Hur många elektronpar delar syreatomerna i O₂?',['Två','Ett','Fyra'],'Varje syreatom har 6 valenselektroner och vill ha 8. De delar två par.'],
+  ['Varför kan kol binda fyra atomer?',['Det har fyra valenselektroner','Det har fyra protoner i kärnan','Det står i fjärde perioden'],'Kol har fyra valenselektroner. Det ger fyra elektronparbindningar.'],
+  ['Vilken formel har metan?',['CH₄','CH₂','C₄H'],'Metan: en kolatom och fyra väteatomer. De delar åtta valenselektroner.'],
+  ['Hur många delade elektronpar finns i en vattenmolekyl?',['Två','Ett','Fyra'],'Syret delar ett elektronpar med varje väteatom. Det blir två par.'],
+  ['Vilken laddning har en vattenmolekyl totalt?',['Neutral','Negativ','Positiv'],'10 protoner och 10 elektroner. Plus och minus tar ut varandra – den är neutral.'],
+  ['Vattenmolekylen är polär. Vad betyder det?',['Ena sidan lite minus, andra lite plus','Hela molekylen är negativt laddad','Molekylen består av plus- och minusjoner'],'Syresidan är lite negativ och vätesidan lite positiv.'],
+  ['Varför är vattenmolekylen polär?',['Syret drar elektronerna lite till sig','Väteatomerna har tagit upp elektroner','Syret har lämnat bort två elektroner'],'Syret drar de delade elektronerna lite mot sig. Därför blir syresidan lite minus.'],
+  ['Vilken bindning har ett moln av fria elektroner?',['Metallbindning','Jonbindning','Molekylbindning'],'I en metall delar alla atomer på sina valenselektroner.'],
+  ['Hur fungerar en metallbindning?',['Valenselektronerna bildar ett moln','Atomerna delar elektronpar två och två','Plus- och minusjoner drar i varandra'],'Alla atomer har lämnat sina valenselektroner till ett gemensamt elektronmoln.'],
+  ['Varför leder metaller ström bra?',['Elektronerna kan röra sig fritt','Metallen har många protoner i kärnan','Metallatomerna delar elektronpar'],'Valenselektronerna rör sig fritt i elektronmolnet. Då kan ström gå igenom.'],
+  ['Vilken bindning finns i koksalt, NaCl?',['Jonbindning','Molekylbindning','Metallbindning'],'Na⁺ och Cl⁻ drar i varandra: jonbindning.'],
+  ['Vilken bindning finns i en koppartråd?',['Metallbindning','Jonbindning','Molekylbindning'],'Koppar är en metall. Atomerna hålls ihop av ett elektronmoln.'],
+  ['Vilket ämne är en molekylförening?',['CO₂','NaCl','MgO','KBr'],'CO₂ består av ickemetaller som delar elektroner. NaCl, MgO och KBr är jonföreningar.'],
+  ['Vad bildar en metall och en ickemetall oftast?',['En jonförening','En molekylförening','En ny metall'],'Metallen ger elektroner till ickemetallen. Det blir joner.'],
+  ['Hur är jonföreningar, till exempel salter, oftast?',['Fasta, med hög smältpunkt','Gaser vid rumstemperatur','Mjuka och lätta att smälta'],'Jonbindningar är starka. Salter är fasta och smälter först vid hög temperatur.'],
+  ['Hur är många molekylföreningar, till exempel vatten och koldioxid?',['Gaser eller vätskor','Hårda saltkristaller','Blanka metaller'],'Molekylföreningar är ofta gaser eller vätskor. Rena molekylföreningar leder inte ström.']
+ ]},
+{id:11,namn:'Kalcium',under:'Lösningar som leder ström',tema:'losning',portar:5,langd:76,svar:4,
+ fragor:[
+  ['Leder destillerat vatten ström?',['Nästan inte alls','Ja, mycket bra','Bara om det är varmt'],'Destillerat vatten har nästan inga lösta joner. Därför leder det knappt.'],
+  ['Vad händer med jonerna när koksalt löses i vatten?',['De lossnar från varandra','De blir till atomer igen','De försvinner ur vattnet'],'Na⁺ och Cl⁻ lossnar från varandra och kan röra sig i vattnet.'],
+  ['Varför leder saltvatten ström?',['Jonerna kan röra sig','Saltet innehåller metall','Vattnet blir varmare'],'Laddade joner som rör sig kan föra ström genom vattnet.'],
+  ['Vad händer med sockret när det löses i vatten?',['Molekylerna sprids ut hela','Det blir plus- och minusjoner','Sockret blir till vatten'],'Sockermolekylerna sprids ut men blir inte joner. Därför leder sockervatten nästan inte alls.'],
+  ['Vilken bindning finns i socker, sackaros?',['Molekylbindning','Jonbindning','Metallbindning'],'Socker är en molekylförening. Atomerna delar elektronpar och bildar inga joner i vatten.'],
+  ['Varför leder sockervatten inte ström?',['Socker bildar inga joner','Socker är tyngre än salt','Socker löses inte i vatten'],'Socker (sackaros) är en molekylförening. Molekylerna blir inte joner.'],
+  ['Vilket ämne löses i vatten utan att bilda joner?',['Socker','Koksalt','HCl'],'Socker är en molekylförening. Koksalt släpper sina joner och HCl bildar joner i vatten.'],
+  ['Vad händer när HCl löses i vatten till saltsyra?',['Det bildas joner','Det bildas salt','Det bildas klorgas'],'HCl delar upp sig i vätejoner och kloridjoner. Därför leder saltsyra ström.'],
+  ['Varför leder kranvatten lite ström?',['Det har lösta salter','Det är helt rent vatten','Det har lösta sockerarter'],'Kranvatten har lösta salter, till exempel kalciumjoner. Jonerna leder ström.'],
+  ['Varför är det farligt att röra en strömbrytare med våt hand?',['Vattnet på handen leder ström','Vattnet gör brytaren varm','Handen blir laddad av vattnet'],'Kranvatten har lösta joner och leder ström. Strömmen kan gå in i kroppen.'],
+  ['Vad mäter man med en doppelektrod?',['Om vätskan leder ström','Vätskans temperatur i grader','Hur mycket vätskan väger'],'Doppelektroden visar om det finns lösta joner som leder ström.'],
+  ['Hur testar man om destillerat vatten är helt fritt från salt?',['Mät ledningsförmågan','Mät temperaturen','Mät hur mycket det väger'],'Leder vattnet ström, så finns det lösta joner kvar.'],
+  ['Vilken av de här leder ström bäst?',['Saltvatten','Kranvatten','Destillerat vatten','Sockervatten'],'Saltvatten har flest lösta joner. Kranvatten har några, socker och destillerat vatten nästan inga.'],
+  ['Vad händer med jonbindningarna när salt löses?',['De bryts isär','De blir starkare','De blir kvar'],'Vattenmolekyler omringar jonerna och drar isär dem.'],
+  ['Vilken sida av vattenmolekylen vänder sig mot Na⁺?',['Syresidan','Vätesidan','Ingen sida'],'Syresidan är lite minus och dras mot plusjonen Na⁺.'],
+  ['Vilken sida av vattenmolekylen vänder sig mot Cl⁻?',['Vätesidan','Syresidan','Ingen sida'],'Vätesidan är lite plus och dras mot minusjonen Cl⁻.'],
+  ['Vad behövs för att en vätska ska leda ström?',['Lösta joner','Lösta molekyler','Mycket syre'],'Det måste finnas joner som kan röra sig.'],
+  ['Varför leder torrt koksalt inte ström?',['Jonerna sitter fast','Det finns inga joner','Saltet är för kallt'],'I saltkristallen sitter jonerna fast. Först i vatten kan de röra sig.']
+ ]},
+{id:12,namn:'Provet',under:'Allt blandat',tema:'prov',portar:6,langd:88,svar:4,boss:true,fragor:[]}
 ];
 
 /* plugglistan: begrepp + kort förklaring, med lärarens formuleringar */
 const PLUGG=[
- ['Atomen',[['Proton','Positiv. Bestämmer vilket ämne det är.'],['Elektron','Negativ. Finns i skal runt kärnan.'],['Neutron','Neutral, saknar laddning.'],['Atomkärna','Protoner och neutroner.'],['Atom','Minsta delen av ett grundämne.'],['Lika många','Protoner och elektroner är lika många i en atom.']]],
- ['Elektronskal',[['K-skalet','Innersta skalet. 2 platser.'],['L-skalet','Andra skalet. 8 platser, resten av skalen också.'],['Litium','3 elektroner: 2 i K-skalet, 1 i L-skalet.'],['Valenselektroner','Elektronerna i yttersta skalet.']]],
- ['Atomnummer och atommassa',[['Atomnummer','Antal protoner. Står nere till vänster.'],['Atommassa','Protoner + neutroner. Står uppe till vänster.'],['Neutroner','Atommassa minus atomnummer. Syre 18 − 8 = 10.']]],
- ['Periodiska systemet',[['Ordning','Från lägst atomnummer (väte, 1) till högst.'],['Grupper','Lodräta. Lika många valenselektroner – ämnena liknar varandra.'],['Perioder','Vågräta. Samma antal elektronskal.'],['Period 1','Bara väte och helium – alla andra har fler än två elektroner.'],['Sista gruppen','Fulla yttersta skal.']]],
- ['Grundämnesfamiljer',[['Alkalimetaller','Grupp 1 utom väte. 1 valenselektron. Vill lämna bort den. Reagerar häftigt med vatten.'],['Halogener','Grupp 17 (7). Fluor och neråt. 7 valenselektroner, en ledig plats.'],['Ädelgaser','Sista gruppen, helium och neråt. Fulla skal – reagerar inte.'],['Övergångsmetaller','1–2 valenselektroner.'],['Koksalt','Natriums valenselektron hoppar till klor: natriumklorid, NaCl.']]],
- ['Joner',[['Jon','En laddad atom. Bildas när atomen lämnar bort eller tar upp elektroner.'],['Positiv jon','Har lämnat bort elektroner (underskott). Metaller, t.ex. Na⁺, Mg²⁺, Al³⁺.'],['Negativ jon','Har tagit upp elektroner (överskott). Ickemetaller, t.ex. Cl⁻, O²⁻, N³⁻.'],['Laddning per grupp','Grupp 1: 1+ · grupp 2: 2+ · grupp 13: 3+ · grupp 16: 2− · grupp 17: 1− · ädelgaser: ingen jon.'],['Ädelgasstruktur','Fullt yttersta skal, som en ädelgas.'],['Namn','Kloridjon Cl⁻, bromidjon Br⁻, fluoridjon F⁻.']]],
- ['Jonföreningar',[['Jonförening','Positiva och negativa joner som håller ihop. Totalt ingen laddning.'],['Exempel','NaCl, Na₂O, MgO, MgCl₂, CaF₂, Al₂O₃, AlCl₃.'],['Formeln','Lika mycket plus som minus: Al³⁺ + O²⁻ → Al₂O₃.'],['Leder ström','Löst i vatten kan jonerna röra sig och leda ström.']]],
- ['Formler',[['Grundämne','Bara ett slags atomer. Metaller och ickemetaller.'],['Kemisk förening','Två eller fler grundämnen som sitter ihop.'],['Lilla siffran','Antal atomer: H₂O = 2 väte + 1 syre.'],['Formelmassa','Summan av atommassorna: CO₂ = 12 + 16 + 16 = 44 u.'],['Druvsocker','C₆H₁₂O₆: 24 atomer, 180 u.']]],
- ['Balansera',[['Regeln','Lika många atomer av varje sort på båda sidor av pilen.'],['Så gör du','Ändra bara siffran framför formeln, aldrig den lilla siffran.'],['Exempel','2Mg + O₂ → 2MgO · CH₄ + 2O₂ → CO₂ + 2H₂O.']]]
+ ['Atomen',[['Proton','Positiv. Bestämmer vilket ämne det är.'],['Elektron','Negativ. Finns i skal runt kärnan.'],['Neutron','Neutral, saknar laddning.'],['Atomkärna','Protoner och neutroner.'],['Atom','Minsta delen av ett grundämne.'],['Lika många','Protoner och elektroner är lika många i en atom.'],['Tomrum','Atomen är mest tomrum. Kärnan är pytteliten.'],['Farten','Elektronerna dras mot kärnan, men farten gör att de inte åker in.'],['Partikelmodell','En förenklad bild av atomer och molekyler, till exempel skalmodellen.']]],
+ ['Atomens historia',[['Demokritos','Fick idén om atomer.'],['Dalton','Visade att atomer finns.'],['Thomson','Upptäckte elektronen ("russinkakan").'],['Rutherford','Atomen är mest tomrum, med en liten kärna.'],['Bohr','Elektronerna går i skal.'],['Chadwick','Upptäckte neutronen.'],['Förr','Thales: allt är vatten. Empedokles och Aristoteles: jord, eld, luft och vatten.'],['Kvarkar','Protoner och neutroner består av kvarkar (standardmodellen).']]],
+ ['Elektronskal',[['K-skalet','Innersta skalet. 2 platser.'],['L-skalet','Andra skalet. 8 platser, resten av skalen också.'],['Litium','3 elektroner: 2 i K-skalet, 1 i L-skalet.'],['Valenselektroner','Elektronerna i yttersta skalet. De styr hur ämnet reagerar.'],['Kalium','19 elektroner: 2, 8, 8, 1.']]],
+ ['Atomnummer och atommassa',[['Atomnummer','Antal protoner. Står nere till vänster. Guld: 79.'],['Atommassa','Protoner + neutroner. Kallas också masstal. Står uppe till vänster.'],['Neutroner','Atommassa minus atomnummer. Syre 18 − 8 = 10.'],['Enheten u','Proton ≈ 1 u, neutron ≈ 1 u, elektron ≈ 1/2000 u.'],['Isotoper','Samma ämne, olika många neutroner. Väte: 1 u, 2 u, 3 u. Kol-14: 6 p + 8 n. Kol-13: 7 n.']]],
+ ['Periodiska systemet',[['Mendelejev','Gjorde det första periodiska systemet.'],['Ordning','Från lägst atomnummer (väte, 1) till högst.'],['Grupper','Lodräta. Lika många valenselektroner – ämnena liknar varandra.'],['Perioder','Vågräta. Samma antal elektronskal.'],['Period 1','Bara väte och helium – alla andra har fler än två elektroner.'],['Sista gruppen','Fulla yttersta skal. Helium också, med 2 i K-skalet.'],['Ickemetaller','Nästan alla står till höger.']]],
+ ['Grundämnesfamiljer',[['Alkalimetaller','Grupp 1 utom väte. 1 valenselektron. Vill lämna bort den. Reagerar häftigt med vatten.'],['Natrium + vatten','Vätgas + hydroxidjoner (OH⁻). Farligt: vätgasen kan explodera, och det fräter.'],['Sammansatt jon','En jon av flera atomer, till exempel hydroxidjonen OH⁻.'],['Häftigast','Francium, längst ner i grupp 1. Fluor reagerar häftigare än klor – mindre atom.'],['Halogener','Grupp 17 (7). Fluor och neråt. 7 valenselektroner, en ledig plats. Halogen = saltbildare.'],['Fluor','Som grundämne en giftig gas.'],['Ädelgaser','Sista gruppen, helium och neråt. Fulla skal – reagerar inte. Gaser i rumstemperatur. Sällsynta.'],['Användning','Helium i ballonger · argon i glödlampor · neon i lysrör · klor i bassänger (dödar bakterier).'],['Övergångsmetaller','1–2 valenselektroner.'],['Koksalt','Natriums valenselektron hoppar till klor: natriumklorid, NaCl.']]],
+ ['Joner',[['Jon','Protoner och elektroner är olika många. Flest protoner: plus. Flest elektroner: minus.'],['Varför?','För att få fullt yttersta skal.'],['Ger eller tar','Valenselektronerna avgör. Grupp 1–2 lämnar bort elektroner. Grupp 15–17 tar upp.'],['Positiv jon','Har lämnat bort elektroner (underskott). Metaller, t.ex. Na⁺, Mg²⁺, Al³⁺.'],['Negativ jon','Har tagit upp elektroner (överskott). Ickemetaller, t.ex. Cl⁻, O²⁻, N³⁻.'],['Laddning per grupp','Grupp 1: 1+ · grupp 2: 2+ · grupp 13: 3+ · grupp 16: 2− · grupp 17: alltid 1− (envärt negativ) · ädelgaser: ingen jon.'],['Mg²⁺','12 protoner men 10 elektroner.'],['Ädelgasstruktur','Fullt yttersta skal, som en ädelgas.'],['Namn','Kloridjon Cl⁻, bromidjon Br⁻, fluoridjon F⁻, oxidjon (syrejon) O²⁻, svaveljon S²⁻, kvävejon N³⁻.']]],
+ ['Jonföreningar',[['Jonförening','Plus- och minusjoner som dras till varandra. Alla salter, syror och baser. Totalt ingen laddning.'],['Jonbindning','Plus och minus drar i varandra i saltkristallen.'],['Exempel','NaCl, NaF, Na₂O, MgO, MgCl₂, CaF₂, Al₂O₃, AlCl₃, Li₂O, Mg₃N₂.'],['KCl och CaCl₂','Kalium ger en elektron. Kalcium ger två – en till varje klor.'],['Formeln','Lika mycket plus som minus: Al³⁺ + O²⁻ → Al₂O₃.'],['Leder ström','Löst i vatten kan jonerna röra sig och leda ström.']]],
+ ['Formler',[['Grundämne','Bara ett slags atomer. Metaller och ickemetaller.'],['Kemisk förening','Två eller fler grundämnen som sitter ihop.'],['Lilla siffran','Antal atomer: H₂O = 2 väte + 1 syre.'],['Formelanalys','Räkna grundämnen och atomer. C₂H₅OH: 3 grundämnen, 9 atomer.'],['Formelmassa','Summan av atommassorna: CO₂ = 12 + 16 + 16 = 44 u.'],['Mol','En mol väger lika många gram som massan i u: H₂O 18 u → 18 g.'],['Druvsocker','C₆H₁₂O₆: 24 atomer, 180 u.']]],
+ ['Balansera',[['Regeln','Lika många atomer av varje sort på båda sidor av pilen.'],['Så gör du','Ändra bara siffran framför formeln, aldrig den lilla siffran.'],['Exempel','2 Mg + O₂ → 2 MgO · 2 H₂ + O₂ → 2 H₂O · CH₄ + 2 O₂ → CO₂ + 2 H₂O.']]],
+ ['Molekyler och bindningar',[['Molekyl','Flera atomer som sitter ihop och delar valenselektroner. Så når de ädelgasstruktur.'],['Molekylbindning','Kallas också elektronparbindning eller kovalent bindning. Ickemetaller delar elektroner.'],['Gaser av molekyler','Väte H₂, syre O₂, kväve N₂, klor Cl₂.'],['Kol','4 valenselektroner → binder fyra atomer. Metan CH₄.'],['Vatten, H₂O','Syret delar ett elektronpar med varje väte. 10 protoner, 10 elektroner: neutral.'],['Vatten är polärt','Syret drar elektronerna lite till sig: lite minus vid syret, lite plus vid vätet.'],['Metallbindning','Valenselektronerna i ett gemensamt moln. Därför leder metaller ström.'],['Tre bindningar','Jonbindning: metall + ickemetall. Molekylbindning: ickemetaller. Metallbindning: metaller.'],['Jon- eller molekylförening','Jonföreningar: fasta, hög smältpunkt. Molekylföreningar: ofta gaser eller vätskor.']]],
+ ['Lösningar som leder ström',[['Regeln','Lösta joner som kan röra sig gör att vatten leder ström.'],['Destillerat vatten','Nästan inga joner – leder knappt.'],['Saltvatten','NaCl blir Na⁺ och Cl⁻ – leder bra.'],['Sockervatten','Socker bildar inga joner – leder knappt.'],['Saltsyra','HCl bildar joner i vatten – leder.'],['Kranvatten','Har lösta salter – leder lite. Våt hand vid strömbrytare är farligt.'],['Doppelektrod','Mäter om en vätska leder ström.'],['Salt löses','Vattenmolekylerna omringar jonerna: syresidan mot Na⁺, vätesidan mot Cl⁻.']]]
 ];
 
 /* personerna man möter */
@@ -373,7 +517,7 @@ const SCENER={
  2:{in:[['Professor Bo','bo','Litium har tre elektroner. Två får plats i det innersta skalet, K-skalet. Den tredje hamnar i L-skalet.']],
    ut:[['Professor Bo','bo','Snyggt! Nästa stopp är syre. Där räknar vi protoner och neutroner.']]},
  3:{in:[['Kemisten Mira','mira','Atomnumret är antalet protoner. Atommassan är protoner plus neutroner. Med de två kan du räkna ut allt annat.']],
-   ut:[['Kemisten Mira','mira','Du kan räkna atomer nu! Gå till kol, mitt i tabellen.']]},
+   ut:[['Kemisten Mira','mira','Du kan räkna atomer nu! Gå två rutor till vänster, till kol.']]},
  4:{in:[['Professor Bo','bo','Periodiska systemet är en karta. Grupper är lodräta, perioder är vågräta. Titta på golvet du går på!']],
    ut:[['Professor Bo','bo','Nu kan du läsa kartan. Gå ner till natrium – där möter du familjerna.']]},
  5:{in:[['Kemisten Mira','mira','Vissa grupper kallas familjer: alkalimetaller, halogener och ädelgaser. De beter sig på helt olika sätt.']],
@@ -383,18 +527,31 @@ const SCENER={
  7:{in:[['Kemisten Mira','mira','Plus och minus dras till varandra. Natrium och klor blir natriumklorid – vanligt koksalt.']],
    ut:[['Kemisten Mira','mira','Snyggt! Gå upp till kväve. Där läser vi formler och räknar formelmassa.']]},
  8:{in:[['Professor Bo','bo','En formel berättar vilka atomer som finns och hur många. Den lilla siffran räknar atomerna.']],
-   ut:[['Professor Bo','bo','Bra! Sista biten före provet: balansera reaktionsformler. Gå ner till järn.']]},
+   ut:[['Professor Bo','bo','Bra! Nu ska vi balansera reaktionsformler. Gå ner till järn.']]},
  9:{in:[['Kemisten Mira','mira','Atomer försvinner aldrig. Därför ska det vara lika många av varje sort på båda sidor om pilen.']],
-   ut:[['Kemisten Mira','mira','Du kan balansera! Nu återstår provet, uppe vid helium.']]},
- 10:{in:[['Professor Bo','bo','Det här är provet. Allt blandat. Ta det lugnt – fel svar ger bara en ny fråga.']],
-   ut:[['Professor Bo','bo','Du klarade hela Atomresan! Det här kan du nu.']]}
+   ut:[['Kemisten Mira','mira','Du kan balansera! Gå upp till fluor. Där sätter atomerna ihop sig till molekyler.']]},
+ 10:{in:[['Professor Bo','bo','Ickemetaller vill alla ta emot elektroner. Därför delar de elektronpar i stället. Då bildas molekyler.'],
+         ['Professor Bo','bo','Det kallas molekylbindning. Andra ord för samma sak är elektronparbindning och kovalent bindning.'],
+         ['Professor Bo','bo','Det finns tre sorters bindningar: jonbindning, molekylbindning och metallbindning. Håll isär dem!']],
+   ut:[['Professor Bo','bo','Snyggt! Gå ner till kalcium. Där gör vi labben: vad gör att vatten leder ström?']]},
+ 11:{in:[['Kemisten Mira','mira','Välkommen till labbet! Vi doppar en elektrod i olika vätskor och ser vilka som leder ström.'],
+         ['Kemisten Mira','mira','Tänk på joner. Joner som kan röra sig bär strömmen.']],
+   ut:[['Kemisten Mira','mira','Bra labbat! Nu återstår provet, längst ner till höger vid xenon.']]},
+ 12:{in:[['Professor Bo','bo','Det här är provet. Allt blandat, från atomen till lösningar. Ett fel kostar ett hjärta, och du får en ny fråga.'],
+         ['Professor Bo','bo','Tips inför det muntliga provet: säg svaret högt och förklara varför, innan du klickar.']],
+   ut:[['Professor Bo','bo','Du klarade hela Atomresan! Det här kan du nu. Förklara det högt för någon – då sitter det.']]}
 };
 
 const UPPDRAG={
  1:[{t:'para',vem:'Kemisten Mira',bild:'mira',
      f:'Para ihop partikeln med rätt beskrivning.',
      parord:[['Proton','Positiv, finns i kärnan'],['Neutron','Saknar laddning, finns i kärnan'],['Elektron','Negativ, finns i skalen']],
-     facit:'Protoner och neutroner finns i atomkärnan. Elektronerna finns i skalen runt kärnan.'}],
+     facit:'Protoner och neutroner finns i atomkärnan. Elektronerna finns i skalen runt kärnan.'},
+    {t:'para',vem:'Kemisten Mira',bild:'mira',
+     f:'Atomens historia: para ihop forskaren med upptäckten.',
+     parord:[['Demokritos','Idén om atomer'],['Dalton','Visade att atomer finns'],['Thomson','Hittade elektronen'],
+             ['Rutherford','Atomen är mest tomrum'],['Bohr','Elektronerna går i skal'],['Chadwick','Hittade neutronen']],
+     facit:'Demokritos fick idén, och Dalton visade att atomer finns. Sedan hittades elektronen, kärnan, skalen och neutronen.'}],
  2:[{t:'ordning',vem:'Professor Bo',bild:'bo',
      f:'Sätt skalen i ordning – det innersta överst.',
      ord:['K-skalet','L-skalet','M-skalet'],
@@ -413,7 +570,11 @@ const UPPDRAG={
      f:'Vilken familj hör ämnet till?',
      hogar:['Alkalimetaller','Halogener','Ädelgaser'],
      items:[['Litium',0],['Natrium',0],['Kalium',0],['Fluor',1],['Klor',1],['Brom',1],['Helium',2],['Neon',2],['Argon',2]],
-     facit:'Grupp 1 utom väte är alkalimetaller, grupp 17 halogener och sista gruppen ädelgaser.'}],
+     facit:'Grupp 1 utom väte är alkalimetaller, grupp 17 halogener och sista gruppen ädelgaser.'},
+    {t:'para',vem:'Kemisten Mira',bild:'mira',
+     f:'Var används ämnet? Para ihop.',
+     parord:[['Helium','Ballonger – kan inte explodera'],['Argon','Glödlampor – reagerar inte'],['Neon','Lysrör med gulrött ljus'],['Klor','Simbassänger – dödar bakterier']],
+     facit:'Ädelgaserna reagerar inte, därför är de säkra i ballonger och lampor. Klor dödar bakterier i bassängvatten.'}],
  6:[{t:'sortera',vem:'Professor Bo',bild:'bo',
      f:'Blir ämnet en positiv eller en negativ jon?',
      hogar:['Positiv jon','Negativ jon'],
@@ -431,7 +592,37 @@ const UPPDRAG={
  9:[{t:'ordning',vem:'Kemisten Mira',bild:'mira',
      f:'Balansera Mg + O₂ → MgO. Sätt stegen i rätt ordning.',
      ord:['Räkna atomerna på båda sidor','Syre stämmer inte: 2 till vänster, 1 till höger','Sätt en 2:a framför MgO','Nu stämmer inte magnesium: sätt en 2:a framför Mg','Kontrollera: 2 Mg och 2 O på båda sidor'],
-     facit:'Svaret är 2Mg + O₂ → 2MgO.'}]
+     facit:'Svaret är 2 Mg + O₂ → 2 MgO.'}],
+ 10:[{t:'sortera',vem:'Professor Bo',bild:'bo',
+     f:'Vilken bindning håller ihop ämnet?',
+     hogar:['Jonbindning','Molekylbindning','Metallbindning'],
+     items:[['NaCl',0],['MgO',0],['CaF₂',0],['H₂O',1],['CO₂',1],['CH₄',1],['Järn',2],['Koppar',2],['Aluminium',2]],
+     facit:'Metall + ickemetall ger jonbindning, ickemetaller ger molekylbindning. Rena metaller har metallbindning.'},
+    {t:'prata',vem:'Professor Bo',bild:'bo',
+     steg:[['Muntlig övning! Vad är skillnaden mellan jonbindning och molekylbindning?',
+            ['Jon: plus drar i minus. Molekyl: delar elektroner','Jon: delar elektroner. Molekyl: plus drar i minus','Ingen skillnad, bara olika namn'],
+            'Jonbindning: plus- och minusjoner drar i varandra. Molekylbindning: atomer delar elektronpar.'],
+           ['Varför kan kol binda fyra väteatomer i metan?',
+            ['Kol har fyra valenselektroner att dela','Kol har fyra protoner i sin kärna','Kol vill lämna bort fyra elektroner som jon'],
+            'Fyra valenselektroner ger fyra elektronparbindningar. Då får alla atomerna fulla skal.'],
+           ['Varför leder en koppartråd ström?',
+            ['Valenselektronerna rör sig fritt i ett moln','Kopparatomerna delar elektronpar två och två','Koppar består av joner som löses i tråden'],
+            'I metallbindningen rör sig valenselektronerna fritt. Därför leder metaller ström.']]}],
+ 11:[{t:'sortera',vem:'Kemisten Mira',bild:'mira',
+     f:'Leder det ström, eller nästan inte alls?',
+     hogar:['Leder ström','Leder nästan inte alls'],
+     items:[['Saltvatten',0],['Kranvatten',0],['Saltsyra i vatten',0],['Magnesiumklorid i vatten',0],['Destillerat vatten',1],['Sockervatten',1],['Torrt koksalt',1]],
+     facit:'Lösta joner leder ström, även lite joner som i kranvatten. Socker bildar inga joner, destillerat vatten har nästan inga, och i torrt salt sitter jonerna fast.'},
+    {t:'prata',vem:'Kemisten Mira',bild:'mira',
+     steg:[['I labben leder saltvattnet ström, men inte sockervattnet. Varför?',
+            ['Saltet bildar joner, sockret gör det inte','Sockret sjunker till botten och stoppar strömmen','Saltet innehåller metall, och metall leder ström'],
+            'Natriumklorid blir Na⁺ och Cl⁻ i vatten. Socker är en molekylförening och blir inga joner.'],
+           ['Kranvattnet ledde lite ström redan från början. Vad visar det?',
+            ['Det finns lösta salter i kranvatten','Kranvatten är renare än destillerat vatten','Elektroden ger ifrån sig egna joner'],
+            'Kranvatten har lösta salter, alltså joner. Därför leder det lite.'],
+           ['Vad blir din slutsats av labben?',
+            ['Lösta joner gör att vatten leder ström','Allt som löses i vatten gör att det leder ström','Vatten leder alltid ström, hur rent det än är'],
+            'Det är jonerna som gör det. Utan lösta joner leder vatten knappt.']]}]
 };
 
 
@@ -515,6 +706,42 @@ function valjRost(){
 }
 if('speechSynthesis' in window){valjRost();speechSynthesis.onvoiceschanged=valjRost;}
 const tyst=()=>{if('speechSynthesis' in window)speechSynthesis.cancel();};
+/* Uppläsning i Atomresan: formler läses som bokstäver (MgCl₂ blir em ge ce ell två, Na⁺ blir en a plus,
+   → blir ger, · blir gånger). Ordagrann kopia av talText i _publik/kalla/muntligt/muntligt.html.
+   bygg-atomresan.py lägger in den före las() och låter las() skicka talText(bit) till rösten.
+   Sajtens bygge kan hitta funktionen med talTextFran (rost/meningar.mjs) och göra röstklippen av samma text. */
+const TAL_L = 'a be ce de e eff ge hå i ji kå ell em en o pe ku ärr ess te u ve dubbelve ex y säta'.split(' ');
+const TAL_ORD = 'noll ett två tre fyra fem sex sju åtta nio tio elva tolv'.split(' ');
+const TAL_SYM = 'He|Li|Be|Ne|Na|Mg|Al|Si|Cl|Ar|Ca|Fe|Cu|Zn|Ag|Au|Br|Kr|Pb|Cs|Fr|Hg|Xe|Rn|Ba|Cr|Sr|H|B|C|N|O|F|P|S|K';
+const TAL_SUB = '₀₁₂₃₄₅₆₇₈₉', TAL_SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+const TAL_BOKSTAV = 'A-Za-zÅÄÖåäöÉé';
+const TAL_FORMEL = new RegExp('(^|[^' + TAL_BOKSTAV + '])((?:(?:' + TAL_SYM + ')[' + TAL_SUB + ']*)+)([' + TAL_SUP + ']*[⁺⁻])?(?![' + TAL_BOKSTAV + '])', 'g');
+const TAL_DEL = new RegExp('(' + TAL_SYM + ')([' + TAL_SUB + ']*)', 'g');
+function talText(t){
+  const tal = (s, siffror) => {
+    const n = Number(s.split('').map(c => siffror.indexOf(c)).join(''));
+    return TAL_ORD[n] || String(n);
+  };
+  const bokstaver = sym => sym.split('').map(c => TAL_L[c.toUpperCase().charCodeAt(0) - 65] || c).join(' ');
+  return String(t)
+    .replace(TAL_FORMEL, (hel, fore, formel, laddning) => {
+      if (formel.length === 1 && !laddning) return hel;
+      const delar = [];
+      formel.replace(TAL_DEL, (x, sym, sub) => { delar.push(bokstaver(sym) + (sub ? ' ' + tal(sub, TAL_SUB) : '')); return x; });
+      let ut = delar.join(' ');
+      if (laddning) {
+        const siffra = laddning.slice(0, -1);
+        ut += (siffra ? ' ' + tal(siffra, TAL_SUP) : '') + (laddning.slice(-1) === '⁺' ? ' plus' : ' minus');
+      }
+      return fore + ut;
+    })
+    .replace(/\s\+\s/g, ' plus ')
+    .replace(/\s*→\s*/g, ' ger ')
+    .replace(/\s*·\s*/g, ' gånger ')
+    .replace(/≈/g, 'ungefär')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 function las(text){
   if(!spar.tal||!('speechSynthesis' in window))return;
   tyst(); if(!rost)valjRost();
@@ -522,7 +749,7 @@ function las(text){
   const bitar=String(text).split(/(?<=[.!?])\s+/).filter(t=>t.trim());
   setTimeout(()=>{
     for(const bit of bitar){
-      const u=new SpeechSynthesisUtterance(bit);
+      const u=new SpeechSynthesisUtterance(talText(bit));
       u.lang='sv-SE'; if(rost)u.voice=rost; u.rate=.94; u.pitch=1.02;
       speechSynthesis.speak(u);
     }
@@ -638,7 +865,7 @@ function bossFragor(){
 
 <script>
 /* ===================================================================
-   MÖTEN, FIGURER OCH UPPDRAG  (allt hämtat ur SOS Religion kap. 5)
+   MÖTEN, FIGURER OCH UPPDRAG
    =================================================================== */
 
 /* ---- symbolbilder till para-ihop-uppdragen ---- */
@@ -705,6 +932,8 @@ const TEMA={
   tabell: {himmel:['#2A2245','#463A6E'],mark:'#7C6FA8',mark2:'#5B5080',kant:'#B4A8E0',dis:'#352B58',stjarnor:false},
   salt:   {himmel:['#7FC3E8','#E6F3F8'],mark:'#E8EEF2',mark2:'#B9C6D2',kant:'#FFFFFF',dis:'#A9D4EA',stjarnor:false},
   neon:   {himmel:['#0B0718','#251538'],mark:'#4A3E66',mark2:'#33284A',kant:'#8E7CC0',dis:'#1A1030',stjarnor:true},
+  molekyl:{himmel:['#0D2A2E','#1F4B52'],mark:'#5E8C84',mark2:'#3F665F',kant:'#A6D8CC',dis:'#173E42',stjarnor:false},
+  losning:{himmel:['#14375A','#2E6B94'],mark:'#7FA7BF',mark2:'#5A8099',kant:'#CFE6F2',dis:'#1F4C70',stjarnor:false},
   prov:   {himmel:['#0B1330','#22305C'],mark:'#6E7A5E',mark2:'#525C46',kant:'#9AA88A',dis:'#182246',stjarnor:true}
 };
 
@@ -763,6 +992,37 @@ function ritaBakgrund(tema,cam){
       ctx.globalAlpha=.35+.25*Math.abs(Math.sin(tick/30+i)); ctx.strokeStyle=f; ctx.lineWidth=4;
       ctx.strokeRect(x,80,96,54); ctx.globalAlpha=.9; ctx.fillStyle=f; ctx.font='800 30px Assistant,sans-serif';
       ctx.textAlign='center'; ctx.fillText(text[i%3],x+48,118); ctx.textAlign='left'; ctx.globalAlpha=1; }
+  }else if(tema==='molekyl'){       // svävande molekyler: vatten, koldioxid och metan
+    ctx.lineCap='round';
+    for(let i=0;i<5;i++){ const x=((i*170+p1)%(W+340))-170, y=100+(i%2)*44+Math.sin(tick/50+i)*5;
+      ctx.strokeStyle='rgba(220,240,235,.6)'; ctx.lineWidth=5; ctx.globalAlpha=.55;   // dämpat: bakgrund, inte föremål
+      if(i%3===0){        // H₂O: syre med två väte i vinkel
+        ctx.beginPath(); ctx.moveTo(x-24,y+17); ctx.lineTo(x,y); ctx.lineTo(x+24,y+17); ctx.stroke();
+        cirkel(x,y,16,'#E0596F'); cirkel(x-24,y+17,9,'#F2F4F7'); cirkel(x+24,y+17,9,'#F2F4F7');
+      }else if(i%3===1){  // CO₂: O=C=O på rad
+        ctx.beginPath(); ctx.moveTo(x-32,y); ctx.lineTo(x+32,y); ctx.stroke();
+        cirkel(x-32,y,13,'#E0596F'); cirkel(x,y,14,'#6B7080'); cirkel(x+32,y,13,'#E0596F');
+      }else{              // CH₄: kol med fyra väte
+        ctx.beginPath(); ctx.moveTo(x-22,y-18); ctx.lineTo(x+22,y+18); ctx.moveTo(x+22,y-18); ctx.lineTo(x-22,y+18); ctx.stroke();
+        cirkel(x,y,14,'#6B7080');
+        for(const [a,b] of [[-22,-18],[22,18],[22,-18],[-22,18]]) cirkel(x+a,y+b,8,'#F2F4F7');
+      }
+      ctx.globalAlpha=1;
+    }
+    ctx.lineCap='butt';
+    for(let i=0;i<3;i++){ const x=((i*240+p2)%(W+480))-240; rekt(x,180,200,34,'#24504F'); rekt(x,176,200,6,'#6FA39A'); }
+  }else if(tema==='losning'){       // labb: bägare med doppelektrod och lampa, joner som rör sig
+    for(let i=0;i<4;i++){ const x=((i*190+p1)%(W+380))-190, tand=i%2===0;
+      rekt(x,92,90,84,'rgba(220,240,255,.22)'); rekt(x+4,120,82,52,'rgba(95,168,208,.75)');
+      rekt(x+22,80,6,70,'#9AA4B2'); rekt(x+62,80,6,70,'#9AA4B2');
+      ctx.strokeStyle='#C7D0DE'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x+25,80); ctx.lineTo(x+25,64); ctx.lineTo(x+65,64); ctx.lineTo(x+65,80); ctx.stroke();
+      ctx.globalAlpha=tand?.65+.3*Math.abs(Math.sin(tick/25+i)):.6;
+      cirkel(x+45,60,9,tand?'#FFE08A':'#56627A'); ctx.globalAlpha=1;
+      if(tand) for(let j=0;j<4;j++){ const jx=x+10+((j*19+tick*.4)%70), jy=134+(j%2)*18;
+        cirkel(jx,jy,4,j%2?'#7FB069':'#F28B82'); }
+    }
+    for(let i=0;i<3;i++){ const x=((i*240+p2)%(W+480))-240; rekt(x,180,200,34,'#2A5272'); rekt(x,176,200,6,'#6F93AE'); }
   }else{ // prov
     for(let i=0;i<5;i++){ const x=((i*150+p1)%(W+300))-150; rekt(x,120,110,70,'#2B3A63'); rekt(x+8,128,94,50,'#3E5288'); }
   }
@@ -1637,7 +1897,10 @@ function ritaTabell(){
   ctx.textAlign='left';
 }
 /* platserna ligger på riktiga grundämnen: [id, grupp, period, ikon, etikett]
-   platsikonen ligger nere till höger i rutan, så att grundämnets bokstav syns */
+   platsikonen ligger nere till höger i rutan, så att grundämnets bokstav syns.
+   Vägen: väte → litium → syre → kol → natrium → magnesium → klor → kväve → järn
+   → fluor (molekyler, bland ickemetallerna) → kalcium (lösningar, kalciumjoner i kranvatten)
+   → provet vid xenon, sista rutan längst ner till höger. */
 const PLATSER=[
  [1,1,1,'atom','hoger'],     // Väte
  [2,1,2,'atom','hoger'],     // Litium
@@ -1648,10 +1911,10 @@ const PLATSER=[
  [7,17,3,'atom','under'],    // Klor
  [8,15,2,'atom','under'],    // Kväve
  [9,8,4,'atom','under'],     // Järn
- [10,18,1,'tempel','vanster'] // Provet – vid helium, högst upp till höger
+ [10,17,2,'atom','under'],   // Fluor – molekyler och bindningar
+ [11,2,4,'atom','under'],    // Kalcium – lösningar som leder ström
+ [12,18,5,'tempel','vanster'] // Provet – vid xenon, längst ner till höger
 ].map(([id,kol,per,ikon,lbl])=>{ const [x,y]=P(kol,per); return {id,x:x+18,y:y+30,ikon,lbl}; });
-const karta={x:0,y:0,cam:{x:0,y:0},riktning:1,narmast:null,bat:false,steg:0,fart:0};
-(function(){const u=PLATSER[0];karta.x=u.x+30;karta.y=u.y+22;})();
 
 function ritaPlatsIkon(p,oppen){
   const x=p.x,y=p.y, g=oppen?'#C9A46A':'#6A7290', m=oppen?'#8E6E42':'#4E5570';
@@ -1833,7 +2096,8 @@ function startskarm(){
       <button class="knapp primar" id="start">${klara?'Fortsätt resan':'Börja resan'}</button>
       <button class="knapp" id="pl">📖 Plugglista</button>
     </div>
-    <p class="mitt" style="margin-top:14px;font-size:.88rem">Frågorna kommer från lärarens material i atomkemi.</p>`);
+    <p class="mitt" style="margin-top:14px;font-size:.88rem">Frågorna kommer från lärarens material i atomkemi.
+      Säg svaren högt – då övar du till det muntliga provet.</p>`);
   document.getElementById('start').onclick=()=>{ dolj(); pip(523,.1,'sine',.05); las('Välkommen till Atomresan. Gå till en plats på kartan och tryck hopp.'); };
   document.getElementById('pl').onclick=()=>{ visaPlugg();
     const s=document.getElementById('stang'); s.onclick=startskarm; };
@@ -1842,7 +2106,7 @@ if(!(navigator.maxTouchPoints>0||'ontouchstart' in window))
   document.getElementById('kontroller').style.display='none';
 passaDuk(); uppdateraHud(); startskarm(); requestAnimationFrame(loop);
 </script>
-<script>window.BANFILMER={"1":{"src":"../videor/atom-bana-1.mp4?v=05125e8d","rubrik":"Atomens byggstenar"},"2":{"src":"../videor/atom-bana-2.mp4?v=fe0c92a7","rubrik":"Elektronskalen"},"3":{"src":"../videor/atom-bana-3.mp4?v=b9ece235","rubrik":"Atomnummer och atommassa"},"4":{"src":"../videor/atom-bana-4.mp4?v=fb6a0ab8","rubrik":"Periodiska systemet"},"5":{"src":"../videor/atom-bana-5.mp4?v=8d8bf668","rubrik":"Grundämnesfamiljer"},"6":{"src":"../videor/atom-bana-6.mp4?v=9ec4fd8e","rubrik":"Joner"},"7":{"src":"../videor/atom-bana-7.mp4?v=d357da1e","rubrik":"Jonföreningar"},"8":{"src":"../videor/atom-bana-8.mp4?v=f80041b3","rubrik":"Formler och formelmassa"},"9":{"src":"../videor/atom-bana-9.mp4?v=4e651ef1","rubrik":"Balansera reaktionsformler"}};</script>
+<script>window.BANFILMER={"1":{"src":"../videor/atom-bana-1.mp4?v=05125e8d","rubrik":"Atomens byggstenar"},"2":{"src":"../videor/atom-bana-2.mp4?v=fe0c92a7","rubrik":"Elektronskalen"},"3":{"src":"../videor/atom-bana-3.mp4?v=b9ece235","rubrik":"Atomnummer och atommassa"},"4":{"src":"../videor/atom-bana-4.mp4?v=fb6a0ab8","rubrik":"Periodiska systemet"},"5":{"src":"../videor/atom-bana-5.mp4?v=8d8bf668","rubrik":"Grundämnesfamiljer"},"6":{"src":"../videor/atom-bana-6.mp4?v=9ec4fd8e","rubrik":"Joner"},"7":{"src":"../videor/atom-bana-7.mp4?v=d357da1e","rubrik":"Jonföreningar"},"8":{"src":"../videor/atom-bana-8.mp4?v=f80041b3","rubrik":"Formler och formelmassa"},"9":{"src":"../videor/atom-bana-9.mp4?v=4e651ef1","rubrik":"Balansera reaktionsformler"},"10":{"src":"../videor/kemi-forklara-4.mp4?v=63d51caf","rubrik":"Molekyler och bindningar"},"11":{"src":"../videor/kemi-forklara-5.mp4?v=71fb9153","rubrik":"Varför saltvatten leder ström"}};</script>
 <script src="../filmer.js"></script>
 <script>window.PIXEL_KARTA={"gras-ensam":[0,0,24,24],"gras-v":[25,0,24,24],"gras-m":[50,0,24,24],"gras-h":[75,0,24,24],"gras-platta-ensam":[100,0,24,24],"gras-platta-v":[125,0,24,24],"gras-platta-m":[150,0,24,24],"gras-platta-h":[175,0,24,24],"sand-ensam":[200,0,24,24],"sand-v":[225,0,24,24],"sand-m":[250,0,24,24],"sand-h":[275,0,24,24],"sand-platta-ensam":[300,0,24,24],"sand-platta-v":[325,0,24,24],"sand-platta-m":[350,0,24,24],"sand-platta-h":[375,0,24,24],"sno-ensam":[400,0,24,24],"sno-v":[425,0,24,24],"sno-m":[450,0,24,24],"sno-h":[475,0,24,24],"sno-platta-ensam":[0,25,24,24],"sno-platta-v":[25,25,24,24],"sno-platta-m":[50,25,24,24],"sno-platta-h":[75,25,24,24],"jord-v":[100,25,24,24],"jord-m":[125,25,24,24],"jord-m2":[150,25,24,24],"jord-h":[175,25,24,24],"taggar":[200,25,24,24],"bro-v":[225,25,24,24],"bro-m":[250,25,24,24],"bro-h":[275,25,24,24],"lasblock":[300,25,24,24],"flagga1":[325,25,18,18],"flagga2":[344,25,18,18],"stang":[363,25,18,18],"dorr-o":[382,25,18,18],"dorr-u":[401,25,18,18],"busk1":[420,25,18,18],"busk2":[439,25,18,18],"gran":[458,25,18,18],"svamp":[477,25,18,18],"svamp2":[0,50,18,18],"kaktus":[19,50,18,18],"krona-v":[38,50,18,18],"krona-o":[57,50,18,18],"stam":[76,50,18,18],"stam2":[95,50,18,18],"skylt":[114,50,18,18],"spelare1":[133,50,24,24],"spelare2":[158,50,24,24],"npc1":[183,50,24,24],"npc2":[208,50,24,24],"rulle":[233,50,11,13],"bubbla":[245,50,11,11],"fraga":[257,50,11,11],"bock":[269,50,11,11],"remsa-sno":[281,50,24,72],"remsa-sno2":[306,50,24,72],"remsa-oken":[331,50,24,72],"remsa-gron":[356,50,24,72],"remsa-gron2":[381,50,24,72]};</script>
 <script src="../pixel/skin.js"></script>

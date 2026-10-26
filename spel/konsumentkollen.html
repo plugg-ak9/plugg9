@@ -1,0 +1,2426 @@
+<!doctype html>
+<html lang="sv">
+<!--
+=====================================================================
+  KONSUMENTKOLLEN – pluggspel i hem- och konsumentkunskap (HKK) åk 9
+---------------------------------------------------------------------
+  Nio platser i den påhittade staden Köpstad. Faktan kommer från
+  Konsumentverket, Livsmedelsverket, Naturvårdsverket och andra
+  källor (HKK/Konsumentkunskap/_kalla/FAKTA.md).
+
+  Banorna
+   1  Klädbutiken    Medveten konsument
+   2  Reklampelaren  Reklam och påverkan
+   3  Mobilbutiken   Dina rättigheter i butik
+   4  Nätbutiken     Handla på nätet
+   5  Torget         Märkningar
+   6  Mataffären     Butiksuppdraget: jämförpris, ingredienser, datum
+   7  Hemmet         Miljövänlig mat och H.E.M
+   8  Hamnen         Fiskpinnens resa – livsmedelskedjan
+   9  Skolan         Provet – allt blandat
+
+  Byggs med HKK/Konsumentkunskap/_kalla/bygg-konsumentkollen.py.
+  Motorn är densamma som i de andra plattformsspelen.
+=====================================================================
+-->
+<head>
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../ikon-180.png">
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('../sw.js').catch(function(){});</script>
+<script src="../rost/rost.js" data-spel="konsumentkollen"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Konsumentkollen">
+<meta name="theme-color" content="#0E1730">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Konsumentkollen</title>
+<link rel="stylesheet" href="../fonter/fonter.css">
+<style>
+:root{
+  --night:#0E1730; --night2:#1A2547; --night3:#243158;
+  --parchment:#F6EDDA; --tekhelet:#5B87F0; --tekhelet-dim:#33488A;
+  --flame:#F2A83B; --olive:#7FB069; --pomegranate:#E0596F; --muted:#8E9BC2;
+  --line:rgba(142,155,194,.28);
+  --display:"Frank Ruhl Libre",Georgia,serif;
+  --body:"Assistant","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--night);color:var(--parchment);font-family:var(--body);
+  font-size:17px;line-height:1.6;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation}
+
+#skarm{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--night)}
+
+/* ---------- HUD ---------- */
+#hud{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--night);
+  border-bottom:1px solid var(--line);flex:0 0 auto;min-height:46px}
+#hud .plats{font-family:var(--display);font-weight:700;font-size:1.05rem;flex:1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hud .plats small{display:block;font-family:var(--body);font-weight:600;font-size:.72rem;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--tekhelet);line-height:1.2}
+.hjartan{display:flex;gap:3px}
+.hjartan svg{width:19px;height:19px;color:var(--pomegranate)}
+.hjartan svg.bort{color:var(--muted);opacity:.3}
+.raknare{display:flex;align-items:center;gap:5px;font-weight:700;font-variant-numeric:tabular-nums;font-size:.95rem}
+.raknare svg{width:18px;height:18px;color:var(--flame)}
+.miniknapp{background:var(--night2);border:1px solid var(--line);color:var(--parchment);
+  border-radius:10px;width:38px;height:38px;font-size:1.05rem;cursor:pointer;display:grid;place-items:center;flex:0 0 auto}
+.miniknapp:active{background:var(--night3)}
+.miniknapp[aria-pressed="false"]{opacity:.45}
+
+/* ---------- spelplan ---------- */
+#duk-lada{flex:1;position:relative;display:grid;place-items:center;overflow:hidden;background:#070C1A}
+canvas{display:block;image-rendering:auto;max-width:100%;max-height:100%}
+
+/* ---------- kontroller ---------- */
+#kontroller{flex:0 0 auto;display:flex;justify-content:space-between;align-items:flex-end;
+  padding:10px 16px 16px;gap:12px;background:var(--night)}
+.pad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(2,52px);gap:6px}
+.pad button{grid-column:span 1}
+.styr{background:var(--night2);border:1px solid var(--line);border-radius:14px;color:var(--parchment);
+  font-size:1.5rem;display:grid;place-items:center;cursor:pointer;font-family:var(--body);touch-action:none}
+.styr:active,.styr.ner{background:var(--tekhelet);border-color:var(--tekhelet);color:#0a1226}
+#hopp{width:104px;height:104px;border-radius:50%;background:var(--flame);border:none;color:#2c1c02;
+  font-weight:700;font-size:.95rem;font-family:var(--body);letter-spacing:.03em;cursor:pointer;
+  box-shadow:0 6px 0 #B87A1D;touch-action:none}
+#hopp:active,#hopp.ner{transform:translateY(4px);box-shadow:0 2px 0 #B87A1D}
+.gomd{visibility:hidden}
+
+/* ---------- överlägg ---------- */
+.overlagg{position:absolute;inset:0;background:rgba(8,13,28,.82);display:grid;place-items:center;
+  padding:14px;z-index:10;overflow:auto}
+.panel{background:var(--night2);border:1px solid var(--line);border-radius:18px;padding:20px;
+  max-width:520px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.etikett{text-transform:uppercase;letter-spacing:.11em;font-size:.7rem;font-weight:700;color:var(--tekhelet);margin:0 0 8px}
+.fraga{font-family:var(--display);font-weight:700;font-size:1.32rem;line-height:1.35;margin:0;text-wrap:balance}
+.alt{display:grid;gap:9px;margin-top:16px}
+.altknapp{display:flex;align-items:center;gap:11px;width:100%;background:var(--night3);
+  border:2px solid transparent;border-radius:13px;color:var(--parchment);font:inherit;font-weight:600;
+  font-size:1.04rem;line-height:1.35;padding:13px 15px;text-align:left;cursor:pointer;transition:border-color .12s,background .12s}
+.altknapp .bok{flex:0 0 27px;height:27px;border-radius:7px;background:rgba(255,255,255,.08);
+  display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:.95rem;color:var(--muted)}
+.altknapp:active:not(:disabled){border-color:var(--tekhelet)}
+.altknapp.ratt{border-color:var(--olive);background:rgba(127,176,105,.2)}
+.altknapp.ratt .bok{background:var(--olive);color:#0d1a08}
+.altknapp.fel{border-color:var(--pomegranate);background:rgba(224,89,111,.16)}
+.altknapp.fel .bok{background:var(--pomegranate);color:#2a0710}
+.altknapp.blek{opacity:.38}
+.facit{margin-top:14px;border-radius:13px;padding:13px 15px;border:1px solid}
+.facit.bra{background:rgba(127,176,105,.13);border-color:var(--olive)}
+.facit.daligt{background:rgba(224,89,111,.12);border-color:var(--pomegranate)}
+.facit b{font-family:var(--display);font-size:1.1rem;display:block;margin-bottom:2px}
+.facit.bra b{color:var(--olive)} .facit.daligt b{color:var(--pomegranate)}
+.facit p{margin:0;opacity:.93;font-size:.98rem}
+.knapp{font-family:var(--body);font-size:1rem;font-weight:700;background:var(--night3);color:var(--parchment);
+  border:1px solid var(--line);border-radius:12px;padding:12px 20px;cursor:pointer}
+.knapp.primar{background:var(--tekhelet);border-color:var(--tekhelet);color:#08122b}
+.knapp:active{transform:translateY(1px)}
+.rad{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center}
+.panel h2{font-family:var(--display);font-size:1.7rem;margin:0 0 6px;text-align:center;text-wrap:balance}
+.panel p.mitt{text-align:center;color:var(--muted);margin:0 auto;max-width:40ch}
+.ljusrad{display:flex;justify-content:center;gap:16px;margin:16px 0}
+.ljusrad span{display:grid;place-items:center;width:46px;height:46px}
+.ljusrad svg{width:46px;height:46px;color:var(--flame);opacity:.16;transform:scale(.7);
+  transition:opacity .4s,transform .4s cubic-bezier(.3,1.7,.5,1),filter .4s}
+.ljusrad span.tand svg{opacity:1;transform:none;filter:drop-shadow(0 0 12px rgba(242,168,59,.8))}
+.siffror{display:flex;justify-content:center;gap:26px;margin:14px 0 4px;text-align:center}
+.siffror b{font-family:var(--display);font-size:1.6rem;display:block;line-height:1;color:var(--flame);font-variant-numeric:tabular-nums}
+.siffror span{font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.dkropp{max-height:56vh;overflow:auto;margin-top:12px}
+.dkropp h3{font-family:var(--display);font-size:1.05rem;color:var(--flame);margin:16px 0 4px}
+.dkropp h3:first-child{margin-top:0}
+.dkropp dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:.97rem}
+.dkropp dt{font-weight:700;color:var(--tekhelet)}
+.dkropp dd{margin:0;opacity:.92}
+.dold{display:none!important}
+
+/* ---------- scener och uppdrag ---------- */
+.scenrad{display:flex;gap:13px;align-items:flex-start}
+.portratt{flex:0 0 68px;width:68px;height:68px;border-radius:16px;overflow:hidden;background:var(--night3)}
+.portratt svg{width:100%;height:100%;display:block}
+.talbubbla{background:var(--night3);border-radius:14px;padding:12px 14px;flex:1;min-width:0}
+.talbubbla .vem{font-family:var(--display);font-weight:700;color:var(--flame);font-size:1rem;display:block;margin-bottom:1px}
+.talbubbla p{font-size:1.02rem;line-height:1.45}
+.instr{color:var(--muted);font-size:.95rem;margin:14px 0 0}
+.parspel{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.parspel .kol{display:grid;gap:9px;align-content:start}
+.parspel .altknapp{font-size:.98rem;padding:12px}
+.ikonknapp{background:var(--night3);border:2px solid transparent;border-radius:13px;cursor:pointer;padding:7px;display:grid;place-items:center;min-height:62px}
+.ikonknapp svg{width:100%;height:46px}
+.ikonknapp:active{border-color:var(--tekhelet)}
+.ikonknapp.fel{border-color:var(--pomegranate)}
+.brick{background:var(--night3);border:1px solid var(--line);border-radius:99px;padding:9px 14px;font:inherit;
+  font-weight:600;font-size:.96rem;color:var(--parchment);cursor:pointer;font-family:var(--body)}
+.brick.vald{background:var(--flame);color:#2a1c04;border-color:var(--flame)}
+.brick.ratt{background:rgba(127,176,105,.25);border-color:var(--olive)}
+.bricklada{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;min-height:38px}
+.hogar{display:grid;gap:10px;margin-top:12px}
+.hog{background:var(--night3);border:2px dashed var(--line);border-radius:13px;padding:10px 12px;transition:border-color .2s}
+.hog h4{margin:0 0 6px;font-family:var(--display);font-size:1.02rem}
+.hog .innehall{display:flex;flex-wrap:wrap;gap:6px;min-height:22px}
+.klar{opacity:.3;pointer-events:none;border-color:var(--olive)!important}
+.stake{display:flex;justify-content:center;align-items:flex-end;gap:5px;margin:14px auto 0;
+  padding:0 10px 0;border-bottom:9px solid #B98A46;border-radius:0 0 10px 10px;max-width:340px}
+.ljusk{background:none;border:none;padding:4px 3px 0;cursor:pointer;display:flex;
+  flex-direction:column;align-items:center;gap:3px;border-radius:8px}
+.ljusk:active{background:rgba(255,255,255,.08)}
+.ljusk .laga{width:15px;height:19px;opacity:.12;transition:opacity .25s,transform .25s}
+.ljusk .laga svg{width:100%;height:100%;display:block}
+.ljusk.tand .laga{opacity:1;filter:drop-shadow(0 0 7px rgba(242,168,59,.85))}
+.ljusk .kropp{width:14px;height:34px;background:#F0E4C8;border-radius:3px 3px 0 0}
+.ljusk .stang{width:7px;height:32px;background:#B98A46}
+.ljusk.tjanare .stang{height:54px}
+.ljusk.tjanare .kropp{background:#FFF8E6}
+.omradeslista h3{margin:18px 0 6px}
+.omradeslista h3:first-child{margin-top:2px}
+.omrade{display:flex;align-items:center;gap:11px;width:100%;margin-bottom:7px;
+  background:var(--night3);border:2px solid transparent;border-radius:13px;color:var(--parchment);
+  font:inherit;padding:10px 12px;text-align:left;cursor:pointer}
+.omrade:active{border-color:var(--tekhelet)}
+.omrade .nr{flex:0 0 28px;height:28px;border-radius:8px;background:rgba(255,255,255,.08);
+  display:grid;place-items:center;font-family:var(--display);font-weight:700;color:var(--tekhelet)}
+.omrade .txt{flex:1;min-width:0}
+.omrade .txt b{display:block;font-size:.98rem;line-height:1.3;font-weight:700}
+.omrade .txt small{color:var(--muted);font-size:.8rem}
+.omrade .stj{flex:0 0 auto;letter-spacing:1px}
+.omrade .stj i{font-style:normal;color:rgba(255,255,255,.16)}
+.omrade .stj i.pa{color:var(--flame)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+</style>
+
+<style>.hem-lank{font:600 14px/1.2 system-ui,sans-serif;color:#edf3f9;background:#243148;border:1px solid #3b4a66;border-radius:8px;padding:10px 9px;text-decoration:none;white-space:nowrap;flex-shrink:0}.hem-lank:focus-visible{outline:3px solid #b9ef76;outline-offset:2px}@media(max-width:480px){.hem-lank span{display:none}.hem-lank{font-size:24px;padding:4px 10px}}</style>
+<link rel="stylesheet" href="../design.css">
+</head>
+<body>
+<div id="skarm">
+  <div id="hud"><a href="../index.html" class="hem-lank" aria-label="Till startsidan">‹ <span>Hem</span></a>
+    <button class="miniknapp" id="menyknapp" title="Meny">☰</button>
+    <div class="plats"><small id="hudsmall">Kartan</small><span id="hudnamn">Konsumentkollen</span></div>
+    <div class="raknare" id="rullor"></div>
+    <div class="hjartan" id="hjartan"></div>
+    <button class="miniknapp" id="ljudknapp" aria-pressed="true" title="Uppläsning">🔊</button>
+  </div>
+  <div id="duk-lada">
+    <canvas id="duk" width="400" height="288"></canvas>
+    <div id="overlagg" class="overlagg dold"></div>
+  </div>
+  <div id="kontroller">
+    <div class="pad">
+      <button class="styr gomd"></button>
+      <button class="styr" id="upp" data-t="upp">▲</button>
+      <button class="styr gomd"></button>
+      <button class="styr" id="vanster" data-t="vanster">◀</button>
+      <button class="styr" id="ner" data-t="ner">▼</button>
+      <button class="styr" id="hoger" data-t="hoger">▶</button>
+    </div>
+    <button id="hopp">HOPP</button>
+  </div>
+</div>
+
+<script>
+/* =====  BYT UT: banor och frågor (Konsumentkollen, konsumentkunskap åk 9)  =====
+   Källa: FAKTA.md i samma mapp (Konsumentverket, Livsmedelsverket, Naturvårdsverket m.fl.).
+   Rätt svar står alltid först – motorn blandar. Alternativen är ungefär lika långa,
+   så att längden inte avslöjar svaret (kolla-konsumentkollen.mjs räknar efter).
+   9 banor: 1–8 områdena, 9 provet (allt blandat). Provets egna frågor blandas med de andra banornas.
+   Inga namn på lärare, elever, skola eller ort – spelet publiceras anonymt. */
+
+const VARLDAR=[
+{id:1,namn:'Klädbutiken',under:'Medveten konsument',tema:'arbete',del:'Konsument i vardagen',kap:'Medveten konsument',portar:3,langd:56,svar:3,
+ fragor:[
+  ['Vad gör en medveten konsument?',['Tänker efter innan den köper','Väljer varan med lägst pris','Köper det som är mest populärt'],'Den frågar sig om varan behövs. Och hur köpet påverkar hälsa, ekonomi och miljö.'],
+  ['Ungefär hur mycket växthusgaser ger en svensks konsumtion per år?',['Cirka 7,6 ton','Cirka 7,6 kilo','Cirka 76 ton'],'Det är per person och år. Utsläpp i andra länder räknas också med.'],
+  ['Hur stor del av konsumtionens utsläpp kommer från hushållen?',['Cirka 60 procent','Cirka 6 procent','Nästan 100 procent'],'Ungefär 60 procent kommer från det vi i hushållen köper och gör.'],
+  ['Vad är bäst för miljön enligt avfallstrappan?',['Att inte skapa avfall alls','Att återvinna förpackningen','Att elda upp soporna'],'Bäst är att inte skapa avfall, till exempel genom att laga. Sedan kommer återanvända och återvinna.'],
+  ['Vad minskar utsläppen från din konsumtion?',['Att äta mindre kött','Att köpa fler saker på rea','Att byta mobil varje år'],'Mindre kött, färre flygresor och klimatsmarta resor minskar utsläppen.'],
+  ['Varför är det svårt att handla hållbart?',['Priset, vanor och normer styr oss','Det finns inga hållbara varor att köpa','Hållbara varor går sönder fortare'],'Vanliga hinder är pris, utbud, vanor, normer och för lite kunskap. Normer är hur andra gör.'],
+  ['Kostar ett miljöval alltid mer?',['Nej, ibland sparar det pengar','Ja, miljövänligt är alltid dyrare','Ja, det är därför få väljer det'],'Att laga, låna, köpa begagnat eller äta vegetariskt kan vara billigare.'],
+  ['Tröjan har fått ett litet hål. Vad är bäst för miljön och plånboken?',['Laga hålet och använda den igen','Slänga den och köpa en ny likadan','Köpa en ny tröja när det är rea'],'Att laga i stället för att köpa nytt sparar både pengar och resurser.'],
+  ['Vad är skillnaden mellan konsumentinformation och reklam?',['Informationen ska vara saklig och korrekt','Reklamen är alltid mer saklig och korrekt','Det är två ord för samma sak'],'Konsumentinformation ger fakta och ska vara opartisk. Reklam vill få dig att köpa.'],
+  ['Vilket är konsumentinformation?',['Näringsvärdet som står på paketet','En glad låt i en tv-reklam','En kändis som visar en vara'],'Konsumentinformation är fakta, som näringsinnehåll, mått eller öppettider.'],
+  ['Tröjan kallas "miljövänlig". Vad gäller?',['Företaget måste kunna bevisa det','Företaget får skriva det helt fritt','Det räcker med en förklaring ett klick bort'],'Ett miljöpåstående får inte lura dig. Ett allmänt miljöord ska förklaras nära ordet.'],
+  ['Vad gör Konsumentverket för dig?',['Ger gratis råd om dina rättigheter','Löser tvisten med företaget åt dig','Ringer företaget och klagar åt dig'],'Konsumentverket vägleder gratis. De löser inte din tvist åt dig.'],
+  ['Du köper en begagnad jacka i en second hand-butik. Vad gäller?',['Samma som för en ny vara','Du har inga rättigheter alls','Reklamationsrätten gäller 1 år'],'Köper du begagnat av ett företag gäller samma lag som för nya varor. Men en begagnad vara får vara mer sliten.'],
+  ['Vem kan ta företag till domstol för konsumenternas skull?',['Konsumentombudsmannen, KO','Kommunens konsumentvägledare','Allmänna reklamationsnämnden'],'Konsumentverkets chef är också Konsumentombudsman, KO.']
+ ]},
+{id:2,namn:'Reklampelaren',under:'Reklam och påverkan',tema:'reklam',del:'Konsument i vardagen',kap:'Reklam och påverkan',portar:4,langd:60,svar:3,
+ fragor:[
+  ['Vad är reklamens syfte?',['Att få oss att köpa något','Att ge oss opartisk fakta','Att skydda oss som konsumenter'],'Reklam vill sälja. Därför ska du vara kritisk.'],
+  ['Vad är produktplacering?',['En vara som syns i en film eller serie','En vara som står längst fram i butiken','En reklamfilm före programmet'],'Det är tillåtet, men inte i program för barn under 12 år.'],
+  ['När får något kallas "gratis" i reklam?',['När bara frakten kostar','Vid en liten avgift','När priset är lägre än vanligt'],'Du ska inte behöva betala något mer än det som inte går att undvika, som frakt.'],
+  ['Varför använder reklam kändisar, musik och djur?',['För att väcka känslor hos oss som tittar','För att visa fakta om varan','För att varan ska bli billigare'],'Kändisar, musik och djur är knep. De ska väcka en känsla hos dig.'],
+  ['Vad är en lockvara?',['Billig vara som får in kunder','En vara som bara finns i reklamen','En vara som snart tar slut'],'Till exempel billiga jordgubbar som lockar in kunder i butiken.'],
+  ['En klocka på sajten säger "Bara 5 minuter kvar!". Vad är det?',['Ett knep för att stressa dig','En regel som butiken måste följa','Ett löfte om lägre pris sen'],'Klockan kan börja om när du laddar om sidan. Sådana knep kallas dark patterns.'],
+  ['Vad säger lagen om reklam?',['Den ska synas som reklam','Den får säga vad som helst','Den får inte visa kändisar'],'Det ska också synas vilket företag som står bakom.'],
+  ['Måste det som sägs i reklam vara sant?',['Ja, och företaget ska kunna bevisa det','Nej, reklam får överdriva hur mycket som helst','Ja, men bevis behövs inte'],'Marknadsföringslagen förbjuder reklam som lurar dig.'],
+  ['Vad får inte reklam till dig under 18 år innehålla?',['Uppmaningar som "köp nu!"','Bilder på varan','Information om var varan finns'],'Reklam till unga får inte säga "köp nu!" eller "missa inte chansen!".'],
+  ['En influencer får en gratis tröja för att visa den. Är det reklam?',['Ja, en gratis vara räknas som betalt','Nej, influencern fick inga pengar','Nej, inte om hen gillar tröjan på riktigt'],'Betalt kan vara pengar eller förmåner, till exempel gratis varor.'],
+  ['Hur ska ett reklaminlägg i sociala medier märkas?',['Tydligt med ordet "reklam"','Med en liten text längst ner','Det behöver inte märkas alls'],'Man ska se att det är reklam vid en snabb blick. Det räcker inte om man måste scrolla.'],
+  ['Vem har huvudansvaret för ett reklaminlägg?',['Företaget som betalade','Bara influencern som syns','Appen där inlägget visas'],'Företaget har huvudansvaret. Influencern kan också ha ansvar.'],
+  ['Varför skapades Kanelbullens dag?',['För att sälja mjöl och jäst','Det är en gammal folktradition','För att hylla en känd bagare'],'Den skapades 1999 av företag som gör bakingredienser. De ville att fler skulle baka och köpa mjöl, jäst och margarin.'],
+  ['Det är rea. Vilket pris ska butiken jämföra med?',['Lägsta priset de senaste 30 dagarna','Det högsta pris varan någonsin haft','Priset som tillverkaren föreslår'],'Så ser du om rean är på riktigt. I en granskning bröt 4 av 10 nätbutiker mot reglerna.']
+ ]},
+{id:3,namn:'Mobilbutiken',under:'Dina rättigheter i butik',tema:'medier',del:'Dina rättigheter',kap:'Rättigheter i butik',portar:4,langd:62,svar:3,
+ fragor:[
+  ['Vad betyder att reklamera?',['Att klaga på ett fel i en vara','Att ångra ett köp','Att göra reklam för en vara'],'Du reklamerar till företaget som sålde varan.'],
+  ['Hur länge gäller reklamationsrätten i Sverige?',['3 år','1 år','2 år','6 månader'],'I Sverige gäller den i 3 år. Inom EU gäller minst 2 år.'],
+  ['Mobilen slutar fungera efter 8 månader. Vad gör du?',['Klagar hos butiken som sålde den','Kontaktar tillverkaren i ett annat land','Inget, det har gått för lång tid'],'Du reklamerar till företaget som sålde varan. 8 månader är långt inom 3 år.'],
+  ['Mobilen slutar fungera efter 8 månader. Butiken säger att du har haft sönder den. Vem måste bevisa det?',['Butiken','Du som köpte den','Tillverkaren'],'Fel som visar sig inom 2 år räknas som fel från början. Då måste butiken bevisa att du har orsakat felet.'],
+  ['Hur snabbt ska du klaga när du upptäckt ett fel?',['Inom 2 månader är alltid i tid','Inom 2 dagar, annars är det för sent','Det spelar ingen roll när'],'Klaga så snart du kan. Inom 2 månader är alltid i tid.'],
+  ['Du tappar mobilen och skärmen spricker. Kan du reklamera?',['Nej, du har själv orsakat skadan','Ja, inom 3 år kan du alltid det','Ja, om du har kvar kartongen'],'Skador du själv orsakat, fel användning och vanligt slitage är inte fel i varan.'],
+  ['Vad ska butiken göra först när du reklamerar?',['Laga eller byta varan gratis','Ge pengarna tillbaka','Ge dig ett presentkort'],'Först laga eller byta. Går inte det: prisavdrag eller häva köpet, alltså lämna varan och få pengarna.'],
+  ['Du köper en cykel av en privatperson. Gäller konsumentköplagen?',['Nej, bara vid köp av företag','Ja, i 3 år precis som i en butik','Ja, men bara i 14 dagar'],'Då gäller det ni har kommit överens om. Du har ingen ångerrätt, men kan klaga om cykeln inte är som säljaren sa.'],
+  ['Butiken skriver "2 års reklamationsrätt". Vad gäller?',['3 år ändå, lagen går före','2 år, eftersom butiken bestämmer det','1 år, det är standard'],'Lagen är tvingande. Butiken kan inte ge dig sämre villkor.'],
+  ['Vad är en garanti?',['Ett frivilligt extra löfte','Samma sak som reklamationsrätten','En rättighet som alltid står i lagen'],'Företaget bestämmer villkoren. Reklamationsrätten gäller ändå.'],
+  ['Vad är öppet köp?',['Du får lämna tillbaka varan och få pengarna','Du får byta mot en annan vara eller ett tillgodokvitto','En rätt som alla butiker måste ge'],'Öppet köp är frivilligt. Det finns ingen lag om det.'],
+  ['Finns det ångerrätt när du köper något i en vanlig butik?',['Nej, inte enligt lag','Ja, i 14 dagar','Ja, om du har kvittot'],'Lagen ger ångerrätt vid köp på distans, som på nätet. I butiken gäller öppet köp bara om butiken erbjuder det.'],
+  ['Vad är ARN?',['Myndighet som prövar tvister','En domstol som dömer företag','En del av Konsumentverket'],'ARN är Allmänna reklamationsnämnden. Besluten är råd som de flesta företag följer.'],
+  ['Vilket är en skyldighet du har som konsument?',['Att klaga i tid på ett fel','Att spara kvittot och kartongen','Att köpa en förlängd garanti'],'Du ska också betala och följa skötselråden. Kvitto och kartong är inget krav.']
+ ]},
+{id:4,namn:'Nätbutiken',under:'Handla på nätet',tema:'smaland',del:'Dina rättigheter',kap:'Handla på nätet',portar:5,langd:66,svar:3,
+ fragor:[
+  ['Hur lång ångerrätt har du när du köper av ett företag på nätet?',['14 dagar','30 dagar','7 dagar'],'Ångerrätt gäller köp på distans och utanför butiken, till exempel hemförsäljning.'],
+  ['Tröjan från nätet kommer den 3 maj. Vilken dag är dag 1 av dina 14 ångerdagar?',['4 maj, dagen efter','3 maj, samma dag','Dagen du beställde'],'Du räknar från dagen efter att du fick varan. Dag 14 blir då den 17 maj.'],
+  ['Hur ångrar du ett köp på nätet?',['Du meddelar företaget, till exempel med mejl','Du låter bli att hämta paketet','Du skickar tillbaka varan utan att säga något'],'Använd mejl, brev, företagets ångerfunktion eller Konsumentverkets ångerblankett.'],
+  ['Du har ångrat dig. När måste du ha skickat tillbaka varan?',['14 dagar efter att du meddelat','14 dagar efter att du beställde','30 dagar efter att varan kom'],'Du har 14 dagar på dig från att du sa att du ångrar dig.'],
+  ['Vem betalar returfrakten när du ångrar dig?',['Du, om villkoren sa det','Alltid företaget, enligt lagen','Posten, som körde paketet'],'Du betalar bara om det stod i villkoren när du köpte.'],
+  ['Du ångrar ett köp. Hur får du pengarna tillbaka?',['Allt, på samma sätt som du betalade','Bara som ett tillgodokvitto i nätbutiken','Hela summan minus en avgift för att ångra'],'Du ska få hela beloppet inom 14 dagar. Ett tillgodokvitto behöver du inte nöja dig med.'],
+  ['Vilket köp på nätet har INTE ångerrätt?',['Biljett till en resa','Hörlurar från en nätbutik','En jacka i fel färg'],'Undantag är bland annat resor, hotell, mat som snabbt blir dålig och varor gjorda just åt dig.'],
+  ['En privatperson säljer en mobil i "befintligt skick" och tiger om ett stort fel. Kan du klaga?',['Ja, säljaren fick inte tiga om felet','Nej, "befintligt skick" stoppar allt','Bara om du köpte i en butik'],'Säljaren måste berätta om allvarliga fel som hen känner till. Det gäller även vid "befintligt skick".'],
+  ['Ingen leveranstid är bestämd. När räknas varan som sen?',['Efter 30 dagar','Efter 14 dagar','Efter 1 år'],'Då kan du ge företaget en sista frist. Kommer varan inte då får du avbryta köpet.'],
+  ['Paketet är trasigt när det kommer. Vem klagar du till?',['Företaget som sålde varan','Fraktbolaget som körde den','Konsumentverket'],'Företaget ansvarar för varan tills du har tagit emot den.'],
+  ['Du köper från ett företag utanför EU. Vad kan hända?',['Du får betala moms och ofta tull','Du får samma skydd som i Sverige','Du slipper alltid moms'],'Skyddet är sämre. Varan kan också vara förfalskad eller förbjuden här.'],
+  ['Nätbutiken ser svensk ut, men varan skickas direkt från en leverantör utanför EU. Vad kallas det?',['Dropshipping','Distansavtal','Hemförsäljning'],'Det kan ge lång leveranstid, svåra returer och extra kostnader.'],
+  ['När har du ångerrätt vid hemförsäljning?',['När priset är över 400 kronor','När priset är under 400 kronor','Alltid, oavsett pris'],'Under 400 kronor har du ingen ångerrätt vid hemförsäljning.'],
+  ['Tröjan från nätet har kommit. Hur mycket får du prova den?',['Som i en butik','Hur mycket du vill i 14 dagar','Inte alls, då försvinner ångerrätten'],'Du får undersöka den ungefär som i en butik. Gör du mer kan företaget dra av pengar när du ångrar dig.']
+ ]},
+{id:5,namn:'Torget',under:'Märkningar',tema:'ideologi',del:'Maten',kap:'Märkningar',portar:5,langd:66,svar:3,
+ fragor:[
+  ['Vad visar Nyckelhålet?',['Ett nyttigare val i sin matgrupp','Att maten är ekologisk','Att maten kommer från Sverige'],'Flingor jämförs med flingor och korv med korv.'],
+  ['Vad betyder Nyckelhålet för socker och salt?',['Mindre socker och salt','Mer socker men mindre salt','Ingen skillnad mot andra'],'Det betyder också mer fullkorn och fibrer och nyttigare fett.'],
+  ['Vem står bakom Nyckelhålet?',['Livsmedelsverket','Ett stort mejeriföretag','Fairtrade'],'Det är en svensk märkning från Livsmedelsverket. Den är gratis för företag vars varor klarar reglerna.'],
+  ['Hur stor del ska vara ekologisk för att varan ska märkas ekologisk?',['Minst 95 procent','Minst 50 procent','Exakt 100 procent'],'Minst 95 procent av ingredienserna ska vara ekologiska.'],
+  ['Vad betyder ekologiskt?',['Ingen konstgjord gödning','Att maten alltid är nyttigare','Att maten är odlad nära dig'],'Ekologiskt betyder också inga kemiska bekämpningsmedel och ingen GMO.'],
+  ['Vad är skillnaden mellan KRAV och EU-lövet?',['KRAV har strängare egna regler','EU-lövet har strängare egna regler','De är exakt likadana'],'KRAV följer EU:s ekologiska regler och har fler egna krav, till exempel för djuren.'],
+  ['Vad visar den blå MSC-märkningen?',['Vildfångad fisk, hållbart fiske','Odlad fisk från en hållbar odling','Fisk med låg klimatpåverkan'],'Fisket har granskats och godkänts som hållbart.'],
+  ['Vilken märkning gäller odlad fisk och skaldjur?',['ASC','MSC','Nyckelhålet'],'ASC granskar miljö och sociala förhållanden i fiskodlingen.'],
+  ['Vad är Fairtrade?',['Bättre villkor för odlarna','En märkning för ekologisk mat','Ett märke för svensk mat'],'Fairtrade finns till exempel på kaffe, kakao och bananer.'],
+  ['Vad är Fairtrade-premien?',['En gemensam pott för odlarna','En bonus till butikens personal','En rabatt som kunden får'],'Odlarna bestämmer tillsammans vad pengarna ska användas till, till exempel vård eller utbildning.'],
+  ['Vad ställer Svanen krav på?',['Varans hela livscykel','Att varan är tillverkad i Norden','Att odlarna får ett rimligt pris'],'Livscykeln är allt från råvara och tillverkning till användning och avfall.'],
+  ['Importerat kött mals i en svensk butik. Får det kallas svensk köttfärs?',['Nej, djuret är inte svenskt','Ja, för det mals i Sverige','Ja, om förpackningen är svensk'],'Svenskt kött kommer från djur som är födda, uppfödda och slaktade i Sverige.'],
+  ['Vem äger märket Från Sverige?',['Branschen, alltså företagen','Livsmedelsverket, en myndighet','EU-kommissionen'],'Från Sverige är ett frivilligt märke som ägs av branschen.'],
+  ['Kött märkt Från Sverige. Vad gäller för djuren?',['Födda, uppfödda och slaktade i Sverige','Slaktade och förpackade i Sverige','Uppfödda i Sverige, men kan vara födda utomlands'],'Kött, ägg, mjölk och fisk med märket ska vara helt svenska.']
+ ]},
+{id:6,namn:'Mataffären',under:'Butiksuppdraget',tema:'affar',del:'Maten',kap:'Jämförpris, ingredienser, datum',portar:5,langd:68,svar:3,
+ fragor:[
+  ['Vad visar jämförpriset?',['Priset per kilo eller liter','Priset för hela förpackningen','Priset du får efter rabatt'],'Med jämförpriset kan du jämföra olika storlekar och märken.'],
+  ['Ett paket på 500 g kostar 40 kr. Vad är jämförpriset?',['80 kr/kg','40 kr/kg','20 kr/kg'],'500 g är 0,5 kg. 40 delat med 0,5 blir 80 kr per kilo.'],
+  ['Vad måste alltid stå på förpackad mat?',['Ingredienser och datum','Ett recept med maten','Om maten är ekologisk'],'Även allergener, vikt, näringsvärde och vem som gjort varan.'],
+  ['Påse A: 1 kg för 20 kr. Påse B: 500 g för 12 kr. Vilken är billigast per kilo?',['Påse A','Påse B','De kostar lika mycket'],'Påse A kostar 20 kr per kilo. Påse B kostar 24 kr per kilo.'],
+  ['Erbjudande 3 för 2. Ett paket kostar 10 kr. Vad betalar du för tre?',['20 kr','30 kr','15 kr'],'Du betalar för två. Men det är bara ett fynd om du använder alla tre.'],
+  ['I vilken ordning står ingredienserna?',['Det som finns mest av står först','I bokstavsordning','Det som finns minst av står först'],'Ordningen följer vikten när varan tillverkades.'],
+  ['Fiskpinnar: "Alaska pollock 65 %" står först. Vad betyder det?',['Fisken är den största ingrediensen','Fisken är den ingrediens det finns minst av','Paketet innehåller bara fisk'],'Det som väger mest står först. Procenten står eftersom fisken lyfts fram.'],
+  ['Hur märks allergener i ingrediensförteckningen?',['Tydligt, till exempel med fet stil','Bara under "kan innehålla spår av"','De behöver inte märkas alls'],'14 ämnen ska alltid märkas tydligt, till exempel mjölk, ägg och nötter.'],
+  ['Vad betyder "Kan innehålla spår av nötter"?',['En frivillig varning från företaget','En lag med exakta gränsvärden för nötter','Att nötter är huvudingrediensen'],'Varningen är frivillig. Det finns inga gränsvärden.'],
+  ['Vad betyder bäst före?',['Maten har bra kvalitet till dess','Maten är farlig efter datumet','Maten måste slängas efter datumet'],'Maten är ofta bra efter datumet. Titta, lukta och smaka.'],
+  ['Vad betyder sista förbrukningsdag?',['Maten är inte säker efter datumet','Maten smakar lite sämre efter datumet','Datumet är bara ett tips'],'Det står på mat som snabbt kan bli farlig. Ät, laga eller frys in senast den dagen.'],
+  ['Vilken mat har alltid sista förbrukningsdag?',['Färsk kyckling','Mjölk i kartong','Ägg från butiken'],'Färskt fågelkött har alltid sista förbrukningsdag. Mjölk och ägg har bäst före.'],
+  ['Får en butik sälja mat efter bäst före-dagen?',['Ja, om maten är säker','Nej, det är förbjudet','Bara om priset sänks'],'Butiken ansvarar för att maten är säker. Mat efter sista förbrukningsdag får varken säljas eller ges bort.'],
+  ['Hur kallt ska det vara i kylskåpet?',['+4 °C','+10 °C','−18 °C'],'Över 8–10 °C kan bakterier börja växa. I frysen ska det vara −18 °C.']
+ ]},
+{id:7,namn:'Hemmet',under:'Miljövänlig mat och H.E.M',tema:'kok',del:'Maten',kap:'Miljövänlig mat och H.E.M',portar:5,langd:70,svar:3,
+ fragor:[
+  ['Vad står H.E.M för?',['Hälsa, ekonomi och miljö','Hem, energi och mat','Hälsa, energi och motion'],'Ett bra H.E.M-svar tar upp alla tre. Och säger varför.'],
+  ['Vilket kött har störst klimatpåverkan per kilo?',['Nötkött','Griskött','Kyckling'],'Sedan kommer lamm och gris. Kyckling har minst.'],
+  ['Varför ger kor och får så stor klimatpåverkan?',['De bildar metan i magen','Köttet fraktas långt med flyg','De äter så mycket foder'],'Kor och får är idisslare. De bildar växthusgasen metan när de smälter maten.'],
+  ['Hur skiljer sig nötfärs och kycklingfärs för klimatet?',['Nötfärs ger många gånger mer utsläpp','Kycklingfärs ger dubbelt så mycket utsläpp','Ingen skillnad, båda är kött'],'Per kilo kött: nöt ger 23–39 kilo utsläpp, kyckling bara 2–3 kilo.'],
+  ['Hushållsfärs är ofta nöt och gris. Hur är den för klimatet?',['Mellan nöt och gris','Bättre än kyckling','Samma som ren nötfärs'],'Nöt ger mest utsläpp och gris mindre. En blandning hamnar mittemellan.'],
+  ['Hur ofta rekommenderas rött kött som mest?',['2–3 måltider i veckan','1 måltid i månaden','5–6 måltider i veckan'],'Det blir ungefär 350 gram lagat kött i veckan.'],
+  ['Vilket tillbehör har störst klimatpåverkan?',['Ris','Potatis','Pasta'],'Risfält under vatten släpper ut metan. Potatis och pasta påverkar klimatet lite.'],
+  ['Varför är torkade bönor och linser bra för klimatet?',['Liten påverkan, håller länge','De odlas oftast nära där du bor','De är oftast ekologiskt odlade'],'Torkade baljväxter har minst klimatpåverkan. De kan förvaras länge i rumstemperatur.'],
+  ['Är närproducerat alltid bäst för miljön?',['Nej, odlingen spelar oftast mer roll','Ja, transporten är alltid det viktigaste','Ja, ordet betyder att varan är miljömärkt'],'Hur maten odlas påverkar oftast mer än transporten. Men flygfrakt ger stora utsläpp.'],
+  ['Vad är matsvinn?',['Mat som hade kunnat ätas men slängs','Skal, ben och kaffesump','Mat som säljs billigt i butiken'],'Skal och ben är livsmedelsavfall, men inte matsvinn.'],
+  ['Vem slänger mest mat av butiker, restauranger och hushåll?',['Hushållen','Restaurangerna','Butikerna'],'Hushållen står för 72 procent av maten som slängs från butik till hem.'],
+  ['Ungefär vad kostar matsvinnet en familj på fyra per år?',['5 000–6 000 kronor','500–600 kronor','50 000–60 000 kronor'],'Att slänga mindre mat sparar pengar och är bra för miljön.'],
+  ['Vilket tips minskar matsvinnet?',['Planera innan du går och handlar','Köpa stora förpackningar på rea','Slänga maten när bäst före har gått'],'Kolla vad du har hemma först. Köp inte mer än du hinner äta.'],
+  ['Hur gör du köttfärssåsen bättre för H.E.M?',['Blanda i linser, ta mindre färs','Ta mer nötfärs och mindre grönt','Servera den med ris i stället'],'Bönor och linser ger protein och sänker klimatpåverkan. Ofta blir det billigare också.']
+ ]},
+{id:8,namn:'Hamnen',under:'Fiskpinnens resa',tema:'global',del:'Maten',kap:'Livsmedelskedjan',portar:5,langd:70,svar:3,
+ fragor:[
+  ['Vad är livsmedelskedjan?',['Stegen från jord till bord','En kedja av matbutiker','Listan med ingredienser'],'För fisk börjar kedjan med fisket eller fiskodlingen. Den slutar på ditt bord.'],
+  ['Vad kallas det första ledet i livsmedelskedjan?',['Primärproduktion','Livsmedelsindustri','Partihandel'],'Primärproduktion är jordbruk, fiske och odling.'],
+  ['Vilken fisk används ofta i fiskpinnar?',['Vit fisk, som torsk','Lax eller regnbåge','Ål eller hälleflundra'],'Ofta Alaska pollock eller torsk.'],
+  ['Ungefär hur stor del av en fiskpinne är fisk?',['Ungefär hälften','Nästan 100 procent','Bara 10 procent'],'I ett test var 49–67 procent fisk. Resten är panering.'],
+  ['Vad stämmer om handeln med fisk?',['Fisk fraktas mellan kontinenter','Fisk säljs bara i landet där den fångas','Fisk i svenska butiker är svensk'],'Fisk har en av världens mest globala marknader. Den fraktas med båt, flyg och lastbil.'],
+  ['Torsk skickades till Kina för att rensas och sedan tillbaka. Varför?',['Det var billigare','Fisken blev godare','Det gav mindre utsläpp'],'Resan tog 80 dagar och gav mycket större utsläpp. Exemplet kommer från ett reportage 2015.'],
+  ['Vad ger mest utsläpp på fiskens väg till butiken?',['Bränslet i fiskebåtarna','Lastbilen till butiken','Förpackningen av papp'],'Transporten från hamnen till fabrik och butik är en mindre del.'],
+  ['Vad är viktigast för miljön när du väljer fisk?',['Att beståndet inte är hotat','Att den är fångad med trål','Att den är fångad nära Sverige'],'Bestånd är hur mycket fisk av en art som finns i ett område. Svaga bestånd ger mer utsläpp per kilo.'],
+  ['Varför spelar fångstområdet roll?',['Bestånden mår olika bra i olika hav','All fisk är lika hotad överallt','Det visar hur fisken kommer att smaka'],'Torsk kan till exempel vara hotad på ett ställe men stabil på ett annat.'],
+  ['Vilket sätt att fiska skadar havet mest?',['Bottentrålning','Fiske med krok','Fiske med burar'],'Trålen drar mer bränsle och kan skada botten. Krok, nät och burar är skonsammare.'],
+  ['Måste fiskpinnar visa fångstområdet?',['Nej, men många visar det ändå','Ja, det måste alltid stå','Ja, eftersom fisken är fryst'],'Panerade fiskfiléer omfattas inte av reglerna om fångstområde.'],
+  ['Vad betyder MSC-märket på fiskpinnar?',['Fisken går att spåra hela vägen','Fisken är odlad i en kasse i havet','Fisken har låg klimatpåverkan'],'MSC-fisk hålls åtskild och kan spåras från fisket till hyllan. MSC granskar inte klimatet.'],
+  ['Vilken fisk bör du undvika helt?',['Ål','Torsk','Alaska pollock'],'Ål, kungsfisk, marulk och hälleflundra bör undvikas.'],
+  ['Var i livsmedelskedjan blir det matsvinn?',['I alla led','Mest i butikerna','Mest i fabrikerna'],'Svinn finns från fisket till hemmet. Mest slängs i hushållen.']
+ ]},
+{id:9,namn:'Skolan',under:'Provet – allt blandat',tema:'prov',del:'Provet',kap:'Allt blandat',portar:7,langd:100,svar:3,boss:true,
+ fragor:[
+  ['Vilket är en rättighet enligt lag?',['Ångerrätt vid nätköp','Öppet köp i butiken','Bytesrätt i butiken','Garanti på en ny mobil'],'Ångerrätt och reklamationsrätt står i lagen. Öppet köp, bytesrätt och garanti är frivilliga.'],
+  ['Vad skiljer köp i butik från köp på nätet?',['På nätet har du ångerrätt enligt lag','Reklamationsrätten finns bara i butik','Det finns ingen skillnad alls'],'Reklamationsrätten gäller i båda. I butik finns ingen ångerrätt enligt lag.'],
+  ['Hörlurarna slutar fungera efter ett år. Garantin har gått ut. Kan du klaga?',['Ja, med reklamationsrätten','Nej, garantin har gått ut','Nej, bara med originalkartongen'],'Garantin är ett extra löfte. Reklamationsrätten gäller ändå i 3 år.'],
+  ['Felet visar sig efter 2,5 år. Vem måste visa att felet fanns från början?',['Du som köpte varan','Butiken som sålde den','Ingen, du kan inte klaga'],'Efter 2 år räknas felet inte längre automatiskt som butikens. Då är det du som måste visa det.'],
+  ['Influencern skriver "Mitt bästa tips!" men har fått betalt. Vad saknas?',['Ordet "reklam"','Ett pris på varan','En länk till butiken'],'Det ska synas direkt att inlägget är reklam.'],
+  ['Vad stämmer om reklam till unga?',['Inga "köp nu!" till unga under 18','Tv-reklam får riktas till små barn','Sms-reklam till barn är tillåten'],'Tv-reklam får inte riktas till barn under 12. Direktreklam till barn under 16 är förbjuden.'],
+  ['Vad visar KRAV-märket?',['Ekologiskt plus egna regler','Ett nyttigare val i sin matgrupp','Att maten kommer från Sverige'],'KRAV följer EU:s ekologiska regler och har egna krav, till exempel för djuren.'],
+  ['Ett paket på 400 g kostar 40 kr. Vad är jämförpriset?',['100 kr/kg','400 kr/kg','40 kr/kg'],'400 g är 0,4 kg. 40 delat med 0,4 blir 100 kr per kilo.'],
+  ['Mjölken har passerat bäst före med en dag. Vad gör du?',['Tittar, luktar och smakar','Slänger den direkt','Lämnar tillbaka den till butiken'],'Bäst före handlar om kvalitet. Maten är ofta bra efter datumet.'],
+  ['Vilken middag är bäst för klimatet?',['Bönor och pasta','Nötfärs och ris','Lammkött och ris'],'Baljväxter och pasta har liten klimatpåverkan. Nöt, lamm och ris påverkar mer.'],
+  ['Vad säger ordet "närodlat" om miljön?',['Inget säkert om miljön','Att varan är miljömärkt','Att transporten var kort'],'Närodlat har ingen bestämd betydelse och inga miljökrav. Hur maten odlas spelar ofta större roll.'],
+  ['Butiken säger nej till din reklamation. Vem kan pröva tvisten?',['ARN','Konsumentverket','Livsmedelsverket'],'ARN är Allmänna reklamationsnämnden. Det kostar 150 kronor att anmäla.'],
+  ['Vilken märkning handlar om hälsa?',['Nyckelhålet','Svanen','Från Sverige'],'Nyckelhålet visar ett nyttigare val. Svanen gäller miljö och Från Sverige gäller ursprung.'],
+  ['Ett bra H.E.M-svar …',['tar upp alla tre och förklarar','räknar upp hälsa, ekonomi, miljö','förklarar en av delarna noga'],'Hälsa, ekonomi och miljö – och säg alltid varför.'],
+  ['En säljare ringer upp dig och säljer en tidning. När gäller köpet?',['När du godkänt det skriftligt','Direkt när du säger ja i telefon','När säljaren har lagt på'],'Du måste godkänna köpet, till exempel med sms, mejl eller BankID.'],
+  ['Vilket ord gör ett H.E.M-svar utvecklat?',['eftersom','också','dessutom'],'Med "eftersom" förklarar du varför.'],
+  ['Du bakar bullar i stället för att köpa. Vilket skäl är ekonomi?',['Råvarorna kan bli billigare','Du väljer själv mängden socker','Det blir färre förpackningar'],'Socker är hälsa och förpackningar är miljö. Jämför priset på råvarorna med det färdiga.'],
+  ['Vilken grönsak har ofta störst klimatpåverkan?',['Färska sockerärtor','Torkade gula ärtor','Svensk vitkål'],'Ömtåliga grönsaker flygs ofta hit. Kål och torkade ärtor har liten klimatpåverkan.']
+ ]}
+];
+
+/* plugglistan: begrepp + kort förklaring */
+const PLUGG=[
+ ['1. Medveten konsument',[
+  ['Medveten konsument','Tänker efter före köpet. Behövs det? Hur påverkas hälsa, ekonomi och miljö?'],
+  ['Konsumtionens utsläpp','Cirka 7,6 ton per person och år. Cirka 60 % kommer från hushållen.'],
+  ['Fyra områden','Transporter, livsmedel, boende och övrigt (t.ex. kläder och nöjen).'],
+  ['Hinder','Pris, utbud, vanor, normer och för lite kunskap.'],
+  ['Bra för miljö och plånbok','Laga, låna, hyra, köp begagnat, köp färre men bättre, ät vegetariskt.'],
+  ['Avfallstrappan','Bäst: skapa mindre avfall. Sedan återanvända, återvinna och göra energi. Sist: soptipp.'],
+  ['Konsumentinformation','Fakta som ska vara saklig och korrekt. Reklam vill sälja.'],
+  ['"Miljövänlig"','Företaget måste kunna bevisa det. Ordet ska förklaras nära ordet.'],
+  ['Konsumentverket','Gratis vägledning om dina rättigheter. Löser inte tvisten åt dig.'],
+  ['Konsumentombudsmannen (KO)','Kan ta företag till domstol för konsumenternas skull.'],
+  ['Begagnat från företag','Samma lag som för en ny vara. Men varan får vara mer sliten.']]],
+ ['2. Reklam och påverkan',[
+  ['Reklamens syfte','Att få oss att köpa.'],
+  ['Målgrupp','Personer med något gemensamt, t.ex. ålder eller intresse.'],
+  ['Slogan','Kort fras som vi ska koppla till märket.'],
+  ['Knep','Kändisar, musik och djur väcker känslor.'],
+  ['Lockvara','Billig vara som lockar in kunder i butiken.'],
+  ['Dark patterns','Webbknep, t.ex. en nedräkningsklocka som stressar dig.'],
+  ['Marknadsföringslagen','Reklam ska synas, vara sann och visa vem som står bakom.'],
+  ['Under 18 år','Inga direkta köpuppmaningar som "köp nu!".'],
+  ['Barn','Ingen direktreklam till barn under 16. Ingen tv-reklam riktad till barn under 12.'],
+  ['Influencer','Betalt (pengar eller gratis varor) = reklam. Märk med ordet "reklam".'],
+  ['Ansvar','Företaget har huvudansvaret. Influencern kan också ha ansvar.'],
+  ['Produktplacering','Tillåten i t.ex. filmer och serier, inte i program för barn under 12.'],
+  ['Rea','Jämför med lägsta priset de senaste 30 dagarna.'],
+  ['"Gratis"','Du ska inte behöva betala något mer än t.ex. frakt.'],
+  ['Kanelbullens dag','Skapad 1999 av företag som gör bakingredienser, för att sälja mer mjöl och jäst.'],
+  ['Temadagar','Black Friday, alla hjärtans dag, halloween: fråga dig vem som tjänar på dagen.']]],
+ ['3. Dina rättigheter i butik',[
+  ['Reklamera','Klaga på ett fel i varan, till företaget som sålde den.'],
+  ['Reklamationsrätt','3 år i Sverige. Minst 2 år i EU.'],
+  ['När klaga?','Inom 2 månader från att du upptäckte felet är alltid i tid.'],
+  ['Felet inom 2 år','Räknas som fel från början. Vill butiken säga nej måste den bevisa att det inte är så.'],
+  ['Felet efter 2 år','Du måste visa att felet fanns från början.'],
+  ['Inte ett fel','Skador du själv orsakat, fel användning, vanligt slitage.'],
+  ['Ordningen','1 laga eller byta. 2 går inte det: prisavdrag eller häva köpet.'],
+  ['Häva köpet','Du lämnar tillbaka varan och får pengarna. Går inte om felet är litet.'],
+  ['Dina skyldigheter','Betala, klaga i tid och följ skötselråden.'],
+  ['Kvitto','Inget krav. Ett kontoutdrag kan räcka.'],
+  ['Tvingande lag','Butiken kan inte ge dig sämre villkor än lagen.'],
+  ['Garanti','Frivilligt extra löfte. Företaget bestämmer villkoren.'],
+  ['Öppet köp','Lämna tillbaka och få pengarna. Frivilligt.'],
+  ['Bytesrätt','Byta eller få tillgodokvitto. Frivilligt.'],
+  ['Ångerrätt i butik','Finns inte enligt lag.'],
+  ['Priset i kassan','Det gäller. Är det högre än på hyllan kan du låta bli att köpa.'],
+  ['ARN','Myndighet som prövar tvister. Kostar 150 kr. Besluten är rekommendationer.'],
+  ['Köp av privatperson','Konsumentköplagen gäller inte. Det ni kommit överens om gäller.'],
+  ['"Befintligt skick"','Säljaren får ändå inte tiga om ett allvarligt fel.']]],
+ ['4. Handla på nätet',[
+  ['Ångerrätt','14 dagar vid köp av företag på distans eller vid hemförsäljning.'],
+  ['Fristen börjar','Dag 1 är dagen efter att du fick varan.'],
+  ['Ångra','Mejl, brev, ångerfunktion eller Konsumentverkets ångerblankett.'],
+  ['Skicka tillbaka','Inom 14 dagar från att du sa att du ångrar dig.'],
+  ['Pengarna','Hela beloppet inom 14 dagar, på samma sätt som du betalade.'],
+  ['Returfrakt','Du betalar bara om det stod i villkoren.'],
+  ['Ingen ångerrätt','Resor, hotell, mat som blir dålig, varor gjorda åt dig.'],
+  ['Hemförsäljning','Ångerrätt bara om priset är över 400 kr.'],
+  ['Privatperson','Ingen ångerrätt enligt lag.'],
+  ['Sen leverans','Ingen tid bestämd: sen efter 30 dagar. Ge en sista frist, sedan får du avbryta köpet.'],
+  ['Trasigt paket','Klaga till företaget. Det ansvarar tills du fått varan.'],
+  ['Pris på nätet','Totalpris med moms. Extra avgifter ska synas.'],
+  ['Utanför EU','Sämre skydd. Moms och ofta tull. Kan vara förfalskat.'],
+  ['Dropshipping','Varan skickas direkt från en leverantör, ofta utanför EU.'],
+  ['Telefonförsäljning','Köpet gäller först när du godkänt det skriftligt, t.ex. med sms.'],
+  ['Prova varan','Ungefär som i en butik. Mer än så kan ge avdrag.']]],
+ ['5. Märkningar',[
+  ['Nyckelhålet','Hälsa. Nyttigare val i sin grupp: mindre socker och salt, mer fullkorn.'],
+  ['Ekologiskt','Minst 95 % ekologiskt. Ingen konstgjord gödning, inga kemiska bekämpningsmedel, ingen GMO.'],
+  ['EU-lövet','EU:s märke för ekologiskt.'],
+  ['KRAV','Ekologiskt med strängare egna regler, t.ex. för djuren.'],
+  ['MSC','Blå. Vildfångad fisk från hållbart fiske. Kan spåras.'],
+  ['ASC','Odlad fisk och skaldjur.'],
+  ['Fairtrade','Bättre villkor för odlare. Minimipris och premie.'],
+  ['Svanen','Nordiskt miljömärke. Krav på hela livscykeln.'],
+  ['Från Sverige','Branschens märke. Kött: fött, uppfött och slaktat i Sverige.'],
+  ['Svensk köttfärs','Importerat kött som mals här får inte kallas svenskt.']]],
+ ['6. Butiksuppdraget',[
+  ['Jämförpris','Pris per kilo, liter eller styck.'],
+  ['Räkna','Priset delat med vikten i kilo. 40 kr för 500 g = 80 kr/kg.'],
+  ['3 för 2','Du betalar för två. Bara ett fynd om du behöver alla tre.'],
+  ['Ingredienser','Mest först, i fallande ordning efter vikt.'],
+  ['Allergener','14 ämnen. Märks tydligt, t.ex. med fet stil.'],
+  ['"Kan innehålla spår av"','Frivilligt. Inga gränsvärden.'],
+  ['Bäst före','Kvalitet. Ofta bra efter. Titta, lukta, smaka.'],
+  ['Sista förbrukningsdag','Säkerhet. Ät, laga eller frys in senast den dagen.'],
+  ['Färsk kyckling','Har alltid sista förbrukningsdag.'],
+  ['Kyl och frys','Kylen +4 °C, frysen −18 °C.'],
+  ['Förpackad mat','Namn, ingredienser, allergener, vikt, datum, näringsvärde och vem som gjort den.']]],
+ ['7. Miljövänlig mat och H.E.M',[
+  ['H.E.M','Hälsa, ekonomi och miljö. Säg alltid varför.'],
+  ['Nötkött','Störst klimatpåverkan. Kor är idisslare och släpper ut metan.'],
+  ['Per kilo kött','Utsläpp per kilo kött: nöt 23–39 kg, lamm 13–22, gris 5–8, kyckling 2–3.'],
+  ['Hushållsfärs','Ofta nöt och gris. Klimatet: mellan nöt och gris.'],
+  ['Rött kött','Nöt, gris, lamm, vilt. Högst 2–3 måltider i veckan, ca 350 g lagat.'],
+  ['Kyckling','Inte rött kött. Minst klimatpåverkan av köttet.'],
+  ['Ris','Mer klimatpåverkan än potatis och pasta. Metan från risfälten.'],
+  ['Baljväxter','Torkade bönor och linser: minst klimatpåverkan, håller länge.'],
+  ['Närodlat','Ingen bestämd betydelse. Hur maten odlas spelar oftast mer roll.'],
+  ['Matsvinn','Mat som kunde ha ätits. Hushållen slänger mest: 72 % av livsmedelsavfallet från butik till hem.'],
+  ['Slängs mest','Frukt, grönsaker, bröd och matrester.'],
+  ['Vad svinnet kostar','Ungefär 5 000–6 000 kr per år för en familj på fyra.'],
+  ['Mot svinn','Planera, köp lagom, ta vara på rester. Titta, lukta och smaka.'],
+  ['Säsong','Ömtåliga grönsaker flygs ofta hit. Kål, rotfrukter och torkade ärtor påverkar lite.']]],
+ ['8. Fiskpinnens resa',[
+  ['Livsmedelskedjan','Fiske eller odling → industri → partihandel → butik → hushåll.'],
+  ['Primärproduktion','Första ledet: jordbruk, fiske och odling.'],
+  ['Fiskpinnen','Ofta Alaska pollock eller torsk. I ett test var 49–67 % fisk.'],
+  ['Global vara','Fisk fraktas mellan kontinenter med båt, flyg och lastbil.'],
+  ['Fiskets utsläpp','Mest från bränslet i fiskebåtarna.'],
+  ['Bestånd','Hur mycket fisk av en art som finns i ett område. Välj fisk från ett bestånd som inte är hotat.'],
+  ['Fångstområde','Ett bestånd kan vara hotat på ett ställe men inte på ett annat.'],
+  ['Bottentrålning','Drar mer bränsle och kan skada havsbotten.'],
+  ['Undvik','Ål, kungsfisk, marulk och hälleflundra.'],
+  ['Märkning','Panerad fisk måste inte visa fångstområde, men många gör det.'],
+  ['Svinn i kedjan','Det blir svinn i alla led, mest i hushållen.']]]
+];
+
+/* Stödmeningar för förklarande svar (H.E.M) – det som quizet inte kan träna. */
+const RESONEMANG=[
+ ['Så bygger du ett H.E.M-svar',[
+  ['H – hälsa','"Det är bra för hälsan eftersom …"'],
+  ['E – ekonomi','"Det sparar pengar eftersom …"'],
+  ['M – miljö','"Det är bättre för miljön eftersom …"'],
+  ['Utveckla','Säg alltid varför. Ett utvecklat svar tar upp alla tre.']]],
+ ['Ord som gör svaret starkare',[
+  ['Orsak','eftersom · därför att · det beror på'],
+  ['Följd','det leder till · då blir det · risken är att'],
+  ['Jämföra','till skillnad från · medan · mer än · mindre än']]],
+ ['Färdiga förklaringar att låna',[
+  ['Nötfärs eller kyckling?','Nötkött ger många gånger mer klimatpåverkan per kilo än kyckling. Det beror främst på att kor är idisslare som släpper ut metan. Men betande kor kan hålla landskapet öppet.'],
+  ['Är min måltid bra för H.E.M?','Hälsa: grönsaker och lite rött kött. Ekonomi: jag jämförde jämförpris och tog vara på rester. Miljö: baljväxter eller kyckling i stället för nöt, och inget svinn.'],
+  ['Köpa eller baka själv?','Hemma väljer du själv mängden socker, fett och salt. Jämför priset på råvarorna med jämförpriset på det färdiga. Det blir färre förpackningar, men baka inte för mycket så att det blir svinn.'],
+  ['Fiskpinnar och H.E.M','Fisk 2–3 gånger i veckan är bra, men paneringen ger mer fett. Bara ungefär hälften är fisk, så tänk på det när du jämför pris. Välj MSC eller ASC och titta på fångstområdet.'],
+  ['När bryter reklam mot reglerna?','När den inte syns som reklam, lovar något som inte går att bevisa, säger "köp nu!" till unga eller kallar något gratis som inte är det.'],
+  ['Reklamation eller garanti?','Reklamationsrätten står i lagen och gäller i 3 år. Garantin är ett frivilligt extra löfte. Efter 2 år kan garantin vara bättre, eftersom du då själv måste bevisa felet vid en reklamation.']]]
+];
+
+/* personerna man möter */
+const FIGUR={
+ noor:  {bg:'#3A2A45',hud:'#C99A6A',har:'#241E30',frisyr:'langt',mantel:'#7B4FA8',krage:'#F2C94C'},
+ kim:   {bg:'#243158',hud:'#E8C39E',har:'#6A4A2B',glasogon:1,mantel:'#3E6B57',krage:'#F4EFE2'},
+ vigo:  {bg:'#4A2E52',hud:'#EBC7A2',har:'#D8A33B',lugg:1,hatt:'keps',hattfarg:'#FF5FA2',mantel:'#2A2038'},
+ dani:  {bg:'#2E3A4E',hud:'#D9A97E',har:'#2B2136',skagg:'kort',mantel:'#3C86B8',krage:'#F4EFE2'},
+ sam:   {bg:'#2A3A5E',hud:'#E0B183',har:'#4A2F22',frisyr:'knut',hatt:'lurar',mantel:'#5A6B8C'},
+ tove:  {bg:'#2E4A3E',hud:'#E8C39E',har:'#B5652B',frisyr:'langt',hatt:'sjal',hattfarg:'#7FB069',mantel:'#8A6A44'},
+ omar:  {bg:'#3C2E22',hud:'#C99A6A',har:'#241E30',skagg:'kort',mantel:'#E0596F',vast:'#F4EFE2'},
+ theo:  {bg:'#2B3A63',hud:'#EBC7A2',har:'#8A5A2B',lugg:1,mantel:'#F4EFE2',krage:'#E0596F'},
+ ingrid:{bg:'#1F3F72',hud:'#E8C39E',har:'#D8D2C6',frisyr:'knut',hatt:'mossa',hattfarg:'#F2A83B',hattfarg2:'#F4EFE2',mantel:'#F2C94C'},
+ larare:{bg:'#2B3A63',hud:'#C99A6A',har:'#241E30',frisyr:'langt',glasogon:1,mantel:'#6E4E86',krage:'#33488A'}
+};
+const HAVSUPPDRAG=null;   // används inte – ingen bana har v.hav
+
+/* möten före och efter varje bana */
+const SCENER={
+ 1:{in:[['Noor i klädbutiken','noor','Hej och välkommen! Här handlar du kläder. Men vad är en medveten konsument?'],
+        ['Kim, konsumentvägledare','kim','En medveten konsument tänker efter före köpet. Behöver jag det här? Hur påverkas miljön?']],
+   ut:[['Kim, konsumentvägledare','kim','Bra! Nu vet du skillnaden på fakta och påverkan. Gå till reklampelaren – där vill alla påverka dig.']]},
+ 2:{in:[['Vigo, influencer','vigo','Hej! Jag tipsar om saker jag gillar. Ibland får jag betalt för det.'],
+        ['Kim, konsumentvägledare','kim','Reklam finns överallt: på pelare, i appar och i flöden. Lär dig se knepen.']],
+   ut:[['Kim, konsumentvägledare','kim','Snyggt! Nu ser du igenom reklamen. Men vad gör du om mobilen slutar fungera? Gå till mobilbutiken.']]},
+ 3:{in:[['Dani i mobilbutiken','dani','Hej! Har mobilen slutat fungera? Det händer.'],
+        ['Kim, konsumentvägledare','kim','Lugn. Lagen skyddar dig. Lär dig reklamation, garanti och öppet köp.']],
+   ut:[['Kim, konsumentvägledare','kim','Bra jobbat! Nu vet du vad som gäller i butiken. På nätet finns fler regler. Gå till nätbutiken.']]},
+ 4:{in:[['Sam på kundtjänst','sam','Hej och välkommen till nätbutiken! Här handlar du hemifrån, dygnet runt.'],
+        ['Kim, konsumentvägledare','kim','På nätet har du ångerrätt i 14 dagar. Men det finns undantag. Lär dig dem här.']],
+   ut:[['Kim, konsumentvägledare','kim','Bra! Nu kan du handla tryggt på nätet. Nästa stopp är torget – där är maten full av märken.']]},
+ 5:{in:[['Tove på torget','tove','Välkommen till torget! Här säljer vi grönsaker, fisk och kaffe.'],
+        ['Tove på torget','tove','Titta på märkena. Vissa handlar om hälsa, andra om miljö eller om var maten kommer ifrån.']],
+   ut:[['Tove på torget','tove','Nu känner du igen märkena! Gå till mataffären – där väntar ett butiksuppdrag.']]},
+ 6:{in:[['Omar i mataffären','omar','Hej! Dags för butiksuppdraget. Du ska jämföra priser och läsa förpackningar.'],
+        ['Omar i mataffären','omar','Kolla jämförpriset, ingredienserna och datumet. Då gör du ett smart köp.']],
+   ut:[['Omar i mataffären','omar','Toppen! Nu kan du läsa en förpackning. Ta med varorna hem och laga en måltid.']]},
+ 7:{in:[['Theo, storebror','theo','Hej! I kväll lagar vi middag. Men vad ska vi välja?'],
+        ['Theo, storebror','theo','Tänk H.E.M: hälsa, ekonomi och miljö. Ett bra val tar hänsyn till alla tre.']],
+   ut:[['Theo, storebror','theo','Gott och smart! Nu kan du förklara en måltid med H.E.M. Men var kommer fisken ifrån? Gå till hamnen.']]},
+ 8:{in:[['Ingrid, fiskare','ingrid','Välkommen till hamnen! Härifrån börjar fiskpinnens resa.'],
+        ['Ingrid, fiskare','ingrid','Fisken kan resa jorden runt innan den hamnar på din tallrik. Följ med!']],
+   ut:[['Ingrid, fiskare','ingrid','Nu vet du hur fisken kommer från havet till bordet. Gå till skolan – provet väntar.']]},
+ 9:{in:[['HKK-läraren','larare','Välkommen till provet i konsumentkunskap. Allt är blandat.'],
+        ['HKK-läraren','larare','Du har fem liv. Läs plugglistan i menyn först om du vill. Lycka till!']],
+   ut:[['HKK-läraren','larare','Du klarade hela vägen från klädbutiken till hamnen. Nu är du en medveten konsument!']]}
+};
+
+/* uppdrag: allt annat än vanliga frågor (para ihop, rätt ordning, sortera, samtal) */
+const UPPDRAG={
+ 1:[{t:'sortera',vem:'Noor i klädbutiken',bild:'noor',
+     f:'Är det konsumentinformation eller reklam?',
+     hogar:['Information – fakta','Reklam – vill att du köper'],
+     items:[['Näringsvärdet på paketet',0],['Butikens öppettider',0],['Tröjans mått',0],
+            ['En kändis som gillar varan',1],['Glad musik och söta djur',1],['En slogan som fastnar',1]],
+     facit:'Information ger fakta. Reklam vill väcka känslor och få dig att köpa.'},
+    {t:'prata',vem:'Noor i klädbutiken',bild:'noor',
+     steg:[['Den här tröjan är miljövänlig! Det står på lappen.',
+            ['Hur då? Kan ni visa det?','Toppen, då tar jag fem','Då behöver jag inte fundera'],
+            'Ett allmänt miljöord måste förklaras och gå att bevisa.'],
+           ['Vi har rea! Köp tre, betala för två.',
+            ['Behöver jag verkligen tre?','Ja, rea är alltid ett fynd','Jag tar sex, då sparar jag mer'],
+            'Fråga dig först om du behöver varan.'],
+           ['Du behöver en jacka. Vilket val är bäst för miljön?',
+            ['Köpa begagnat eller låna','Köpa tre billiga jackor','Köpa en ny varje säsong'],
+            'Begagnat, låna eller hyra sparar resurser. Och ofta pengar.']]}],
+ 2:[{t:'para',vem:'Vigo, influencer',bild:'vigo',
+     f:'Para ihop reklamknepet med vad det är.',
+     parord:[['Lockvara','Billig vara som lockar in kunder'],['Slogan','Kort fras som hör till märket'],
+             ['Målgrupp','Personer med något gemensamt'],['Dark pattern','Webbknep som stressar dig att köpa']],
+     facit:'Känner du igen knepen blir det lättare att tänka själv.'},
+    {t:'sortera',vem:'Kim, konsumentvägledare',bild:'kim',
+     f:'Följer reklamen reglerna?',
+     hogar:['Okej enligt reglerna','Inte okej'],
+     items:[['Märkt med ordet "reklam"',0],['Det syns vilket företag det är',0],['Påståenden som går att bevisa',0],
+            ['"Köp nu!" till 14-åringar',1],['Dold reklam i ett inlägg',1],['Erbjudande som ser ut som en faktura',1]],
+     facit:'Reklam ska synas, vara sann och visa vem som står bakom. Till unga får man inte säga "köp nu!".'}],
+ 3:[{t:'ordning',vem:'Dani i mobilbutiken',bild:'dani',
+     f:'Mobilen har ett fel. Vad händer? Tryck i rätt ordning.',
+     ord:['Du köper mobilen','Du upptäcker felet','Du klagar till butiken','Butiken lagar eller byter','Går inte det: prisavdrag eller häva köpet'],
+     facit:'Klaga inom 2 månader. Först laga eller byta. Sedan prisavdrag eller häva köpet, alltså lämna varan och få pengarna.'},
+    {t:'sortera',vem:'Kim, konsumentvägledare',bild:'kim',
+     f:'Står det i lagen eller är det frivilligt?',
+     hogar:['Lag – gäller alltid','Frivilligt – butiken bestämmer'],
+     items:[['Reklamationsrätt i 3 år',0],['Gratis lagning av ett fel',0],['Prisavdrag om felet inte lagas',0],
+            ['Garanti',1],['Öppet köp',1],['Bytesrätt',1]],
+     facit:'Reklamationsrätten står i lagen. Garanti, öppet köp och bytesrätt är frivilliga.'}],
+ 4:[{t:'sortera',vem:'Kim, konsumentvägledare',bild:'kim',
+     f:'Har du ångerrätt enligt lag?',
+     hogar:['Ja, ångerrätt','Nej, ingen ångerrätt'],
+     items:[['Tröja från en nätbutik',0],['Mobilskal från en webbshop',0],['Dammsugare från en hemförsäljare för 2 000 kr',0],
+            ['Jacka i en vanlig butik',1],['Cykel från en privatperson',1],['Hotellnatt bokad på nätet',1],['Färsk mat från nätet',1]],
+     facit:'Ångerrätt gäller köp av företag på distans. Inte i butik, inte av privatpersoner och inte för hotell eller färsk mat.'},
+    {t:'prata',vem:'Sam på kundtjänst',bild:'sam',
+     steg:[['Här är kundtjänst! Var tröjan för liten?',
+            ['Ja, jag ångrar köpet','Nej, man kan inte ångra sig','Bara om tröjan är trasig'],
+            'Du har 14 dagars ångerrätt, från dagen efter att du fick varan.'],
+           ['Hur vill du meddela att du ångrar dig?',
+            ['Med mejl eller ångerblankett','Jag låter bli att hämta paketet','Jag ringer fraktbolaget'],
+            'Ångerfunktionen på sajten ska också vara gratis och lätt att hitta.'],
+           ['Vi kan ge dig ett tillgodokvitto. Okej?',
+            ['Nej, jag vill ha pengarna','Okej, det är ju det som är lagen','Okej, då väntar jag'],
+            'Du har rätt att få hela beloppet tillbaka, på samma sätt som du betalade.']]}],
+ 5:[{t:'sortera',vem:'Tove på torget',bild:'tove',
+     f:'Vad visar märkningen? Sortera.',
+     hogar:['Hälsa','Miljö','Ursprung'],
+     items:[['Nyckelhålet',0],['KRAV',1],['EU-lövet',1],['MSC',1],['Svanen',1],['Från Sverige',2],['Ursprungsland på frukt',2]],
+     facit:'Nyckelhålet gäller hälsa. KRAV, EU-lövet, MSC och Svanen gäller miljön. Från Sverige visar ursprung.'},
+    {t:'para',vem:'Tove på torget',bild:'tove',
+     f:'Para ihop märkningen med vad den betyder.',
+     parord:[['MSC','Vildfångad fisk, hållbart fiske'],['ASC','Odlad fisk och skaldjur'],
+             ['Fairtrade','Bättre villkor för odlare'],['Nyckelhålet','Nyttigare val i sin grupp']],
+     facit:'Fyra märken att kunna utantill.'}],
+ 6:[{t:'prata',vem:'Omar i mataffären',bild:'omar',
+     steg:[['Paket A: 500 g för 15 kr. Vad är jämförpriset?',
+            ['30 kr/kg','15 kr/kg','7,50 kr/kg'],
+            '15 delat med 0,5 blir 30 kr per kilo.'],
+           ['Paket B: 1 kg för 25 kr. Vilket är billigast per kilo?',
+            ['Paket B','Paket A','De kostar lika'],
+            'Paket B kostar 25 kr per kilo. Paket A kostar 30 kr per kilo.'],
+           ['Kassan visar ett högre pris än hyllkanten. Vad gäller?',
+            ['Du kan välja att inte köpa','Hyllpriset gäller alltid','Butiken måste ge dig varan'],
+            'Priset i kassan gäller. Är det högre kan du låta bli att köpa.']]},
+    {t:'sortera',vem:'Omar i mataffären',bild:'omar',
+     f:'Bäst före eller sista förbrukningsdag?',
+     hogar:['Bäst före – kvalitet','Sista förbrukningsdag – säkerhet'],
+     items:[['Handlar om smak och krispighet',0],['Maten är ofta bra efter datumet',0],['Får säljas efter datumet',0],
+            ['Maten kan bli farlig',1],['Står alltid på färsk kyckling',1],['Får inte säljas efter datumet',1]],
+     facit:'Bäst före handlar om kvalitet. Sista förbrukningsdag handlar om säkerhet.'}],
+ 7:[{t:'sortera',vem:'Theo, storebror',bild:'theo',
+     f:'H.E.M: Är skälet hälsa, ekonomi eller miljö?',
+     hogar:['Hälsa','Ekonomi','Miljö'],
+     items:[['Fullkorn ger mer fibrer',0],['Fisk ger D-vitamin och jod',0],
+            ['Jämförpriset visar vad som är billigast',1],['Bönor kostar ofta mindre än kött',1],
+            ['Kor släpper ut metan',2],['Risfält släpper ut metan',2],['Flygfrakt ger stora utsläpp',2]],
+     facit:'Ett bra H.E.M-svar tar upp alla tre delarna och säger varför.'},
+    {t:'prata',vem:'Theo, storebror',bild:'theo',
+     steg:[['Nötfärs eller kycklingfärs i såsen? Vad är bäst för klimatet?',
+            ['Kycklingfärs','Nötfärs','Ingen skillnad'],
+            'Kyckling har mycket lägre klimatpåverkan per kilo än nöt.'],
+           ['Vad ska vi ha till? Vilket ger minst klimatpåverkan?',
+            ['Potatis','Ris','Ingen skillnad'],
+            'Ris ger metan från risfälten. Potatis och pasta påverkar klimatet lite.'],
+           ['Det blev mat över. Vad gör vi?',
+            ['Sparar resterna till lunch','Slänger dem, det är bara lite','Låter dem stå framme till i morgon'],
+            'Att ta vara på rester sparar pengar och minskar svinnet.']]}],
+ 8:[{t:'ordning',vem:'Ingrid, fiskare',bild:'ingrid',
+     f:'Livsmedelskedjan för fisk. Tryck i rätt ordning.',
+     ord:['Fisket','Fabriken','Partihandeln','Butiken','Hemma hos dig'],
+     facit:'Primärproduktion, livsmedelsindustri, partihandel, butik och hushåll. Varje steg kräver energi och transporter.'},
+    {t:'prata',vem:'Ingrid, fiskare',bild:'ingrid',
+     steg:[['Fiskpinnar till middag. Vad säger kostråden om fisk?',
+            ['Ät fisk 2–3 gånger i veckan','Ät fisk högst en gång i månaden','Fisk ska man helst undvika'],
+            'Fisk är nyttigt. Men paneringen ger mer fett och mindre fisk.'],
+           ['Du jämför fiskpinnar. Vad gäller jämförpriset?',
+            ['Det gäller hela pinnen','Det gäller bara fisken','Det gäller bara förpackningen'],
+            'Bara ungefär hälften är fisk. Priset per kilo fisk blir därför högre.'],
+           ['Vilket märke letar du efter för miljöns skull?',
+            ['MSC eller ASC','Nyckelhålet','Svanen'],
+            'MSC gäller vildfångad fisk. ASC gäller odlad fisk.']]}],
+ 9:[{t:'para',vem:'HKK-läraren',bild:'larare',
+     f:'Sista repetitionen. Para ihop.',
+     parord:[['Reklamation','Klaga på ett fel i varan'],['Ångerrätt','14 dagar vid köp på distans'],
+             ['Jämförpris','Pris per kilo eller liter'],['Matsvinn','Mat som kunde ha ätits']],
+     facit:'Fyra viktiga ord i konsumentkunskap.'},
+    {t:'sortera',vem:'HKK-läraren',bild:'larare',
+     f:'Sant eller falskt?',
+     hogar:['Sant','Falskt'],
+     items:[['Garanti är frivilligt',0],['Reklam ska synas som reklam',0],['Sista förbrukningsdag gäller säkerhet',0],
+            ['Öppet köp står i lagen',1],['Kyckling är rött kött',1],['MSC betyder odlad fisk',1],['Det finns ångerrätt i butik',1]],
+     facit:'Öppet köp är frivilligt och i butik finns ingen ångerrätt enligt lag. Kyckling är inte rött kött, och MSC gäller vildfångad fisk.'}]
+};
+
+
+
+
+
+</script>
+
+<script>
+/* =======================  GRUND  ======================= */
+const duk=document.getElementById('duk'), ctx=duk.getContext('2d');
+const W=400,H=288,TILE=24,ROWS=12,GR=9;
+let VH=288,OFF=0;   // synlig höjd anpassas efter skärmen              // GR = markens översta rad
+const overlagg=document.getElementById('overlagg');
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const slump=(a,b)=>a+Math.random()*(b-a);
+const slumpI=(a,b)=>Math.floor(slump(a,b+1));
+const valj=a=>a[Math.floor(Math.random()*a.length)];
+const blanda=a=>{const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function passaDuk(){
+  const l=document.getElementById('duk-lada');
+  const lw=Math.max(200,l.clientWidth), lh=Math.max(160,l.clientHeight);
+  VH=Math.round(clamp(lh/(lw/W),H,400)); OFF=VH-H;
+  duk.width=W; duk.height=VH;
+  const s=Math.min(lw/W,lh/VH);
+  duk.style.width=Math.floor(W*s)+'px'; duk.style.height=Math.floor(VH*s)+'px';
+}
+addEventListener('resize',passaDuk);
+
+/* =======================  SPARAT  ======================= */
+const NY='konsumentkollen.v1';
+let spar={ljus:{},rullor:0,ljudEff:true,tal:true};
+try{const r=localStorage.getItem(NY); if(r)spar=Object.assign(spar,JSON.parse(r));}catch(e){}
+const spara=()=>{try{localStorage.setItem(NY,JSON.stringify(spar));}catch(e){}};
+const uppLast=id=>id===1||!!(VARLDAR.find(v=>v.id===id)||{}).extra||(spar.ljus[id-1]||0)>0;
+const totLjus=()=>Object.values(spar.ljus).reduce((a,b)=>a+b,0);
+
+/* =======================  LJUD  ======================= */
+let ac=null;
+function pip(f,t,typ,vol){
+  if(!spar.ljudEff)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==='suspended')ac.resume();
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type=typ||'square'; o.frequency.value=f;
+    g.gain.setValueAtTime(vol||.05,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+t);
+    o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+t);
+  }catch(e){}
+}
+const ljudHopp =()=>pip(430,.11,'square',.045);
+const ljudRulle=()=>{pip(760,.07,'triangle',.06);setTimeout(()=>pip(1150,.09,'triangle',.05),60);};
+const ljudRatt =()=>{[523,659,784,1047].forEach((f,i)=>setTimeout(()=>pip(f,.13,'triangle',.06),i*85));};
+const ljudFel  =()=>{pip(190,.18,'sawtooth',.045);setTimeout(()=>pip(140,.24,'sawtooth',.04),140);};
+const ljudAj   =()=>{pip(300,.1,'square',.05);setTimeout(()=>pip(180,.2,'square',.045),90);};
+const ljudPort =()=>{[392,523,659].forEach((f,i)=>setTimeout(()=>pip(f,.16,'sine',.06),i*70));};
+
+/* =======================  UPPLÄSNING  ======================= */
+let rost=null;
+function rosterLista(){
+  if(!('speechSynthesis' in window))return [];
+  const alla=speechSynthesis.getVoices()||[];
+  const sv=alla.filter(v=>/^sv/i.test(v.lang||''));
+  return sv.length?sv:alla;
+}
+function rostPoang(v){
+  const n=(v.name||'').toLowerCase(); let p=0;
+  if(/premium/.test(n))p+=120;
+  else if(/enhanced|förbättrad|forbattrad|neural|natural/.test(n))p+=90;
+  if(/siri/.test(n))p+=60;
+  if(v.localService===false)p+=40;          // t.ex. Googles nätröster
+  if(/compact|komprimerad|eloquence/.test(n))p-=60;
+  if(/alva|klara|oskar|joanna/.test(n))p+=10;
+  if(v.lang==='sv-SE')p+=6;
+  return p;
+}
+function valjRost(){
+  const l=rosterLista(); if(!l.length){rost=null;return;}
+  if(spar.rostNamn){ const t=l.find(v=>v.name===spar.rostNamn); if(t){rost=t;return;} }
+  rost=l.slice().sort((a,b)=>rostPoang(b)-rostPoang(a))[0];
+}
+if('speechSynthesis' in window){valjRost();speechSynthesis.onvoiceschanged=valjRost;}
+const tyst=()=>{if('speechSynthesis' in window)speechSynthesis.cancel();};
+function las(text){
+  if(!spar.tal||!('speechSynthesis' in window))return;
+  tyst(); if(!rost)valjRost();
+  // dela upp i korta meningar – bättre satsmelodi och mindre risk att iOS klipper av
+  const bitar=String(text).split(/(?<=[.!?])\s+/).filter(t=>t.trim());
+  setTimeout(()=>{
+    for(const bit of bitar){
+      const u=new SpeechSynthesisUtterance(bit);
+      u.lang='sv-SE'; if(rost)u.voice=rost; u.rate=.94; u.pitch=1.02;
+      speechSynthesis.speak(u);
+    }
+  },80);
+}
+
+/* =======================  STYRNING  ======================= */
+const tang={vanster:false,hoger:false,upp:false,ner:false,hopp:false};
+let hoppTryck=false;
+const KARTA={ArrowLeft:'vanster',KeyA:'vanster',ArrowRight:'hoger',KeyD:'hoger',
+  ArrowUp:'upp',KeyW:'upp',ArrowDown:'ner',KeyS:'ner',Space:'hopp',KeyZ:'hopp',Enter:'hopp',KeyX:'hopp'};
+addEventListener('keydown',e=>{const k=KARTA[e.code];if(k){if(!tang[k]&&k==='hopp')hoppTryck=true;tang[k]=true;e.preventDefault();}});
+addEventListener('keyup',e=>{const k=KARTA[e.code];if(k){tang[k]=false;e.preventDefault();}});
+function knappStyr(el,namn){
+  const ned=e=>{e.preventDefault();if(namn==='hopp'&&!tang.hopp)hoppTryck=true;tang[namn]=true;el.classList.add('ner');};
+  const upp=e=>{e.preventDefault();tang[namn]=false;el.classList.remove('ner');};
+  el.addEventListener('pointerdown',ned);
+  el.addEventListener('pointerup',upp); el.addEventListener('pointercancel',upp);
+  el.addEventListener('pointerleave',upp);
+  el.addEventListener('contextmenu',e=>e.preventDefault());
+}
+['vanster','hoger','upp','ner'].forEach(n=>knappStyr(document.getElementById(n),n));
+knappStyr(document.getElementById('hopp'),'hopp');
+
+/* =======================  BANBYGGE  ======================= */
+function tomGrid(cols){return Array.from({length:ROWS},()=>Array(cols).fill('.'));}
+function mark(g,c0,c1){for(let c=c0;c<c1;c++)for(let r=GR;r<ROWS;r++)if(g[r])g[r][c]='#';}
+function block(g,c0,c1,r0,r1){for(let c=c0;c<c1;c++)for(let r=r0;r<r1;r++)if(g[r]&&c>=0)g[r][c]='#';}
+
+function byggBana(v){
+  const svart=v.svart||v.id;
+  const bitar=['plan','grop','plattform'];
+  if(svart>=2)bitar.push('trappa','grop');
+  if(svart>=3)bitar.push('hoppkedja');
+  if(svart>=4)bitar.push('taggar');
+  if(svart>=5)bitar.push('rorlig');
+  if(svart>=6)bitar.push('hoppkedja','rorlig');
+
+  const g=tomGrid(v.langd+40);
+  const rullor=[],portar=[],rorliga=[];
+  const npcar=[]; let hav=null;
+  const fragor=blanda(v.boss?bossFragor():v.fragor);
+  const stationer=[];
+  for(let k=0;k<v.portar;k++) stationer.push({typ:'port'});
+  const upp=(UPPDRAG[v.id]||[]);
+  if(upp.length){
+    const kliv=Math.max(1,Math.floor(v.portar/(upp.length+1)));
+    upp.forEach((u,k)=>stationer.splice(Math.min(stationer.length,(k+1)*kliv+k),0,{typ:'npc',u}));
+  }
+  let fi=0, c=0;
+  const steg=v.langd/(stationer.length+1); let nasta=steg+4;
+  mark(g,0,9); c=9;
+
+  while(stationer.length || c<v.langd){
+    if(stationer.length && c>=nasta){
+      const st=stationer.shift(); mark(g,c,c+7);
+      if(st.typ==='port')
+        portar.push({x:(c+3)*TILE+12,y:GR*TILE,oppen:false,fraga:fragor[fi++%fragor.length],glod:0});
+      else
+        npcar.push({x:(c+3)*TILE+12,y:GR*TILE,u:st.u,klar:false});
+      c+=7; nasta+=steg; continue;
+    }
+    const b=valj(bitar);
+    if(b==='plan'){const w=slumpI(5,8);mark(g,c,c+w);
+      if(Math.random()<.75)rullor.push({x:(c+Math.floor(w/2))*TILE+12,y:(GR-2)*TILE,tagen:false});
+      c+=w;}
+    else if(b==='grop'){const a=slumpI(3,4),gap=slumpI(2,Math.min(3,1+Math.ceil(svart/2))),b2=slumpI(3,4);
+      mark(g,c,c+a); mark(g,c+a+gap,c+a+gap+b2);
+      rullor.push({x:(c+a+gap/2)*TILE,y:(GR-3)*TILE,tagen:false});
+      c+=a+gap+b2;}
+    else if(b==='plattform'){const w=slumpI(7,9);mark(g,c,c+w);
+      const pr=GR-3,pc=c+1,pw=slumpI(2,3); block(g,pc,pc+pw,pr,pr+1);
+      rullor.push({x:(pc+pw/2)*TILE,y:(pr-2)*TILE,tagen:false});
+      if(w>7){const pr2=GR-5,pc2=c+4; block(g,pc2,pc2+2,pr2,pr2+1);
+        rullor.push({x:(pc2+1)*TILE,y:(pr2-2)*TILE,tagen:false});}
+      c+=w;}
+    else if(b==='trappa'){mark(g,c,c+9);
+      block(g,c+2,c+3,GR-1,GR); block(g,c+3,c+4,GR-2,GR); block(g,c+4,c+5,GR-3,GR);
+      rullor.push({x:(c+4.5)*TILE,y:(GR-5)*TILE,tagen:false});
+      c+=9;}
+    else if(b==='hoppkedja'){mark(g,c,c+3); let x=c+3;
+      for(let i=0;i<3;i++){const gap=2,pr=GR-1-i;block(g,x+gap,x+gap+2,pr,pr+1);
+        rullor.push({x:(x+gap+1)*TILE,y:(pr-2)*TILE,tagen:false}); x+=gap+2;}
+      mark(g,x+2,x+6); c=x+6;}
+    else if(b==='taggar'){const w=9;mark(g,c,c+w);
+      g[GR-1][c+4]='^'; if(svart>=6)g[GR-1][c+5]='^';
+      rullor.push({x:(c+4.5)*TILE+12,y:(GR-4)*TILE,tagen:false});
+      c+=w;}
+    else if(b==='rorlig'){mark(g,c,c+3);
+      const x0=(c+3)*TILE-10, x1=(c+8)*TILE-64+10;
+      rorliga.push({x:x0,y:(GR-1)*TILE,w:72,h:12,x0,x1,dir:1,fart:.8});
+      rullor.push({x:(c+5.5)*TILE,y:(GR-3)*TILE,tagen:false});
+      mark(g,c+8,c+12); c+=12;}
+  }
+  if(v.hav){                                   // Röda havet på väg ut ur Egypten
+    mark(g,c,c+6);
+    npcar.push({x:(c+3)*TILE,y:GR*TILE,u:HAVSUPPDRAG,klar:false,oppnarHav:true});
+    c+=6;
+    hav={c0:c,c1:c+7,oppet:false,anim:0};
+    c+=7; mark(g,c,c+6); c+=6;
+  }
+  mark(g,c,c+9); c+=9;
+  const cols=c;
+  for(let r=0;r<ROWS;r++){ const rad=g[r];
+    for(let i=0;i<cols;i++) if(rad[i]===undefined||rad[i]==='')rad[i]='.';
+    rad.length=cols; }
+  return {g,cols,rullor,portar,rorliga,npcar,hav,malX:(cols-5)*TILE};
+}
+function bossFragor(){
+  return VARLDAR.filter(v=>!v.extra).flatMap(v=>v.fragor).filter(f=>f[1].length>=3);   // provets egna frågor + alla banors
+}
+</script>
+
+<script>
+/* ===================================================================
+   MÖTEN, FIGURER OCH UPPDRAG
+   =================================================================== */
+
+/* ---- symbolbilder till para-ihop-uppdrag (används inte här) ---- */
+const IKON={};
+
+/* ---- porträtt ritade som SVG ---- */
+function portratt(o){
+  const hud=o.hud||'#E8C39E', har=o.har||'#3A2A1E', mantel=o.mantel||'#4E7BE8';
+  let sv=`<svg viewBox="0 0 100 100" aria-hidden="true">
+    <circle cx="50" cy="50" r="48" fill="${o.bg||'#243158'}"/>
+    <path d="M14 100c0-20 16-30 36-30s36 10 36 30z" fill="${mantel}"/>`;
+  if(o.krage==='domare') sv+=`<path d="M34 70h32v8l-16 4-16-4z" fill="#F4EFE2"/>`;
+  else if(o.krage) sv+=`<path d="M34 72l16 14 16-14v-6H34z" fill="${o.krage}"/>`;
+  if(o.slips) sv+=`<path d="M50 72l6 6-6 20-6-20z" fill="${o.slips}"/>`;
+  if(o.vast) sv+=`<path d="M30 74l10-4 10 10 10-10 10 4v26H30z" fill="${o.vast}"/>`;
+  sv+=`<circle cx="50" cy="44" r="21" fill="${hud}"/>`;
+  if(o.skagg==='lang') sv+=`<path d="M29 46c0 26 8 40 21 40s21-14 21-40c0 14-42 14-42 0z" fill="${har}"/>`;
+  if(o.skagg==='kort') sv+=`<path d="M31 48c0 16 8 24 19 24s19-8 19-24c0 9-38 9-38 0z" fill="${har}"/>`;
+  if(o.har!=='ingen'){
+    if(o.frisyr==='langt') sv+=`<path d="M25 44a25 25 0 0 1 50 0c0 0 4 26-2 34-3-14-2-26-2-26-8 6-34 6-42 0 0 0 1 12-2 26-6-8-2-34-2-34z" fill="${har}"/>`;
+    else if(o.frisyr==='knut') sv+=`<circle cx="50" cy="19" r="9" fill="${har}"/><path d="M27 42a23 23 0 0 1 46 0c0-13-7-20-23-20s-23 7-23 20z" fill="${har}"/>`;
+    else sv+=`<path d="M27 42a23 23 0 0 1 46 0c0-12-6-19-23-19s-23 7-23 19z" fill="${har}"/>`;
+  }
+  if(o.lugg) sv+=`<rect x="29" y="30" width="42" height="10" rx="4" fill="${har}"/>`;
+  if(o.hatt==='keps') sv+=`<path d="M28 28a22 14 0 0 1 44 0z" fill="${o.hattfarg||'#2A5FA8'}"/><path d="M26 28h50a3 3 0 0 1 0 6H26z" fill="${o.hattfarg||'#2A5FA8'}"/><path d="M72 28h16a4 4 0 0 1 0 6H72z" fill="${o.hattfarg||'#16386B'}"/>`;
+  if(o.hatt==='hjalm') sv+=`<path d="M28 30a22 16 0 0 1 44 0z" fill="#F2A83B"/><rect x="22" y="30" width="56" height="6" rx="3" fill="#D68F22"/><rect x="48" y="12" width="4" height="18" fill="#D68F22"/>`;
+  if(o.hatt==='mossa') sv+=`<path d="M28 32a22 15 0 0 1 44 0z" fill="${o.hattfarg||'#A8324A'}"/><rect x="26" y="30" width="48" height="8" rx="4" fill="${o.hattfarg2||'#F4EFE2'}"/><circle cx="50" cy="12" r="6" fill="${o.hattfarg2||'#F4EFE2'}"/>`;
+  if(o.hatt==='samemossa') sv+=`<path d="M30 30a20 18 0 0 1 40 0z" fill="#2A5FA8"/><rect x="26" y="28" width="48" height="8" rx="3" fill="#E0596F"/><path d="M40 12h20l-4 12H44z" fill="#2A5FA8"/><circle cx="50" cy="10" r="5" fill="#F2C94C"/>`;
+  if(o.hatt==='sjal') sv+=`<path d="M26 48a24 24 0 0 1 48 0c0-16-10-24-24-24S26 32 26 48z" fill="${o.hattfarg||'#B36A8A'}"/>`;
+  if(o.hatt==='lurar') sv+=`<path d="M26 46a24 24 0 0 1 48 0" fill="none" stroke="#243158" stroke-width="7" stroke-linecap="round"/><rect x="18" y="40" width="12" height="20" rx="5" fill="#243158"/><rect x="70" y="40" width="12" height="20" rx="5" fill="#243158"/>`;
+  sv+=`<circle cx="42" cy="44" r="2.4" fill="#2A2030"/><circle cx="58" cy="44" r="2.4" fill="#2A2030"/>`;
+  if(o.glasogon) sv+=`<g fill="none" stroke="#2A2030" stroke-width="2.2"><circle cx="42" cy="44" r="7"/><circle cx="58" cy="44" r="7"/><path d="M49 44h2M35 43l-5-2M65 43l5-2"/></g>`;
+  sv+=`</svg>`;
+  return sv;
+}
+
+const bildFor=n=>portratt(FIGUR[n]||FIGUR.larare);
+
+
+
+
+
+</script>
+
+<script>
+/* =======================  RITHJÄLP  ======================= */
+function rekt(x,y,w,h,f){ctx.fillStyle=f;ctx.fillRect(x,y,w,h);}
+function cirkel(x,y,r,f){ctx.fillStyle=f;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();}
+function tri(x1,y1,x2,y2,x3,y3,f){ctx.fillStyle=f;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.closePath();ctx.fill();}
+function grad(y0,y1,c0,c1){const g=ctx.createLinearGradient(0,y0,0,y1);g.addColorStop(0,c0);g.addColorStop(1,c1);return g;}
+
+const TEMA={
+  smaland:  {himmel:['#8FD0EA','#DCEFC6'],mark:'#7FA24E',mark2:'#5E7F3A',kant:'#A8C97A',dis:'#A8C99C',stjarnor:false},
+  gotland:  {himmel:['#7FC3E8','#F3E3B8'],mark:'#D8CDA0',mark2:'#B9AC78',kant:'#EFE6C4',dis:'#CFC28E',stjarnor:false},
+  fjall:    {himmel:['#0E1A3C','#2E4F7A'],mark:'#E8EEF8',mark2:'#B9C6DE',kant:'#FFFFFF',dis:'#23365E',stjarnor:true},
+  domstol:  {himmel:['#2A2038','#4A3A58'],mark:'#7A5535',mark2:'#5C3F27',kant:'#A67B4E',dis:'#3A2E4A',stjarnor:false},
+  medier:   {himmel:['#1B2647','#5A4A7A'],mark:'#4E5570',mark2:'#363C52',kant:'#7C8CAA',dis:'#2A3358',stjarnor:true},
+  ideologi: {himmel:['#E9975B','#F3D6A0'],mark:'#9C8A6A',mark2:'#7A6A4E',kant:'#C4B28E',dis:'#D8AE7E',stjarnor:false},
+  riksdag:  {himmel:['#16386B','#5B92E5'],mark:'#8E9BC2',mark2:'#6A7290',kant:'#C7D2E8',dis:'#1F3F72',stjarnor:true},
+  arbete:   {himmel:['#C97F5A','#F0C48E'],mark:'#8A7A6A',mark2:'#6A5C4E',kant:'#B5A48E',dis:'#B08060',stjarnor:false},
+  global:   {himmel:['#0E2A4C','#3C86B8'],mark:'#5A6B8C',mark2:'#3E4A66',kant:'#8FB7E8',dis:'#17395E',stjarnor:true},
+  affar:    {himmel:['#8FD0EA','#F3E3B8'],mark:'#A8A090',mark2:'#7E786A',kant:'#D8D2C2',dis:'#B9C99C',stjarnor:false},
+  bank:     {himmel:['#5B92E5','#DCEFC6'],mark:'#B9AC88',mark2:'#8E8466',kant:'#E7DDB8',dis:'#9CB4D8',stjarnor:false},
+  reklam:   {himmel:['#1B1235','#5A2E6A'],mark:'#4E5570',mark2:'#363C52',kant:'#7C8CAA',dis:'#2A1E48',stjarnor:true},
+  kok:      {himmel:['#E8EEF0','#E8EEF0'],mark:'#B98A5E',mark2:'#8A6A44',kant:'#D8B482',dis:'#E8EEF0',stjarnor:false},
+  prov:     {himmel:['#0B1330','#22305C'],mark:'#6E7A5E',mark2:'#525C46',kant:'#9AA88A',dis:'#182246',stjarnor:true}
+};
+
+/* ---- bakgrunder ---- */
+let tick=0;
+const pekskarm=()=>!matchMedia('(hover:hover) and (pointer:fine)').matches;
+function himmel(tema){
+  const t=TEMA[tema];
+  ctx.fillStyle=grad(0,VH,t.himmel[0],t.himmel[1]); ctx.fillRect(0,0,W,VH);
+  if(t.stjarnor){
+    const h=Math.max(120,VH-150);
+    for(let i=0;i<75;i++){
+      const x=(i*97)%W, y=(i*53)%h, r=(i%7===0)?1.4:.9;
+      ctx.globalAlpha=.35+.5*Math.abs(Math.sin(tick/60+i));
+      cirkel(x,y,r,i%9===0?'#F2A83B':'#DCE6FF');
+    }
+    ctx.globalAlpha=1;
+  }
+}
+function ritaBakgrund(tema,cam){
+  const t=TEMA[tema];
+  const p1=-cam*.15, p2=-cam*.35;
+  if(tema==='smaland'){
+    cirkel(W-80+p1*.3,56,26,'rgba(255,250,220,.9)');
+    kullar(p1,188,t.dis,54);
+    for(let i=0;i<9;i++){const x=((i*120+p1)%(W+240))-120; gran(x,196,.9+((i%3)*.16));}
+    for(let i=0;i<3;i++){const x=((i*240+p2)%(W+480))-240; falustuga(x,214,1);}
+    for(let i=0;i<7;i++){const x=((i*140+p2)%(W+280))-140; gran(x+40,214,1.25);}
+  }else if(tema==='gotland'){
+    cirkel(70+p1*.3,52,24,'rgba(255,248,214,.9)');
+    rekt(0,150,W,64,'#3C86B8');
+    ctx.globalAlpha=.4;
+    for(let i=0;i<22;i++){const x=((i*44+tick*.5)%(W+44))-22,y=158+(i%5)*11; rekt(x,y,14,2,'#CFE9F5');}
+    ctx.globalAlpha=1;
+    for(let i=0;i<5;i++){const x=((i*170+p2)%(W+340))-170; rauk(x,214,.85+((i%3)*.18));}
+    for(let i=0;i<2;i++){const x=((i*360+p1)%(W+720))-360; ringmur(x,196);}
+  }else if(tema==='fjall'){
+    norrsken(p1);
+    for(let i=0;i<5;i++){const x=((i*150+p1)%(W+300))-150;
+      tri(x,214,x+156,214,x+78,62,'#263C63'); tri(x+58,118,x+98,118,x+78,62,'#DCE6FF');}
+    for(let i=0;i<4;i++){const x=((i*190+p2)%(W+380))-190;
+      tri(x,214,x+176,214,x+88,104,'#3A5382'); tri(x+66,146,x+110,146,x+88,104,'#F2F6FF');}
+    for(let i=0;i<3;i++){const x=((i*250+p2)%(W+500))-250; lavvu(x,214);}
+    for(let i=0;i<24;i++){const x=(i*67+tick*.25)%W, y=(i*41+tick*.55)%H; cirkel(x,y,1.2,'rgba(255,255,255,.7)');}
+  }else if(tema==='domstol'){
+    rekt(0,-OFF-20,W,214+OFF+20,'#3A2E4A');
+    for(let i=0;i<6;i++){const x=((i*118+p1)%(W+236))-118;
+      rekt(x,44,30,170,'#6B5A44'); rekt(x-5,38,40,10,'#8A7458'); rekt(x-5,206,40,10,'#8A7458');
+      ctx.globalAlpha=.25; rekt(x+6,44,5,162,'#F4EFE2'); ctx.globalAlpha=1;}
+    for(let i=0;i<3;i++){const x=((i*230+p2)%(W+460))-230; vagskal(x+60,108,.9);}
+  }else if(tema==='medier'){
+    for(let i=0;i<7;i++){const x=((i*90+p1)%(W+180))-90, h=slumpfast(i,60,130);
+      rekt(x,214-h,58,h,'#2A3358');
+      for(let r=0;r<Math.floor(h/22);r++)for(let c=0;c<3;c++){
+        const pa=((i*7+r*3+c)%5!==0);
+        if(pa) rekt(x+9+c*15,214-h+10+r*22,9,11,(tick/30+i+r+c)%7<3.5?'#F2C94C':'#8FB7E8');}
+    }
+    for(let i=0;i<4;i++){const x=((i*170+p2)%(W+340))-170;
+      rekt(x,150,110,64,'#3C4668'); rekt(x+8,158,94,34,'#0E1A3C');
+      const txt=['MOBILER','KVITTO','REKLAMERA','3 ÅR'][i%4];
+      ctx.fillStyle='#7FE0A8';ctx.font='bold 11px monospace';
+      ctx.fillText(txt,x+14+((tick*.6+i*40)%60)-30,182);
+      rekt(x+8,196,94,3,'#5A6B8C');}
+  }else if(tema==='ideologi'){
+    cirkel(W-70+p1*.3,66,30,'rgba(255,226,176,.8)');
+    for(let i=0;i<3;i++){const x=((i*250+p1)%(W+500))-250;
+      rekt(x,120,84,94,'#8A6A58'); tri(x+6,120,x+34,120,x+20,50,'#5A4A5E'); tri(x+50,120,x+78,120,x+64,50,'#5A4A5E');
+      ctx.fillStyle='#C4B28E';ctx.beginPath();ctx.arc(x+42,130,16,Math.PI,0);ctx.fill();}
+    const farger=['#A8324A','#2A5FA8','#7FB069','#F2C94C','#7B4FA8'];
+    for(let i=0;i<9;i++){const x=((i*110+p2)%(W+220))-110;
+      rekt(x,150,4,64,'#6A5C4E');
+      const f=farger[i%farger.length], v=Math.sin(tick/22+i)*3;
+      ctx.fillStyle=f;ctx.beginPath();ctx.moveTo(x+4,152);
+      ctx.quadraticCurveTo(x+24,158+v,x+44,152);ctx.lineTo(x+44,176);
+      ctx.quadraticCurveTo(x+24,182+v,x+4,176);ctx.closePath();ctx.fill();}
+  }else if(tema==='riksdag'){
+    rekt(0,182,W,32,'#1F4E7A');
+    ctx.globalAlpha=.35;
+    for(let i=0;i<18;i++){const x=((i*36+tick*.4)%(W+36))-18; rekt(x,188+(i%4)*7,16,2,'#CFE9F5');}
+    ctx.globalAlpha=1;
+    for(let i=0;i<3;i++){const x=((i*240+p1)%(W+480))-240;
+      rekt(x,116,150,66,'#B9A88A'); rekt(x-6,110,162,8,'#D8C6A4');
+      for(let j=0;j<7;j++)rekt(x+12+j*19,126,11,46,'#6A5C4E');
+      ctx.fillStyle='#8FA0C0';ctx.beginPath();ctx.arc(x+75,116,28,Math.PI,0);ctx.fill();
+      ctx.fillStyle='#C7D2E8';ctx.beginPath();ctx.arc(x+75,116,20,Math.PI,0);ctx.fill();
+      rekt(x+73,80,4,10,'#F2C94C');}
+    for(let i=0;i<12;i++){const a=i*Math.PI/6-Math.PI/2, cx=W-58+p2*.15, cy=54;
+      cirkel(cx+22*Math.cos(a),cy+22*Math.sin(a),2.2,'#FFD617');}
+  }else if(tema==='arbete'){
+    for(let i=0;i<4;i++){const x=((i*190+p1)%(W+380))-190;
+      rekt(x,120,22,94,'#6A5C4E'); rekt(x-3,114,28,8,'#8A7A6A');
+      ctx.globalAlpha=.5;
+      for(let s=0;s<3;s++)cirkel(x+11+Math.sin((tick/30)+s)*9,104-s*22-((tick*.4)%22),8+s*3,'#D8CFC4');
+      ctx.globalAlpha=1;}
+    for(let i=0;i<4;i++){const x=((i*170+p2)%(W+340))-170;
+      rekt(x,158,120,56,'#8A6A58');
+      ctx.fillStyle='#A8867A';ctx.beginPath();
+      for(let s=0;s<4;s++){ctx.moveTo(x+s*30,158);ctx.lineTo(x+s*30+15,140);ctx.lineTo(x+s*30+30,158);}
+      ctx.fill();
+      for(let j=0;j<4;j++)rekt(x+9+j*30,172,15,20,'#F2C94C');}
+  }else if(tema==='global'){
+    rekt(0,166,W,48,'#1F4E7A');
+    for(let i=0;i<3;i++){const x=((i*260+p1)%(W+520))-260; lastfartyg(x,166);}
+    for(let i=0;i<4;i++){const x=((i*180+p2)%(W+360))-180; hamnkran(x,214);}
+    const bf=['#A8324A','#2A5FA8','#7FB069','#F2C94C','#D8763B','#5A6B8C'];
+    for(let i=0;i<14;i++){const x=((i*54+p2*1.3)%(W+54))-27, lager=i%3;
+      for(let l=0;l<=lager;l++) rekt(x,200-l*13,44,12,bf[(i+l)%bf.length]);}
+  }else if(tema==='affar'){
+    cirkel(W-80+p1*.3,52,24,'rgba(255,250,220,.9)');
+    kullar(p1,186,t.dis,40);
+    const skyltar=['MAT','FRUKT','KR/KG','BRÖD','FISK'];
+    for(let i=0;i<4;i++){const x=((i*200+p2)%(W+400))-200;
+      rekt(x,128,170,86,'#E8DCC0');
+      for(let s2=0;s2<8;s2++) rekt(x+s2*21.25,128,21.25,14,s2%2?'#E0596F':'#F4EFE2');
+      rekt(x+10,152,70,44,'#8FB7E8'); rekt(x+98,150,46,64,'#6A5C4E');
+      rekt(x+40,106,90,22,'#2A3A66');
+      ctx.fillStyle='#F2C94C';ctx.font='bold 13px Assistant,sans-serif';ctx.textAlign='center';
+      ctx.fillText(skyltar[i%skyltar.length],x+85,122);
+      cirkel(x+45,174,11,'#F2A83B');
+      ctx.fillStyle='#2A1C04';ctx.font='bold 9px sans-serif';ctx.fillText('kr',x+45,177);
+      ctx.textAlign='left';}
+  }else if(tema==='bank'){
+    cirkel(W-70+p1*.3,56,24,'rgba(255,248,214,.9)');
+    kullar(p1,190,t.dis,36);
+    for(let i=0;i<3;i++){const x=((i*250+p2)%(W+500))-250;
+      rekt(x,112,176,102,'#D8CDB0'); tri(x-10,112,x+186,112,x+88,74,'#B9AC88');
+      for(let j=0;j<5;j++) rekt(x+16+j*32,124,14,84,'#F4EFE2');
+      rekt(x+52,88,72,18,'#2A3A66');
+      ctx.fillStyle='#F2C94C';ctx.font='bold 12px Assistant,sans-serif';ctx.textAlign='center';
+      ctx.fillText('BANK',x+88,101);ctx.textAlign='left';}
+    for(let i=0;i<12;i++){const x=(i*67+p1*.4+800)%W, y=((i*53+tick*.6)%250)-30;
+      cirkel(x,y,4.5,'#F2C94C'); cirkel(x,y,2.4,'#D68F22');}
+  }else if(tema==='reklam'){
+    rekt(0,176,W,38,'#1F3F72');
+    ctx.globalAlpha=.35;
+    for(let i=0;i<16;i++){const x=((i*36+tick*.4)%(W+36))-18; rekt(x,182+(i%4)*7,16,2,'#CFE9F5');}
+    ctx.globalAlpha=1;
+    const neon=['REA!','3 FÖR 2','KÖP NU!','GRATIS?','-70 %'];
+    for(let i=0;i<4;i++){const x=((i*190+p1)%(W+380))-190, h=60+((i*37)%50);
+      rekt(x,176-h,120,h,'#2A1E48');
+      for(let r=0;r<Math.floor(h/24);r++)for(let c=0;c<4;c++)
+        rekt(x+10+c*27,176-h+10+r*24,12,12,((i+r+c)%3)?'#4E3A6A':'#F2C94C');
+      const fl=(Math.floor(tick/9+i)%11)?1:.35;
+      ctx.globalAlpha=fl; ctx.fillStyle=['#FF5FA2','#5FE0FF','#7FFF8A','#FFD15F'][i%4];
+      ctx.font='bold 14px Assistant,sans-serif'; ctx.textAlign='center';
+      ctx.fillText(neon[i%neon.length],x+60,176-h-8); ctx.textAlign='left'; ctx.globalAlpha=1;}
+  }else if(tema==='kok'){
+    rekt(0,-OFF-20,W,236+OFF,'#E8EEF0');
+    ctx.strokeStyle='rgba(120,140,160,.28)';ctx.lineWidth=1;
+    const off=((p1%24)+24)%24;
+    for(let x=-off;x<W;x+=24){ctx.beginPath();ctx.moveTo(x,-OFF-20);ctx.lineTo(x,176);ctx.stroke();}
+    for(let y=0;y<176;y+=24){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    for(let i=0;i<4;i++){const x=((i*180+p1)%(W+360))-180;
+      rekt(x,24,130,52,'#7FB069'); rekt(x+64,24,2,52,'#5E7F3A'); rekt(x+28,46,10,4,'#F4EFE2'); rekt(x+92,46,10,4,'#F4EFE2');}
+    rekt(0,170,W,44,'#C9A46A'); rekt(0,166,W,6,'#E7C36A');
+    for(let i=0;i<4;i++){const x=((i*170+p2)%(W+340))-170;
+      // tallrik enligt tallriksmodellen
+      const cx=x+60, cy=140;
+      ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.ellipse(cx,cy,34,22,0,0,7);ctx.fill();
+      ctx.fillStyle='#7FB069';ctx.beginPath();ctx.moveTo(cx,cy);ctx.ellipse(cx,cy,28,17,0,Math.PI*.5,Math.PI*1.3);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#F2C94C';ctx.beginPath();ctx.moveTo(cx,cy);ctx.ellipse(cx,cy,28,17,0,Math.PI*1.3,Math.PI*2.1);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#A8664A';ctx.beginPath();ctx.moveTo(cx,cy);ctx.ellipse(cx,cy,28,17,0,Math.PI*2.1,Math.PI*2.5);ctx.closePath();ctx.fill();}
+  }else{
+    cirkel(W-74+p1*.25,58,22,'rgba(244,239,226,.85)');
+    for(let i=0;i<3;i++){const x=((i*240+p1)%(W+480))-240;
+      rekt(x,140,168,74,'#2A3358'); tri(x-8,140,x+176,140,x+84,104,'#A8324A');
+      for(let r=0;r<2;r++)for(let j=0;j<5;j++){
+        const pa=((i*3+r*5+j)%4!==0);
+        rekt(x+14+j*31,152+r*32,20,20,pa?'#F2C94C':'#1B2647');}
+      rekt(x+74,186,22,28,'#6A5C4E');}
+    for(let i=0;i<6;i++){const x=((i*150+p2)%(W+300))-150; gran(x,214,1.1);}
+  }
+}
+function slumpfast(i,a,b){ return a+((Math.sin(i*12.9898)*43758.5453)%1+1)%1*(b-a); }
+function kullar(off,bas,farg,amp){
+  ctx.fillStyle=farg;ctx.beginPath();ctx.moveTo(-20,H);
+  for(let x=-20;x<=W+20;x+=10){
+    const y=bas-amp*.5-Math.sin((x-off)/70)*amp*.32-Math.sin((x-off)/23)*amp*.12;
+    ctx.lineTo(x,y);
+  }
+  ctx.lineTo(W+20,H);ctx.closePath();ctx.fill();
+}
+const dyner=kullar;
+function gran(x,y,s){
+  rekt(x-2*s,y-12*s,4*s,12*s,'#5A3E28');
+  for(let i=0;i<4;i++){
+    const w=(26-i*5)*s, h=18*s, yy=y-12*s-i*13*s;
+    tri(x-w/2,yy,x+w/2,yy,x,yy-h,i%2?'#2F5A3A':'#3A6B45');
+  }
+}
+function falustuga(x,y,s){
+  rekt(x,y-40*s,58*s,40*s,'#8E3B32');
+  tri(x-6*s,y-40*s,x+64*s,y-40*s,x+29*s,y-64*s,'#3A3038');
+  rekt(x+8*s,y-30*s,14*s,14*s,'#F4EFE2'); rekt(x+36*s,y-30*s,14*s,14*s,'#F4EFE2');
+  rekt(x+24*s,y-18*s,12*s,18*s,'#F4EFE2');
+  rekt(x+40*s,y-74*s,7*s,12*s,'#6A5C4E');
+}
+function rauk(x,y,s){
+  ctx.fillStyle='#D8CDA0';ctx.beginPath();
+  ctx.moveTo(x,y); ctx.lineTo(x+4*s,y-30*s); ctx.lineTo(x-4*s,y-46*s);
+  ctx.lineTo(x+10*s,y-62*s); ctx.lineTo(x+26*s,y-54*s); ctx.lineTo(x+20*s,y-34*s);
+  ctx.lineTo(x+28*s,y-8*s); ctx.lineTo(x+22*s,y); ctx.closePath();ctx.fill();
+  ctx.globalAlpha=.25;ctx.fillStyle='#8A7E58';
+  ctx.fillRect(x+14*s,y-52*s,4*s,44*s);ctx.globalAlpha=1;
+}
+function ringmur(x,y){
+  rekt(x,y-34,210,34,'#C4B78C');
+  for(let i=0;i<9;i++)rekt(x+i*24,y-42,14,10,'#C4B78C');
+  rekt(x+96,y-48,26,48,'#B5A87E'); rekt(x+102,y-40,14,18,'#6A5C4E');
+}
+function lavvu(x,y){
+  tri(x,y,x+56,y,x+28,y-46,'#7A5535');
+  ctx.strokeStyle='#4A3322';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(x+22,y-52);ctx.lineTo(x+28,y-46);ctx.moveTo(x+34,y-52);ctx.lineTo(x+28,y-46);ctx.stroke();
+  ctx.globalAlpha=.7;cirkel(x+28,y-56-((tick*.3)%14),5,'#D8CFC4');ctx.globalAlpha=1;
+  cirkel(x+28,y-8,5,'#F2A83B');
+}
+function norrsken(off){
+  for(let b=0;b<3;b++){
+    ctx.globalAlpha=.16+.08*Math.sin(tick/40+b);
+    ctx.fillStyle=b===1?'#7FE0A8':b===2?'#8FB7E8':'#B6F0C8';
+    ctx.beginPath();ctx.moveTo(-20,10+b*14);
+    for(let x=-20;x<=W+20;x+=14) ctx.lineTo(x,26+b*18+Math.sin((x+off*2+tick*.6)/46+b)*14);
+    for(let x=W+20;x>=-20;x-=14) ctx.lineTo(x,64+b*20+Math.sin((x+off*2+tick*.6)/46+b)*14);
+    ctx.closePath();ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+function vagskal(x,y,s){
+  ctx.strokeStyle='#C9A24A';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(x,y-26*s);ctx.lineTo(x,y+26*s);ctx.moveTo(x-24*s,y-26*s);ctx.lineTo(x+24*s,y-26*s);ctx.stroke();
+  ctx.fillStyle='#8FB7E8';
+  ctx.beginPath();ctx.arc(x-24*s,y-26*s+8,12*s,0,Math.PI);ctx.fill();
+  ctx.beginPath();ctx.arc(x+24*s,y-26*s+8,12*s,0,Math.PI);ctx.fill();
+}
+function hamnkran(x,y){
+  rekt(x,y-96,9,96,'#D8763B'); rekt(x-16,y-4,42,6,'#4E5570');
+  rekt(x-26,y-102,86,8,'#D8763B');
+  rekt(x+46,y-94,4,26,'#8E9BC2');
+  rekt(x+40,y-70,16,12,'#F2C94C');
+}
+function lastfartyg(x,y){
+  rekt(x,y-16,150,20,'#243158'); rekt(x+8,y-4,134,8,'#141A2E');
+  const f=['#A8324A','#7FB069','#F2C94C','#2A5FA8'];
+  for(let i=0;i<6;i++)rekt(x+12+i*22,y-28,20,12,f[i%4]);
+  rekt(x+118,y-42,24,26,'#F4EFE2'); rekt(x+124,y-36,12,9,'#8FB7E8');
+}
+
+/* ---- röstsedel, port, mål, spelare ---- */
+function ritaRulle(x,y,f){
+  const b=Math.sin(tick/14+x)*2, sk=Math.abs(Math.cos(tick/18+x));
+  ctx.save(); ctx.translate(x,y+b); ctx.scale(Math.max(.25,sk),1);
+  cirkel(0,0,10,'#D68F22'); cirkel(0,0,8,'#F2C94C');
+  ctx.fillStyle='#8A5A12';ctx.font='bold 9px Assistant,sans-serif';ctx.textAlign='center';
+  ctx.fillText('kr',0,3); ctx.textAlign='left';
+  ctx.restore();
+}
+function ritaPort(p){
+  const x=p.x,y=p.y;
+  if(p.oppen){
+    ctx.globalAlpha=.42;
+    rekt(x-22,y-72,7,72,'#7FB069'); rekt(x+15,y-72,7,72,'#7FB069');
+    ctx.globalAlpha=1;
+    ctx.fillStyle='#7FB069';ctx.beginPath();ctx.arc(x,y-72,22,Math.PI,0);ctx.fill();
+    ctx.fillStyle='#1A2547';ctx.beginPath();ctx.arc(x,y-72,15,Math.PI,0);ctx.fill();
+    rekt(x-15,y-72,30,72,'rgba(26,37,71,.55)');
+    return;
+  }
+  p.glod=(p.glod+.05)%(Math.PI*2);
+  const gl=.55+.45*Math.sin(p.glod);
+  ctx.globalAlpha=.25*gl; cirkel(x,y-46,40,'#F2A83B'); ctx.globalAlpha=1;
+  rekt(x-24,y-78,10,78,'#B98A46'); rekt(x+14,y-78,10,78,'#B98A46');
+  ctx.fillStyle='#B98A46';ctx.beginPath();ctx.arc(x,y-78,24,Math.PI,0);ctx.fill();
+  ctx.fillStyle='#5B3E1E';ctx.beginPath();ctx.arc(x,y-78,15,Math.PI,0);ctx.fill();
+  rekt(x-15,y-78,30,78,'#5B3E1E');
+  ctx.fillStyle='#F2A83B';ctx.font='bold 20px "Frank Ruhl Libre",serif';ctx.textAlign='center';
+  ctx.fillText('?',x,y-32);
+  ctx.textAlign='left';
+}
+function ritaMal(x,y){
+  const b=Math.sin(tick/22)*1.5;
+  rekt(x-2,y-72,4,72,'#C9BBA6');
+  ctx.globalAlpha=.22; cirkel(x+22,y-56,34,'#F2A83B'); ctx.globalAlpha=1;
+  // svensk flagga som vajar
+  for(let c=0;c<11;c++){
+    const fx=x+3+c*5.6, v=Math.sin(tick/9+c*.55)*3.2*(c/11+.25);
+    for(let r=0;r<7;r++){
+      const gul=(r===3)||(c>=2&&c<=3);
+      rekt(fx,y-70+r*5.4+v,6,5.6,gul?'#F5C518':'#2A5FA8');
+    }
+  }
+  cirkel(x,y-74,3.2,'#C9BBA6');
+}
+function lem(hx,hy,fx,fy,l1,l2,farg,bredd,riktning){
+  let dx=fx-hx, dy=fy-hy, d=Math.hypot(dx,dy);
+  if(d<.001){dx=0;dy=.001;d=.001;}
+  const ux=dx/d, uy=dy/d;
+  const dd=Math.min(d,l1+l2-.01);
+  const aa=(l1*l1-l2*l2+dd*dd)/(2*dd);
+  const hh=Math.sqrt(Math.max(0,l1*l1-aa*aa))*riktning;
+  const kx=hx+ux*aa+uy*hh, ky=hy+uy*aa-ux*hh;
+  ctx.strokeStyle=farg; ctx.lineWidth=bredd; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(kx,ky); ctx.lineTo(fx,fy); ctx.stroke();
+  return [kx,ky];
+}
+function ritaNpcFigur(n){
+  const x=n.x, y=n.y, f=FIGUR[n.u.bild]||FIGUR.larare, b=Math.sin(tick/30)*1.1;
+  ctx.globalAlpha=.22;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y-1,11,3.4,0,0,7);ctx.fill();ctx.globalAlpha=1;
+  ctx.fillStyle=f.mantel;
+  ctx.beginPath(); ctx.moveTo(x-7.5,y); ctx.lineTo(x-5.4,y-19+b); ctx.lineTo(x+5.4,y-19+b);
+  ctx.lineTo(x+7.5,y); ctx.closePath(); ctx.fill();
+  if(f.krage){ctx.fillStyle=f.krage;ctx.fillRect(x-5.4,y-19+b,10.8,2.4);}
+  cirkel(x-6.6,y-13+b,2.2,f.hud); cirkel(x+6.6,y-13+b,2.2,f.hud);
+  cirkel(x,y-24.4+b,5.2,f.hud);
+  if(f.skagg){ctx.fillStyle=f.har;ctx.beginPath();
+    ctx.ellipse(x,y-19.6+b,4.2,f.skagg==='lang'?5.6:3.6,0,0,7);ctx.fill();}
+  if(f.har!=='ingen'){ctx.fillStyle=f.har;
+    ctx.beginPath();ctx.arc(x,y-24.8+b,5.3,Math.PI*1.04,Math.PI*2.06);ctx.fill();
+    if(f.lugg)ctx.fillRect(x-5,y-27+b,10,2.6);}
+  ctx.fillStyle='#2A2030'; ctx.fillRect(x+1.4,y-25+b,1.1,1.4); ctx.fillRect(x-2.4,y-25+b,1.1,1.4);
+  if(f.hatt==='keps'){ctx.fillStyle=f.hattfarg||'#2A5FA8';
+    ctx.beginPath();ctx.ellipse(x,y-28.8+b,5.2,3.4,0,Math.PI,0);ctx.fill();
+    rekt(x+2,y-29.4+b,7,2,f.hattfarg||'#2A5FA8');}
+  else if(f.hatt==='hjalm'){ctx.fillStyle='#F2A83B';
+    ctx.beginPath();ctx.ellipse(x,y-28.8+b,5.4,3.8,0,Math.PI,0);ctx.fill();
+    rekt(x-6.4,y-29.2+b,12.8,1.8,'#D68F22');}
+  else if(f.hatt==='mossa'){ctx.fillStyle=f.hattfarg||'#A8324A';
+    ctx.beginPath();ctx.ellipse(x,y-28.4+b,5.3,3.6,0,Math.PI,0);ctx.fill();
+    rekt(x-5.6,y-29.2+b,11.2,2,f.hattfarg2||'#F4EFE2');
+    cirkel(x,y-33.6+b,1.8,f.hattfarg2||'#F4EFE2');}
+  else if(f.hatt==='samemossa'){ctx.fillStyle='#2A5FA8';
+    ctx.beginPath();ctx.ellipse(x,y-28.6+b,5.2,4.4,0,Math.PI,0);ctx.fill();
+    rekt(x-5.6,y-29.2+b,11.2,2,'#E0596F'); cirkel(x,y-34+b,2,'#F2C94C');}
+  else if(f.hatt==='lurar'){ctx.strokeStyle='#243158';ctx.lineWidth=1.8;
+    ctx.beginPath();ctx.arc(x,y-25+b,6.2,Math.PI,0);ctx.stroke();
+    rekt(x-7.6,y-25.6+b,2.6,4.4,'#243158'); rekt(x+5,y-25.6+b,2.6,4.4,'#243158');}
+  else if(f.hatt==='sjal'){ctx.fillStyle=f.hattfarg||'#C9A46A';
+    ctx.beginPath();ctx.arc(x,y-24.6+b,6.1,Math.PI*1.02,Math.PI*2.08);ctx.fill();
+    ctx.fillRect(x-6.1,y-24.6+b,2.6,7);}
+  if(f.glasogon){ctx.strokeStyle='#2A2030';ctx.lineWidth=.8;
+    ctx.beginPath();ctx.arc(x-1.9,y-24.4+b,1.6,0,7);ctx.arc(x+2,y-24.4+b,1.6,0,7);ctx.stroke();}
+  const by=y-42+Math.sin(tick/16)*1.8;
+  cirkel(x,by,7.6,'#F6EDDA'); tri(x-3.4,by+5,x+3.4,by+5,x+.5,by+11.5,'#F6EDDA');
+  ctx.fillStyle='#1A2547';ctx.font='bold 13px "Frank Ruhl Libre",serif';ctx.textAlign='center';
+  ctx.fillText('!',x,by+4.6);ctx.textAlign='left';
+}
+function ritaHav(h){
+  const x0=h.c0*TILE, br=(h.c1-h.c0)*TILE, yb=ROWS*TILE, yt=(GR-2)*TILE;
+  const vag=(x,y,w,hh,fas)=>{
+    ctx.fillStyle='#2F6E93'; ctx.beginPath(); ctx.moveTo(x,y+hh);
+    for(let i=0;i<=w;i+=8) ctx.lineTo(x+i,y+Math.sin((i+fas)/14)*3);
+    ctx.lineTo(x+w,y+hh); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha=.35; ctx.fillStyle='#8FD0EA';
+    ctx.beginPath(); ctx.moveTo(x,y+4);
+    for(let i=0;i<=w;i+=8) ctx.lineTo(x+i,y+Math.sin((i+fas)/14)*3);
+    ctx.lineTo(x+w,y+6); ctx.lineTo(x,y+6); ctx.closePath(); ctx.fill(); ctx.globalAlpha=1;
+  };
+  if(!h.oppet){ vag(x0,yt,br,yb-yt,tick*1.4); return; }
+  h.anim=Math.min(60,(h.anim||0)+1);
+  const t=h.anim/60, hoj=(yb-yt)+70*t;
+  vag(x0-TILE*1.2,GR*TILE-hoj*t-4,TILE*1.4,hoj,tick*1.4);
+  vag(x0+br-TILE*.2,GR*TILE-hoj*t-4,TILE*1.4,hoj,tick*1.4+40);
+  ctx.globalAlpha=.16*t; rekt(x0,GR*TILE-46,br,46,'#8FD0EA'); ctx.globalAlpha=1;
+}
+function ritaSpelare(p){
+  const x=p.x+p.w/2, y=p.y+p.h, v=p.riktning||1;
+  const vx=p.vx||0, vy=p.vy||0, fart=Math.min(Math.abs(vx),3.6);
+  const paMark=p.paMark!==false;
+  const fas=p.steg||0;
+  const sq=clamp(p.squash||0,-1,1);
+  const gar=paMark&&fart>.3;
+  const HOFT=-9, AXEL=-17.4, HUVUD=-23.0, HR=4.5;
+  const HUD='#EBC7A2', HAR='#2B2136', MANTEL='#4E7BE8', MANTEL2='#3A62C4',
+        BEN='#38304A', BEN2='#241E30', SKO='#7A5A38', SJAL='#F2A83B';
+
+  ctx.save();
+  ctx.translate(Math.round(x),Math.round(y));
+  ctx.scale(v*(1+sq*.18), 1-sq*.24);
+  ctx.rotate(clamp(fart*.03,0,.12));
+
+  let fx1,fy1,fx2,fy2,hx1,hy1,hx2,hy2,and=0;
+  if(!paMark){
+    const upp=vy<-1;
+    fx1= upp?3.8:5.0;  fy1= upp?-3.6:-1.4;
+    fx2= upp?-3.2:-4.4; fy2= upp?-1.0:-.2;
+    hx1= upp?3.0:4.6;  hy1= upp?-18.6:-13.4;
+    hx2= upp?-3.2:-4.2; hy2= upp?-19.4:-12.4;
+  }else if(gar){
+    const s1=Math.sin(fas), s2=Math.sin(fas+Math.PI);
+    const c1=Math.cos(fas), c2=Math.cos(fas+Math.PI);
+    const amp=2.6+fart*.62, lyft=1.2+fart*.85;
+    fx1=c1*amp; fy1=-Math.max(0,s1)*lyft;
+    fx2=c2*amp; fy2=-Math.max(0,s2)*lyft;
+    hx1=c2*amp*.95; hy1=-8.4+Math.max(0,s2)*.9;
+    hx2=c1*amp*.95; hy2=-8.4+Math.max(0,s1)*.9;
+    and=Math.abs(Math.sin(fas))*.6;
+  }else{
+    const b=Math.sin(tick/36)*.45;
+    fx1=2.0; fy1=0; fx2=-2.2; fy2=0;
+    hx1=3.4; hy1=-8.6+b; hx2=-3.6; hy2=-8.6+b;
+    and=b;
+  }
+  const sko=(fx,fy)=>{ctx.fillStyle=SKO;ctx.fillRect(fx-2.1,fy-1.4,4.4,2.2);};
+  const hand=(hx,hy)=>cirkel(hx,hy,1.5,HUD);
+
+  // ---- sjal som fladdrar bakom ----
+  const svans=2.2+fart*1.15, sv=gar?Math.sin(fas)*1.1:Math.sin(tick/30)*.55;
+  ctx.fillStyle=SJAL;
+  ctx.beginPath();
+  ctx.moveTo(-3.4,AXEL+1.2+and);
+  ctx.quadraticCurveTo(-5.2-svans*.5,AXEL+1.0-svans*.3, -4.0-svans,AXEL+3.4-svans*.45+sv);
+  ctx.lineTo(-3.4-svans*.9,AXEL+4.7-svans*.35+sv);
+  ctx.quadraticCurveTo(-4.0-svans*.3,AXEL+3.4, -2.4,AXEL+3.2+and);
+  ctx.closePath(); ctx.fill();
+
+  // ---- bakre ben och arm ----
+  lem(-.8,HOFT+and*.3, fx2,fy2, 4.9,4.9,BEN2,3.8,1); sko(fx2,fy2);
+  lem(-1.4,AXEL+.6+and, hx2,hy2, 3.9,3.9,MANTEL2,3.0,-1); hand(hx2,hy2);
+
+  // ---- mantel ----
+  const hem=gar?Math.sin(fas)*1.3:0;
+  ctx.fillStyle=MANTEL;
+  ctx.beginPath();
+  ctx.moveTo(-5.2,AXEL+and); ctx.lineTo(5.2,AXEL+and);
+  ctx.quadraticCurveTo(6.4,HOFT-2.5, 5.9+hem,HOFT+1.6);
+  ctx.lineTo(-5.9+hem,HOFT+1.6);
+  ctx.quadraticCurveTo(-6.4,HOFT-2.5, -5.2,AXEL+and);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle=MANTEL2;
+  ctx.beginPath();
+  ctx.moveTo(-5.2,AXEL+and); ctx.lineTo(-2.4,AXEL+and);
+  ctx.lineTo(-3.0+hem,HOFT+1.6); ctx.lineTo(-5.9+hem,HOFT+1.6);
+  ctx.quadraticCurveTo(-6.4,HOFT-2.5,-5.2,AXEL+and);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle='rgba(0,0,0,.16)'; ctx.fillRect(-5.6+hem*.7,HOFT+.4,11.4,1.4);
+
+  // ---- väska ----
+  ctx.strokeStyle='#8A6A44'; ctx.lineWidth=1.3;
+  ctx.beginPath(); ctx.moveTo(1.8,AXEL+1+and); ctx.lineTo(-4.2,HOFT-2.6); ctx.stroke();
+  ctx.fillStyle='#B98A46'; ctx.fillRect(-6.6,HOFT-3.6,4.2,3.6);
+  ctx.fillStyle='#8A6A44'; ctx.fillRect(-6.6,HOFT-3.6,4.2,1.1);
+
+  // ---- huvud ----
+  const hy=HUVUD+and*.8, ph=gar?Math.sin(fas+1)*.9:0;
+  ctx.fillStyle=HAR;
+  ctx.beginPath(); ctx.ellipse(-4.6,hy+1.4+ph*.4,2.5,3.3,-.35-fart*.06+ph*.06,0,7); ctx.fill();
+  cirkel(.4,hy,HR,HUD);
+  ctx.fillStyle=HAR;
+  ctx.beginPath(); ctx.arc(.4,hy,HR+.15,Math.PI*1.03,Math.PI*2.06); ctx.fill();
+  ctx.fillRect(-4.2,hy-1.6,4.6,2.3);
+  ctx.fillStyle='#2A2030'; ctx.fillRect(2.2,hy-.4,1.1,1.4);
+  ctx.fillStyle='rgba(200,120,110,.5)'; ctx.fillRect(-1.6,hy+1.4,1.8,1.1);
+  ctx.strokeStyle='#8A5F52'; ctx.lineWidth=.7;
+  ctx.beginPath(); ctx.moveTo(2.0,hy+2.2); ctx.lineTo(3.4,hy+2.2); ctx.stroke();
+
+  // ---- främre ben och arm ----
+  lem(.8,HOFT+and*.3, fx1,fy1, 4.9,4.9,BEN,4.0,1); sko(fx1,fy1);
+  lem(1.4,AXEL+.6+and, hx1,hy1, 3.9,3.9,MANTEL,3.2,-1); hand(hx1,hy1);
+  ctx.restore();
+}
+</script>
+
+<script>
+/* =======================  TILLSTÅND  ======================= */
+let lage='karta', spel=null, pausad=false;
+const HJARTA='<svg viewBox="0 0 24 24"><path d="M12 21s-8-5.1-8-10.3A4.7 4.7 0 0 1 12 7a4.7 4.7 0 0 1 8 3.7C20 15.9 12 21 12 21z" fill="currentColor"/></svg>';
+const RULLE='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#D68F22"/><circle cx="12" cy="12" r="8" fill="#F2C94C"/><text x="12" y="15.5" text-anchor="middle" font-size="9" font-weight="700" fill="#8A5A12">kr</text></svg>';
+const LJUSIK='<svg viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.4l6.5-.9z" fill="currentColor"/></svg>';
+
+function uppdateraHud(){
+  const hn=document.getElementById('hudnamn'), hs=document.getElementById('hudsmall');
+  const hj=document.getElementById('hjartan'), ru=document.getElementById('rullor');
+  if(lage==='bana'&&spel){
+    hs.textContent='Bana '+spel.v.id+' · '+spel.v.kap; hn.textContent=spel.v.namn;
+    hj.innerHTML=Array.from({length:spel.maxHjartan},(_,i)=>
+      HJARTA.replace('<svg','<svg class="'+(i<spel.hjartan?'':'bort')+'"')).join('');
+    ru.innerHTML=RULLE+'<span>'+spel.rullor+'/'+spel.bana.rullor.length+'</span>';
+  }else{
+    hs.textContent='Kartan'; hn.textContent='Konsumentkollen';
+    hj.innerHTML=''; ru.innerHTML=LJUSIK+'<span>'+totLjus()+'/'+(VARLDAR.length*3)+'</span>';
+  }
+}
+
+/* =======================  ÖVERLÄGG  ======================= */
+function visa(html){ overlagg.innerHTML='<div class="panel">'+html+'</div>'; overlagg.classList.remove('dold'); pausad=true; }
+function dolj(){ overlagg.classList.add('dold'); overlagg.innerHTML=''; pausad=false; tyst(); }
+
+function visaFraga(port){
+  const [f,alt,facit]=port.fraga;
+  const ordn=blanda(alt.map((_,i)=>i)), bok='ABCD';
+  visa(`<p class="etikett">Stängd port</p>
+    <h2 class="fraga">${esc(f)}</h2>
+    <div class="alt" id="alt">${ordn.map((idx,n)=>
+      `<button class="altknapp" data-i="${idx}"><span class="bok">${bok[n]}</span><span>${esc(alt[idx])}</span></button>`).join('')}</div>
+    <div id="efter"></div>`);
+  las(f+'. '+ordn.map((i,n)=>`${bok[n]}. ${alt[i]}`).join('. '));
+  overlagg.querySelectorAll('#alt .altknapp').forEach(b=>b.onclick=()=>{
+    const ratt=+b.dataset.i===0;
+    overlagg.querySelectorAll('#alt .altknapp').forEach(x=>{
+      x.disabled=true;
+      if(+x.dataset.i===0)x.classList.add('ratt');
+      else if(x===b)x.classList.add('fel'); else x.classList.add('blek');
+    });
+    if(ratt){ ljudRatt(); port.oppen=true; spel.oppnade++;
+      spel.checkpoint={x:port.x+40,y:port.y-40};
+      document.getElementById('efter').innerHTML=
+        `<div class="facit bra"><b>${valj(['Snyggt!','Precis!','Helt rätt!','Där satt den!'])}</b><p>${esc(facit)}</p></div>
+         <div class="rad"><button class="knapp primar" id="vidare">Porten öppnas →</button></div>`;
+      las('Rätt! '+facit);
+    }else{ ljudFel(); spel.fel++; skada(true);
+      document.getElementById('efter').innerHTML=
+        `<div class="facit daligt"><b>Nästan!</b><p>Rätt svar: <strong>${esc(alt[0])}</strong>. ${esc(facit)}</p></div>
+         <div class="rad"><button class="knapp primar" id="vidare">${spel.hjartan>0?'Försök med en ny fråga':'Se resultat'}</button></div>`;
+      las('Fel. Rätt svar: '+alt[0]+'. '+facit);
+      if(spel.hjartan>0){ port.fraga=nyFraga(port); }
+    }
+    document.getElementById('vidare').onclick=()=>{
+      if(spel.hjartan<=0){ dolj(); visaResultat(false); return; }
+      dolj();
+      if(port.oppen){ ljudPort(); }
+      else { spel.p.x=port.x-46; spel.p.vx=0; }
+      uppdateraHud();
+    };
+    document.getElementById('vidare').focus({preventScroll:true});
+    uppdateraHud();
+  });
+}
+function nyFraga(port){
+  const pool=spel.v.boss?bossFragor():spel.v.fragor;
+  const anv=spel.bana.portar.map(p=>p.fraga&&p.fraga[0]);
+  const kvar=pool.filter(f=>!anv.includes(f[0]));
+  return kvar.length?valj(kvar):valj(pool);
+}
+
+function visaResultat(klarad){
+  const antalRullor=spel.bana.rullor.length;
+  const ljus = !klarad ? 0
+    : (spel.fel===0 && spel.rullor===antalRullor) ? 3
+    : (spel.fel<=1) ? 2 : 1;
+  if(ljus>0){
+    spar.ljus[spel.v.id]=Math.max(spar.ljus[spel.v.id]||0,ljus);
+    spar.rullor+=spel.rullor; spara();
+  }
+  const nasta=VARLDAR.find(v=>v.id===spel.v.id+1);
+  visa(`<h2>${klarad?(ljus===3?'Perfekt!':'Bana klar!'):'Slut på liv'}</h2>
+    <div class="ljusrad">${[0,1,2].map(i=>`<span data-i="${i}">${LJUSIK}</span>`).join('')}</div>
+    <p class="mitt">${klarad
+      ? (ljus===3?'Alla mynt och inte ett enda fel svar. Du kan det här.'
+        :'Ta alla mynt och svara rätt på alla portar, så får du alla tre stjärnorna.')
+      : 'Ingen fara. Portarna får nya frågor om du kör igen – läs plugglistan först.'}</p>
+    <div class="siffror">
+      <div><b>${spel.oppnade}/${spel.bana.portar.length}</b><span>Portar</span></div>
+      <div><b>${spel.uppdragKlara}/${spel.bana.npcar.length}</b><span>Möten</span></div>
+      <div><b>${spel.rullor}/${antalRullor}</b><span>Mynt</span></div>
+      <div><b>${spel.fel}</b><span>Fel svar</span></div>
+    </div>
+    ${klarad&&nasta&&uppLast(nasta.id)?
+      `<p class="mitt" style="color:var(--flame);font-weight:700;margin-top:6px">Nästa mål: ${esc(nasta.namn)} – vandra dit på kartan.</p>`:''}
+    <div class="rad">
+      <button class="knapp" id="omigen">Spela banan igen</button>
+      <button class="knapp primar" id="tillKarta">Ut på kartan</button>
+    </div>`);
+  overlagg.querySelectorAll('.ljusrad span').forEach((el,i)=>{
+    if(i<ljus) setTimeout(()=>{el.classList.add('tand');pip(660+i*160,.2,'sine',.05);},280+i*300);
+  });
+  document.getElementById('omigen').onclick=()=>{dolj();startaBana(spel.v.id);};
+  document.getElementById('tillKarta').onclick=()=>{dolj();tillKarta();};
+  las(klarad?`Bana klar! Du fick ${ljus} stjärnor.`:'Slut på liv. Testa igen!');
+}
+
+function visaMeny(){
+  visa(`<h2>Paus</h2>
+    <div class="rad">
+      <button class="knapp primar" id="fortsatt">Fortsätt spela</button>
+      <button class="knapp" id="omraden">🎯 Träna ett område</button>
+      <button class="knapp" id="plugg">📖 Plugglista</button>
+      <button class="knapp" id="reson">💬 Resonemangshjälp</button>
+      <button class="knapp" id="rostval">🎙 Röst</button>
+      ${lage==='bana'?'<button class="knapp" id="avbryt">Lämna banan</button>':''}
+      <button class="knapp" id="effekt">${spar.ljudEff?'🔈 Ljudeffekter på':'🔇 Ljudeffekter av'}</button>
+      <button class="knapp" id="nolla">Nollställ framsteg</button>
+    </div>`);
+  document.getElementById('fortsatt').onclick=dolj;
+  document.getElementById('omraden').onclick=()=>{visaOmraden();
+    document.getElementById('stang').onclick=visaMeny;};
+  document.getElementById('plugg').onclick=()=>{visaPlugg();
+    document.getElementById('stang').onclick=visaMeny;};
+  document.getElementById('reson').onclick=()=>{visaResonemang();
+    document.getElementById('stang').onclick=visaMeny;};
+  document.getElementById('rostval').onclick=visaRoster;
+  document.getElementById('effekt').onclick=()=>{spar.ljudEff=!spar.ljudEff;spara();visaMeny();};
+  const a=document.getElementById('avbryt'); if(a)a.onclick=()=>{dolj();tillKarta();};
+  document.getElementById('nolla').onclick=()=>{
+    visa(`<h2>Nollställa allt?</h2><p class="mitt">Alla stjärnor och upplåsta banor försvinner.</p>
+      <div class="rad"><button class="knapp" id="ja">Ja, nollställ</button><button class="knapp primar" id="nej">Nej, tillbaka</button></div>`);
+    document.getElementById('ja').onclick=()=>{spar.ljus={};spar.rullor=0;spara();dolj();tillKarta();};
+    document.getElementById('nej').onclick=visaMeny;
+  };
+}
+function visaRoster(){
+  const l=rosterLista();
+  visa(`<h2>Röst för uppläsningen</h2>
+    ${l.length?`<p class="mitt">Tryck på en röst för att höra den.</p>
+    <div class="alt" id="roster">${l.map((v,i)=>
+      `<button class="altknapp${rost&&rost.name===v.name?' ratt':''}" data-n="${esc(v.name)}">
+         <span class="bok">${i+1}</span><span>${esc(v.name)}<br><span style="font-size:.8rem;opacity:.65">${esc(v.lang||'')}${v.localService===false?' · nätröst':''}</span></span></button>`).join('')}</div>`
+    :'<p class="mitt">Ingen talsyntes hittades i den här webbläsaren.</p>'}
+    <div class="facit bra" style="border-color:var(--line);background:rgba(255,255,255,.04);margin-top:16px">
+      <b style="color:var(--flame)">Låter rösten robotig?</b>
+      <p><strong>iPad/iPhone:</strong> Inställningar → Hjälpmedel → Uppläst innehåll → Röster → Svenska → ladda ner Alva (Premium).<br>
+      <strong>Mac:</strong> Systeminställningar → Hjälpmedel → Uppläst innehåll → Systemröst → Hantera röster → Svenska → hämta Premium/Förbättrad.<br>
+      Kom sedan tillbaka hit och välj den i listan.</p>
+    </div>
+    <div class="rad"><button class="knapp primar" id="tillbakaMeny">Klar</button></div>`);
+  overlagg.querySelectorAll('#roster .altknapp').forEach(b=>b.onclick=()=>{
+    spar.rostNamn=b.dataset.n; spara(); valjRost();
+    overlagg.querySelectorAll('#roster .altknapp').forEach(x=>x.classList.remove('ratt'));
+    b.classList.add('ratt');
+    spar.tal=true; visaLjud();
+    las('Hej! Hur länge gäller reklamationsrätten? Tre år.');
+  });
+  document.getElementById('tillbakaMeny').onclick=visaMeny;
+}
+function visaOmraden(){
+  let html='', sistDel='';
+  for(const v of VARLDAR){
+    if(v.del!==sistDel){ html+=`<h3>${esc(v.del)}</h3>`; sistDel=v.del; }
+    const st=spar.ljus[v.id]||0;
+    html+=`<button class="omrade" data-id="${v.id}">
+      <span class="nr">${v.id}</span>
+      <span class="txt"><b>${esc(v.namn)} – ${esc(v.under)}</b><small>${esc(v.kap)}</small></span>
+      <span class="stj">${[0,1,2].map(i=>`<i class="${i<st?'pa':''}">★</i>`).join('')}</span>
+    </button>`;
+  }
+  visa(`<h2>Träna ett område</h2>
+    <p class="mitt">Här kan du hoppa direkt till vilket område du vill – till exempel
+      det du tycker är svårast.</p>
+    <div class="dkropp omradeslista">${html}</div>
+    <div class="rad"><button class="knapp primar" id="stang">Stäng</button></div>`);
+  overlagg.querySelectorAll('.omrade').forEach(b=>b.onclick=()=>{
+    dolj(); startaBana(+b.dataset.id);
+  });
+  document.getElementById('stang').onclick=dolj;
+}
+function visaResonemang(){
+  visa(`<h2>Förklara med egna ord</h2>
+    <p class="mitt">Spelet tränar fakta. Det här tränar det andra kunskapskravet:
+      att <em>förklara</em> begreppen och säga varför de spelar roll.</p>
+    <div class="dkropp">${RESONEMANG.map(([r,rader])=>
+      `<h3>${esc(r)}</h3><dl>${rader.map(([o,f])=>`<dt>${esc(o)}</dt><dd>${esc(f)}</dd>`).join('')}</dl>`).join('')}</div>
+    <div class="rad"><button class="knapp primar" id="stang">Stäng</button></div>`);
+  document.getElementById('stang').onclick=dolj;
+}
+function visaPlugg(){
+  visa(`<h2>Plugglista</h2>
+    <div class="dkropp">${PLUGG.map(([r,rader])=>
+      `<h3>${esc(r)}</h3><dl>${rader.map(([o,f])=>`<dt>${esc(o)}</dt><dd>${esc(f)}</dd>`).join('')}</dl>`).join('')}</div>
+    <div class="rad"><button class="knapp primar" id="stang">Stäng</button></div>`);
+  document.getElementById('stang').onclick=dolj;
+}
+</script>
+
+<script>
+/* =======================  BANSPEL  ======================= */
+const GRAV=.66, HOPPV=-10.9, MAXFART=3.5;
+const ACC_MARK=.145, ACC_LUFT=.095, VAND=2.4, BROMS_MARK=.26, BROMS_LUFT=.035;
+
+function startaBana(id){
+  const v=VARLDAR.find(x=>x.id===id);
+  const bana=byggBana(v);
+  spel={v,bana,
+    p:{x:2*TILE,y:(GR-2)*TILE,vx:0,vy:0,w:15,h:26,paMark:false,coyote:0,buffert:0,riktning:1,blink:0,hoppTid:0,steg:0,squash:0},
+    cam:0, hjartan:v.boss?5:4, maxHjartan:v.boss?5:4, rullor:0, fel:0, oppnade:0, uppdragKlara:0,
+    checkpoint:{x:2*TILE,y:(GR-2)*TILE}, trygg:{x:2*TILE,y:(GR-2)*TILE}, klar:false, partiklar:[]};
+  lage='bana'; dolj(); uppdateraHud();
+  const sc=SCENER[v.id];
+  if(sc&&sc.in) visaScen(sc.in);
+  else las(`Bana ${v.id}. ${v.namn}. ${v.under}.`);
+}
+function tillKarta(){
+  lage='karta'; dolj(); uppdateraHud();
+  if(spel){ const pl=PLATSER.find(q=>q.id===spel.v.id);
+    if(pl){ karta.x=pl.x; karta.y=pl.y+26; } }
+}
+
+function fastRuta(c,r){
+  const b=spel.bana;
+  if(c<0)return true;
+  if(c>=b.cols)return true;
+  if(r<0||r>=ROWS)return false;
+  return b.g[r][c]==='#';
+}
+function skada(utanRespawn){
+  if(spel.hjartan<=0)return;
+  spel.hjartan--; ljudAj(); spel.p.blink=40;
+  if(!utanRespawn){
+    const t=spel.trygg.x>spel.checkpoint.x?spel.trygg:spel.checkpoint;
+    spel.p.x=t.x; spel.p.y=t.y; spel.p.vx=0; spel.p.vy=0;
+  }
+  uppdateraHud();
+  if(spel.hjartan<=0 && !utanRespawn) setTimeout(()=>visaResultat(false),400);
+}
+
+function stegBana(){
+  const p=spel.p, b=spel.bana;
+  // styrning – mjuk acceleration, snabb vändning, tydlig inbromsning
+  const acc=p.paMark?ACC_MARK:ACC_LUFT, broms=p.paMark?BROMS_MARK:BROMS_LUFT;
+  const in_=(tang.hoger?1:0)-(tang.vanster?1:0);
+  if(in_){
+    const vander=(in_>0&&p.vx<0)||(in_<0&&p.vx>0);
+    p.vx+=in_*acc*(vander?VAND:1);
+    p.riktning=in_;
+  }else{
+    if(p.vx>broms)p.vx-=broms; else if(p.vx<-broms)p.vx+=broms; else p.vx=0;
+  }
+  p.vx=clamp(p.vx,-MAXFART,MAXFART);
+  p.steg=(p.steg||0)+(p.paMark?Math.abs(p.vx)*.21:0);
+  if(p.squash>0)p.squash=Math.max(0,p.squash-.075);
+  if(p.squash<0)p.squash=Math.min(0,p.squash+.06);
+
+  if(hoppTryck){p.buffert=9;hoppTryck=false;}
+  if(p.buffert>0)p.buffert--;
+  if(p.paMark)p.coyote=8; else if(p.coyote>0)p.coyote--;
+  if(p.buffert>0&&p.coyote>0){
+    p.vy=HOPPV-Math.abs(p.vx)*.13;      // fart ger extra höjd
+    p.paMark=false;p.coyote=0;p.buffert=0;p.hoppTid=8;p.squash=-.5;ljudHopp();
+    for(let i=0;i<5;i++)spel.partiklar.push({x:p.x+p.w/2+slump(-5,5),y:p.y+p.h,
+      vx:slump(-.7,.7)-p.vx*.25,vy:slump(-.5,.3),liv:16,r:1.6,f:'#FFFFFF'});
+  }
+  if(p.hoppTid>0)p.hoppTid--;
+  if(!tang.hopp&&p.hoppTid<=0&&p.vy<-4.5)p.vy=-4.5;
+  const lang=Math.abs(p.vy)<2.2;                       // svävar lite i toppen
+  const g=p.vy<0?(lang?GRAV*.74:GRAV):(lang?GRAV*.86:GRAV*1.12);
+  p.vy=Math.min(p.vy+g,12);
+  const forreVy=p.vy;
+
+  // x
+  p.x+=p.vx;
+  let r0=Math.floor(p.y/TILE), r1=Math.floor((p.y+p.h-1)/TILE);
+  if(p.vx>0){const c=Math.floor((p.x+p.w-1)/TILE);
+    for(let r=r0;r<=r1;r++) if(fastRuta(c,r)){p.x=c*TILE-p.w;p.vx=0;break;}}
+  else if(p.vx<0){const c=Math.floor(p.x/TILE);
+    for(let r=r0;r<=r1;r++) if(fastRuta(c,r)){p.x=(c+1)*TILE;p.vx=0;break;}}
+
+  // y
+  const forreBotten=p.y+p.h;
+  p.y+=p.vy; p.paMark=false;
+  let c0=Math.floor(p.x/TILE), c1=Math.floor((p.x+p.w-1)/TILE);
+  if(p.vy>0){const r=Math.floor((p.y+p.h)/TILE);
+    for(let c=c0;c<=c1;c++) if(fastRuta(c,r)){
+      p.y=r*TILE-p.h;
+      if(forreVy>5.5&&!p.paMark){ p.squash=Math.min(1,forreVy/13); pip(150,.06,'sine',.035);
+        for(let i=0;i<6;i++)spel.partiklar.push({x:p.x+p.w/2+slump(-7,7),y:p.y+p.h,
+          vx:slump(-1.3,1.3),vy:slump(-.9,-.1),liv:18,r:1.8,f:'#FFFFFF'}); }
+      p.vy=0;p.paMark=true;break;}}
+  else if(p.vy<0){const r=Math.floor(p.y/TILE);
+    for(let c=c0;c<=c1;c++) if(fastRuta(c,r)){p.y=(r+1)*TILE;p.vy=0;break;}}
+
+  // rörliga plattformar
+  for(const m of b.rorliga){
+    m.x+=m.dir*m.fart;
+    if(m.x<m.x0){m.x=m.x0;m.dir=1;} if(m.x>m.x1){m.x=m.x1;m.dir=-1;}
+    if(p.vy>=0 && forreBotten<=m.y+4 && p.y+p.h>=m.y && p.y+p.h<=m.y+14 &&
+       p.x+p.w>m.x+2 && p.x<m.x+m.w-2){
+      p.y=m.y-p.h; p.vy=0; p.paMark=true; p.x+=m.dir*m.fart;
+    }
+  }
+
+  // taggar
+  const tc0=Math.floor((p.x+5)/TILE), tc1=Math.floor((p.x+p.w-6)/TILE);
+  const tr0=Math.floor((p.y+p.h-8)/TILE), tr1=Math.floor((p.y+p.h-1)/TILE);
+  if(p.blink<=0)
+    for(let c=tc0;c<=tc1;c++) for(let r=tr0;r<=tr1;r++)
+      if(r>=0&&r<ROWS&&c>=0&&c<b.cols&&b.g[r][c]==='^'){skada();break;}
+
+  // damm under fötterna vid fart
+  if(p.paMark&&Math.abs(p.vx)>2.2&&tick%5===0)
+    spel.partiklar.push({x:p.x+p.w/2-p.riktning*4,y:p.y+p.h-1,
+      vx:-p.riktning*slump(.2,.8),vy:slump(-.5,-.05),liv:14,r:1.5,f:'#FFFFFF'});
+  // trygg mark att återvända till
+  if(p.paMark && p.blink<=0){
+    const cm=Math.floor((p.x+p.w/2)/TILE), rm=Math.floor((p.y+p.h+2)/TILE);
+    if(fastRuta(cm-1,rm)&&fastRuta(cm,rm)&&fastRuta(cm+1,rm)&&
+       b.g[rm-1]&&b.g[rm-1][cm]!=='^'&&b.g[rm-1][cm+1]!=='^'&&b.g[rm-1][cm-1]!=='^'&&
+       p.x>spel.trygg.x){ spel.trygg={x:p.x,y:p.y}; }
+  }
+  // fall
+  if(p.y>H+40){skada();}
+  if(p.blink>0)p.blink--;
+
+  // rullar
+  for(const rl of b.rullor){
+    if(rl.tagen)continue;
+    if(Math.abs(rl.x-(p.x+p.w/2))<20 && Math.abs(rl.y-(p.y+p.h/2))<24){
+      rl.tagen=true; spel.rullor++; ljudRulle(); uppdateraHud();
+      for(let i=0;i<8;i++)spel.partiklar.push({x:rl.x,y:rl.y,vx:slump(-1.6,1.6),vy:slump(-2.4,-.4),liv:26});
+    }
+  }
+  // figurer att prata med
+  for(const n of b.npcar){
+    if(n.klar)continue;
+    if(p.x+p.w>n.x-20 && p.x<n.x+20 && p.y+p.h>n.y-72){ p.vx=0; visaUppdrag(n); return; }
+  }
+  // portar
+  for(const po of b.portar){
+    if(po.oppen)continue;
+    if(p.x+p.w>po.x-18 && p.x<po.x+18 && p.y+p.h>po.y-70){
+      p.vx=0; visaFraga(po); return;
+    }
+  }
+  // mål
+  if(p.x>b.malX && !spel.klar){
+    spel.klar=true; ljudPort();
+    const sc=SCENER[spel.v.id];
+    setTimeout(()=>{ if(sc&&sc.ut) visaScen(sc.ut,()=>visaResultat(true)); else visaResultat(true); },320);
+  }
+  // partiklar
+  spel.partiklar=spel.partiklar.filter(q=>{q.x+=q.vx;q.y+=q.vy;q.vy+=.14;q.liv--;return q.liv>0;});
+  // kamera
+  const mal=clamp(p.x+p.w/2-W/2,0,b.cols*TILE-W);
+  spel.cam+=(mal-spel.cam)*.14;
+}
+
+function ritaBana(){
+  const b=spel.bana, cam=Math.round(spel.cam), t=TEMA[spel.v.tema];
+  himmel(spel.v.tema);
+  ctx.save(); ctx.translate(0,OFF);
+  ritaBakgrund(spel.v.tema,cam);
+  ctx.translate(-cam,0);
+  const c0=Math.max(0,Math.floor(cam/TILE)-1), c1=Math.min(b.cols,Math.ceil((cam+W)/TILE)+1);
+  for(let c=c0;c<c1;c++)for(let r=0;r<ROWS;r++){
+    const ch=b.g[r][c]; if(ch==='.')continue;
+    const x=c*TILE,y=r*TILE;
+    if(ch==='#'){
+      const topp=!fastRuta(c,r-1);
+      rekt(x,y,TILE,TILE,topp?t.mark:t.mark2);
+      if(topp){rekt(x,y,TILE,5,t.kant); rekt(x,y+5,TILE,2,'rgba(0,0,0,.10)');}
+      ctx.globalAlpha=.16;
+      rekt(x+((c*7+r*3)%12),y+9,7,4,'#000'); rekt(x+((c*5+r*11)%14),y+17,5,3,'#000');
+      ctx.globalAlpha=1;
+    }else if(ch==='^'){
+      rekt(x,y+TILE-4,TILE,4,'#6B3040');
+      for(let i=0;i<3;i++){
+        tri(x+i*8,y+TILE-3,x+i*8+8,y+TILE-3,x+i*8+4,y+4,'#E0596F');
+        tri(x+i*8+2,y+TILE-3,x+i*8+4,y+TILE-3,x+i*8+4,y+8,'#FFD3DA');
+      }
+    }
+  }
+  for(const m of b.rorliga){
+    rekt(m.x,m.y,m.w,m.h,'#8A6A44'); rekt(m.x,m.y,m.w,4,'#B98A46');
+    ctx.globalAlpha=.35;rekt(m.x+4,m.y+m.h,m.w-8,3,'#000');ctx.globalAlpha=1;
+  }
+  for(const rl of b.rullor) if(!rl.tagen) ritaRulle(rl.x,rl.y,'#F2A83B');
+  if(b.hav) ritaHav(b.hav);
+  for(const n of b.npcar) if(!n.klar) ritaNpcFigur(n);
+  for(const po of b.portar) ritaPort(po);
+  ritaMal(b.malX+34,GR*TILE);
+  for(const q of spel.partiklar){ctx.globalAlpha=(q.liv/(q.f?20:26))*(q.f?.5:1);cirkel(q.x,q.y,q.r||2,q.f||'#F2A83B');ctx.globalAlpha=1;}
+  if(!(spel.p.blink>0 && Math.floor(tick/4)%2)) ritaSpelare(spel.p);
+  ctx.restore();
+
+  if(spel.cam<40){
+    ctx.globalAlpha=clamp((40-spel.cam)/25,0,1);
+    ctx.fillStyle='rgba(10,16,34,.75)'; ctx.fillRect(8,10,W-16,30);
+    ctx.fillStyle='#F6EDDA'; ctx.font='600 12px Assistant,sans-serif'; ctx.textAlign='center';
+    ctx.fillText(pekskarm()?'◀ ▶ springer · HOPP hoppar · portarna kräver rätt svar'
+      :'Pilarna springer · mellanslag hoppar · portarna kräver rätt svar',W/2,29);
+    ctx.textAlign='left'; ctx.globalAlpha=1;
+  }
+}
+</script>
+
+<script>
+/* ===================================================================
+   SCENER OCH UPPDRAG – gränssnitt
+   =================================================================== */
+function scenHuvud(vem,bild,text){
+  return `<div class="scenrad">
+    <div class="portratt">${bildFor(bild)}</div>
+    <div class="talbubbla"><span class="vem">${esc(vem)}</span><p style="margin:0">${esc(text)}</p></div>
+  </div>`;
+}
+function visaScen(rader,klart){
+  let i=0;
+  const rita=()=>{
+    const [vem,bild,text]=rader[i];
+    visa(scenHuvud(vem,bild,text)+
+      `<div class="rad"><button class="knapp primar" id="vidare">${i<rader.length-1?'Vidare →':'Sätt igång'}</button></div>`);
+    las(text);
+    document.getElementById('vidare').onclick=()=>{ i++; if(i<rader.length)rita(); else{ dolj(); if(klart)klart(); } };
+  };
+  rita();
+}
+
+function efterUppdrag(npc){
+  if(npc.oppnarHav && spel.bana.hav && !spel.bana.hav.oppet){
+    const h=spel.bana.hav; h.oppet=true; h.anim=0;
+    for(let c=h.c0;c<h.c1;c++) for(let r=GR;r<ROWS;r++) spel.bana.g[r][c]='#';
+    ljudPort(); pip(220,.5,'sine',.06);
+    las('Havet delar sig! Spring igenom.');
+  }
+}
+function avsluta(npc,u,fel){
+  document.getElementById('efter').innerHTML=
+    `<div class="facit ${fel?'daligt':'bra'}"><b>${fel?'Nästan!':valj(['Snyggt!','Precis!','Helt rätt!'])}</b><p>${esc(u.facit||'')}</p></div>
+     <div class="rad"><button class="knapp primar" id="klart">Fortsätt →</button></div>`;
+  las(u.facit||'');
+  document.getElementById('klart').onclick=()=>{
+    npc.klar=true; spel.uppdragKlara++; ljudPort(); efterUppdrag(npc); dolj();
+    if(spel.hjartan<=0) visaResultat(false);
+  };
+  document.getElementById('klart').focus({preventScroll:true});
+}
+const misslyck=()=>{ ljudFel(); skada(true); uppdateraHud(); };
+
+function visaUppdrag(npc){
+  const u=npc.u;
+  if(u.t==='para')      uiPara(u,npc);
+  else if(u.t==='ordning') uiOrdning(u,npc);
+  else if(u.t==='sortera') uiSortera(u,npc);
+  else if(u.t==='prata')   uiPrata(u,npc);
+  else if(u.t==='tandning')uiTandning(u,npc);
+}
+
+/* ---- para ihop ---- */
+function uiPara(u,npc){
+  const rader=u.par||u.parord, ikoner=!!u.par;
+  const V=blanda(rader.map((r,i)=>({t:r[0],i}))), Hh=blanda(rader.map((r,i)=>({t:r[1],i})));
+  let kvar=rader.length, fel=0, vald=null;
+  visa(scenHuvud(u.vem,u.bild,u.f)+
+   `<div class="parspel" id="par">
+      <div class="kol">${V.map(o=>`<button class="altknapp" data-s="v" data-i="${o.i}"><span>${esc(o.t)}</span></button>`).join('')}</div>
+      <div class="kol">${Hh.map(o=>ikoner
+        ? `<button class="ikonknapp" data-s="h" data-i="${o.i}" aria-label="bild">${IKON[o.t]||''}</button>`
+        : `<button class="altknapp" data-s="h" data-i="${o.i}"><span>${esc(o.t)}</span></button>`).join('')}</div>
+    </div><div id="efter"></div>`);
+  las(u.f+' '+V.map(o=>o.t).join(', ')+'.');
+  overlagg.querySelectorAll('#par button').forEach(b=>b.onclick=()=>{
+    if(b.classList.contains('klar'))return;
+    if(b.dataset.s==='v'){
+      overlagg.querySelectorAll('[data-s="v"]').forEach(x=>x.classList.remove('vald'));
+      b.classList.add('vald'); vald=b; las(b.textContent.trim()); return;
+    }
+    if(!vald){ las('Välj ett ord till vänster först.'); return; }
+    if(vald.dataset.i===b.dataset.i){
+      vald.classList.remove('vald'); vald.classList.add('klar'); b.classList.add('klar');
+      ljudRulle(); vald=null; kvar--;
+      if(kvar===0) avsluta(npc,u,fel>0);
+    }else{
+      fel++; misslyck(); b.classList.add('fel');
+      setTimeout(()=>b.classList.remove('fel'),450);
+      vald.classList.remove('vald'); vald=null;
+      if(spel.hjartan<=0) avsluta(npc,u,true);
+    }
+  });
+}
+
+/* ---- rätt ordning ---- */
+function uiOrdning(u,npc){
+  let steg=0, fel=0;
+  visa(scenHuvud(u.vem,u.bild,u.f)+
+   `<div class="bricklada" id="valda"></div>
+    <div class="alt" id="ord">${blanda(u.ord).map(o=>`<button class="altknapp" data-o="${esc(o)}"><span>${esc(o)}</span></button>`).join('')}</div>
+    <div id="efter"></div>`);
+  las(u.f+' '+u.ord.slice().sort().join('. '));
+  const valda=document.getElementById('valda');
+  overlagg.querySelectorAll('#ord .altknapp').forEach(b=>b.onclick=()=>{
+    if(b.disabled)return;
+    if(b.dataset.o===u.ord[steg]){
+      b.disabled=true; b.classList.add('blek'); ljudRulle();
+      valda.insertAdjacentHTML('beforeend',`<span class="brick ratt">${steg+1}. ${esc(b.dataset.o)}</span>`);
+      steg++;
+      if(steg===u.ord.length) avsluta(npc,u,fel>0);
+    }else{
+      fel++; misslyck(); b.classList.add('fel');
+      setTimeout(()=>b.classList.remove('fel'),450);
+      if(spel.hjartan<=0) avsluta(npc,u,true);
+    }
+  });
+}
+
+/* ---- sortera i högar ---- */
+function uiSortera(u,npc){
+  let kvar=u.items.length, fel=0, vald=null;
+  visa(scenHuvud(u.vem,u.bild,u.f)+
+   `<div class="bricklada" id="lada">${blanda(u.items.map(it=>({t:it[0],h:it[1]}))).map(o=>
+      `<button class="brick" data-h="${o.h}">${esc(o.t)}</button>`).join('')}</div>
+    <div class="hogar" id="hogar">${u.hogar.map((h,i)=>
+      `<div class="hog" data-h="${i}"><h4>${esc(h)}</h4><div class="innehall"></div></div>`).join('')}</div>
+    <div id="efter"></div>`);
+  las(u.f+' Högarna heter '+u.hogar.join(' och ')+'.');
+  overlagg.querySelectorAll('#lada .brick').forEach(b=>b.onclick=()=>{
+    overlagg.querySelectorAll('#lada .brick').forEach(x=>x.classList.remove('vald'));
+    b.classList.add('vald'); vald=b; las(b.textContent);
+  });
+  overlagg.querySelectorAll('.hog').forEach(h=>h.onclick=()=>{
+    if(!vald)return;
+    if(vald.dataset.h===h.dataset.h){
+      const k=document.createElement('span'); k.className='brick ratt'; k.textContent=vald.textContent;
+      h.querySelector('.innehall').appendChild(k); vald.remove(); vald=null; kvar--; ljudRulle();
+      if(kvar===0) avsluta(npc,u,fel>0);
+    }else{
+      fel++; misslyck(); h.style.borderColor='var(--pomegranate)';
+      setTimeout(()=>h.style.borderColor='',450);
+      if(spel.hjartan<=0) avsluta(npc,u,true);
+    }
+  });
+}
+
+/* ---- samtal ---- */
+function uiPrata(u,npc){
+  let i=0, fel=false;
+  const rita=()=>{
+    const [sag,alt,facit]=u.steg[i];
+    const ordn=blanda(alt.map((_,k)=>k)), bok='ABC';
+    visa(scenHuvud(u.vem,u.bild,sag)+
+     `<p class="instr">Vad svarar du?</p>
+      <div class="alt" id="svar">${ordn.map((k,n)=>
+        `<button class="altknapp" data-i="${k}"><span class="bok">${bok[n]}</span><span>${esc(alt[k])}</span></button>`).join('')}</div>
+      <div id="efter"></div>`);
+    las(sag+' '+ordn.map((k,n)=>`${bok[n]}. ${alt[k]}`).join('. '));
+    overlagg.querySelectorAll('#svar .altknapp').forEach(b=>b.onclick=()=>{
+      const ratt=+b.dataset.i===0;
+      overlagg.querySelectorAll('#svar .altknapp').forEach(x=>{x.disabled=true;
+        if(+x.dataset.i===0)x.classList.add('ratt'); else if(x===b)x.classList.add('fel'); else x.classList.add('blek');});
+      if(!ratt){ fel=true; misslyck(); }else ljudRatt();
+      document.getElementById('efter').innerHTML=
+        `<div class="facit ${ratt?'bra':'daligt'}"><b>${ratt?'Precis!':'Nästan!'}</b><p>${ratt?'':'Rätt svar: <strong>'+esc(alt[0])+'</strong>. '}${esc(facit)}</p></div>
+         <div class="rad"><button class="knapp primar" id="vidare">${i<u.steg.length-1?'Vidare →':'Klart'}</button></div>`;
+      las((ratt?'Rätt. ':'Fel. Rätt svar: '+alt[0]+'. ')+facit);
+      document.getElementById('vidare').onclick=()=>{
+        if(spel.hjartan<=0){ npc.klar=true; dolj(); visaResultat(false); return; }
+        i++;
+        if(i<u.steg.length) rita();
+        else{ npc.klar=true; spel.uppdragKlara++; ljudPort(); efterUppdrag(npc); dolj(); }
+      };
+    });
+  };
+  rita();
+}
+
+/* ---- tänd chanukkastaken ---- */
+const LAGA='<svg viewBox="0 0 24 24"><path d="M12 2c4 6 6.5 9 6.5 13a6.5 6.5 0 0 1-13 0C5.5 11 8 8 12 2z" fill="#F2A83B"/></svg>';
+function uiTandning(u,npc){
+  const N=9, mitt=4; let tanda=[], fel=0;
+  const rita=()=>{
+    const txt = tanda.length===0 ? 'Tjänaren är det höga ljuset i mitten.'
+      : tanda.length===1 ? 'Bra! Nu tänder Tjänaren de åtta andra ljusen.'
+      : (tanda.length-1)+' av 8 ljus tända.';
+    visa(scenHuvud(u.vem,u.bild,u.f)+
+      `<div class="stake">${Array.from({length:N},(_,i)=>
+        `<button class="ljusk${i===mitt?' tjanare':''}${tanda.includes(i)?' tand':''}" data-i="${i}"
+           aria-label="${i===mitt?'Tjänaren':'Ljus '+(i+1)}">
+           <span class="laga">${LAGA}</span><span class="kropp"></span><span class="stang"></span></button>`).join('')}</div>
+       <p class="instr" style="text-align:center">${esc(txt)}</p>
+       <div id="efter"></div>`);
+    overlagg.querySelectorAll('.ljusk').forEach(kn=>kn.onclick=()=>{
+      const i=+kn.dataset.i;
+      if(tanda.includes(i))return;
+      if(tanda.length===0 && i!==mitt){
+        fel++; misslyck(); las('Nej. Tjänaren tänds först – det är det höga ljuset i mitten.');
+        if(spel.hjartan<=0){ rita(); avsluta(npc,u,true); return; }
+        rita(); return;
+      }
+      tanda.push(i); pip(620+tanda.length*45,.1,'sine',.05);
+      rita();
+      if(tanda.length===N) avsluta(npc,u,fel>0);
+    });
+  };
+  rita();
+  las(u.f+' Tjänaren är det höga ljuset i mitten.');
+}
+</script>
+
+<script>
+/* =======================  VÄRLDSKARTAN  =======================
+   Påhittad karta: staden Köpstad, där du handlar och väljer.
+   Koordinaterna är fria "kartenheter" (0–10 åt höger, 0–8 uppåt). */
+const GEO={lon0:0,lon1:10,lat0:0,lat1:8,k:84};
+const PXL=GEO.k;
+const MW=Math.round((GEO.lon1-GEO.lon0)*PXL);
+const MH=Math.round((GEO.lat1-GEO.lat0)*GEO.k);
+const P=(lo,la)=>[(lo-GEO.lon0)*PXL,(GEO.lat1-la)*GEO.k];
+
+const PLATSER=[
+ {id:1,lo:8.3,la:4.1,ikon:'klader', lbl:'hoger'},   // Klädbutiken – medveten konsument
+ {id:2,lo:6.9,la:5.9,ikon:'pelare', lbl:'over'},    // Reklampelaren – reklam
+ {id:3,lo:4.7,la:6.3,ikon:'mobil',  lbl:'over'},    // Mobilbutiken – rättigheter i butik
+ {id:4,lo:2.1,la:4.9,ikon:'dator',  lbl:'vanster'}, // Nätbutiken – handla på nätet
+ {id:5,lo:1.7,la:2.1,ikon:'torg',   lbl:'under'},   // Torget – märkningar
+ {id:6,lo:3.6,la:1.6,ikon:'affar',  lbl:'under'},   // Mataffären – butiksuppdraget
+ {id:7,lo:5.4,la:2.5,ikon:'hus',    lbl:'under'},   // Hemmet – H.E.M
+ {id:8,lo:7.6,la:1.7,ikon:'hamn',   lbl:'under'},   // Hamnen – fiskpinnens resa (vid viken)
+ {id:9,lo:3.0,la:3.7,ikon:'skola',  lbl:'over'}     // Skolan – provet, mitt i stan
+].map(p=>{const [x,y]=P(p.lo,p.la);return Object.assign(p,{x,y});});
+
+/* ---- land och vatten ---- */
+const ON=[[0.6,6.6],[1.4,7.3],[2.6,7.4],[3.6,7.15],[4.8,7.55],[6.0,7.3],[7.2,7.5],[8.4,7.25],
+ [9.3,6.5],[9.45,5.3],[9.1,4.3],[9.4,3.2],[9.2,2.3],[8.6,1.15],[7.6,0.75],[6.6,0.95],
+ [5.6,0.65],[4.5,0.95],[3.4,0.7],[2.2,0.9],[1.2,1.3],[0.6,2.2],[0.75,3.3],[0.45,4.4],[0.7,5.5]];
+const VIKEN=[[6.9,0.6],[7.1,1.05],[7.6,1.25],[8.2,1.1],[8.4,0.6]];
+const SJON=[[4.1,4.55],[4.7,4.95],[5.4,4.75],[5.6,4.2],[5.1,3.75],[4.4,3.8],[4.0,4.1]];
+const HOLMEN=[[8.95,7.75],[9.5,7.85],[9.75,7.5],[9.3,7.35]];
+const ALVEN=[[5.55,4.2],[6.2,3.7],[6.6,3.1],[7.0,2.4],[7.35,1.6],[7.55,1.15]];
+const BERG=[
+ [[1.3,6.5],[2.0,6.85],[2.9,6.75]],
+ [[8.2,6.6],[8.7,6.2],[8.9,5.6]]
+];
+const VAGAR=[
+ [[1.7,2.1],[2.6,1.75],[3.6,1.6],[4.5,2.0],[5.4,2.5],[6.5,2.2],[7.6,1.7]],
+ [[7.6,1.7],[8.1,2.9],[8.3,4.1],[7.7,5.0],[6.9,5.9],[5.8,6.3],[4.7,6.3]],
+ [[4.7,6.3],[3.5,5.7],[2.1,4.9],[1.6,3.5],[1.7,2.1]],
+ [[1.6,3.5],[2.3,3.6],[3.0,3.7]]
+];
+const REGIONER=[
+ ['FISKEHAVET',4.9,0.3,'hav',13],['KVITTOSUNDET',0.25,4.0,'hav',9],
+ ['KÖPSTAD',6.6,4.3,'land',15],['ÅNGERBERGEN',2.1,7.05,'land',9],
+ ['SÄSONGSSJÖN',4.8,4.3,'sjo',9],['RETURÅN',6.75,2.9,'flod',8],['FISKHOLMEN',9.35,7.95,'land',7]
+];
+
+const karta={x:0,y:0,cam:{x:0,y:0},riktning:1,narmast:null,bat:false,steg:0,fart:0};
+(function(){const u=PLATSER[0];karta.x=u.x-14;karta.y=u.y+20;})();
+
+/* ---- land/hav-mask för båtläge ---- */
+let mask=null;
+function byggMask(){
+  const m=document.createElement('canvas'); m.width=MW; m.height=MH;
+  const q=m.getContext('2d');
+  q.fillStyle='#000'; q.fillRect(0,0,MW,MH);          // allt är hav från början
+  q.fillStyle='#fff';                                  // landet målas vitt
+  const rita=pts=>{q.beginPath();pts.forEach((pt,i)=>{const[x,y]=P(pt[0],pt[1]);i?q.lineTo(x,y):q.moveTo(x,y);});q.closePath();q.fill();};
+  [ON,HOLMEN].forEach(rita);
+  q.fillStyle='#000';                                  // sjön och viken är vatten igen
+  [SJON,VIKEN].forEach(rita);
+  mask=q.getImageData(0,0,MW,MH).data;
+}
+function arVatten(x,y){
+  if(!mask)return false;
+  const ix=Math.round(clamp(x,0,MW-1)), iy=Math.round(clamp(y,0,MH-1));
+  return mask[(iy*MW+ix)*4]<128;
+}
+
+/* ---- ritfunktioner ---- */
+function bana(pts,slut){
+  ctx.beginPath();
+  pts.forEach((pt,i)=>{const[x,y]=P(pt[0],pt[1]);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});
+  if(slut)ctx.closePath();
+}
+function fyllGeo(pts,farg){ bana(pts,true); ctx.fillStyle=farg; ctx.fill(); }
+function strackGeo(pts,farg,bredd){ bana(pts,false); ctx.strokeStyle=farg; ctx.lineWidth=bredd;
+  ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke(); }
+
+function ritaPlatsIkon(p,oppen){
+  const x=p.x,y=p.y, g=oppen?'#E7C36A':'#6A7290', m=oppen?'#B08A3E':'#4E5570';
+  ctx.globalAlpha=.22;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y+4,20,6,0,0,7);ctx.fill();ctx.globalAlpha=1;
+  if(p.ikon==='klader'){ rekt(x-20,y-20,40,20,oppen?'#E8DCC0':m);
+    for(let i=0;i<5;i++) rekt(x-20+i*8,y-24,8,6,oppen?(i%2?'#7B4FA8':'#F4EFE2'):g);
+    const f=oppen?'#5B87F0':g;
+    rekt(x-12,y-16,10,11,f); rekt(x-16,y-16,4,4,f); rekt(x-2,y-16,4,4,f);
+    if(oppen) rekt(x+5,y-15,9,15,'#6A5C4E'); }
+  else if(p.ikon==='pelare'){ rekt(x-9,y-30,18,30,oppen?'#2A3A66':m);
+    rekt(x-12,y-34,24,5,g); tri(x-10,y-34,x+10,y-34,x,y-40,g);
+    if(oppen){ rekt(x-7,y-26,14,10,'#FF5FA2'); rekt(x-7,y-13,14,8,'#F2C94C');
+      ctx.fillStyle='#FFFFFF';ctx.font='bold 6px Assistant,sans-serif';ctx.textAlign='center';
+      ctx.fillText('REA',x,y-19);ctx.textAlign='left'; } }
+  else if(p.ikon==='mobil'){ rekt(x-10,y-34,20,34,oppen?'#243158':m);
+    rekt(x-7,y-30,14,24,oppen?'#8FB7E8':g); cirkel(x,y-3,1.8,oppen?'#8E9BC2':g);
+    if(oppen){ ctx.strokeStyle='#E0596F';ctx.lineWidth=1.6;ctx.beginPath();
+      ctx.moveTo(x-5,y-26);ctx.lineTo(x+1,y-18);ctx.lineTo(x-2,y-14);ctx.lineTo(x+5,y-8);ctx.stroke(); } }
+  else if(p.ikon==='dator'){ rekt(x-16,y-30,32,22,oppen?'#243158':m);
+    rekt(x-13,y-27,26,16,oppen?'#8FB7E8':g); rekt(x-21,y-8,42,6,oppen?'#8E9BC2':m);
+    if(oppen){ ctx.strokeStyle='#F2A83B';ctx.lineWidth=1.6;ctx.beginPath();
+      ctx.moveTo(x-8,y-24);ctx.lineTo(x-5,y-24);ctx.lineTo(x-2,y-16);ctx.lineTo(x+7,y-16);ctx.lineTo(x+8,y-22);ctx.lineTo(x-4,y-22);ctx.stroke();
+      cirkel(x-1,y-13.5,1.4,'#F2A83B'); cirkel(x+6,y-13.5,1.4,'#F2A83B'); } }
+  else if(p.ikon==='torg'){ rekt(x-18,y-26,3,26,oppen?'#8A6A44':m); rekt(x+15,y-26,3,26,oppen?'#8A6A44':m);
+    for(let i=0;i<5;i++) rekt(x-21+i*8.4,y-32,8.4,8,oppen?(i%2?'#7FB069':'#F4EFE2'):g);
+    rekt(x-18,y-12,36,5,oppen?'#B98A46':g);
+    if(oppen){ cirkel(x-10,y-15,3,'#E0596F'); cirkel(x-3,y-15,3,'#F2A83B'); cirkel(x+4,y-15,3,'#7FB069'); cirkel(x+11,y-15,3,'#F2C94C'); } }
+  else if(p.ikon==='hus'){ rekt(x-16,y-18,32,18,oppen?'#A8324A':m);
+    tri(x-20,y-18,x+20,y-18,x,y-32,oppen?'#3A3038':m);
+    if(oppen){rekt(x-10,y-14,7,7,'#F2C94C'); rekt(x+4,y-14,7,7,'#F2C94C');} }
+  else if(p.ikon==='ringmur'){ rekt(x-22,y-16,44,16,g);
+    for(let i=0;i<6;i++)rekt(x-22+i*8,y-22,5,7,g);
+    rekt(x-5,y-28,11,28,m); rekt(x-3,y-22,7,10,oppen?'#5B3E1E':'#3A4058'); }
+  else if(p.ikon==='lavvu'){ tri(x-20,y,x+20,y,x,y-30,oppen?'#8A6A44':m);
+    ctx.strokeStyle=oppen?'#4A3322':'#3A4058';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(x-5,y-36);ctx.lineTo(x,y-30);ctx.moveTo(x+5,y-36);ctx.lineTo(x,y-30);ctx.stroke();
+    if(oppen)cirkel(x,y-8,5,'#F2A83B'); }
+  else if(p.ikon==='domstol'){ rekt(x-22,y-6,44,6,g); tri(x-24,y-20,x+24,y-20,x,y-34,g);
+    for(let i=0;i<4;i++)rekt(x-18+i*11,y-20,6,14,g);
+    if(oppen){ctx.strokeStyle='#F4EFE2';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(x-10,y-26);ctx.lineTo(x+10,y-26);ctx.stroke();} }
+  else if(p.ikon==='tidning'){ rekt(x-19,y-24,34,24,oppen?'#F4EFE2':m);
+    rekt(x+13,y-20,6,20,oppen?'#D8D2C2':m);
+    if(oppen){rekt(x-15,y-21,26,6,'#2A3A66');
+      ctx.strokeStyle='#8E9BC2';ctx.lineWidth=1.6;ctx.beginPath();
+      ctx.moveTo(x-15,y-11);ctx.lineTo(x+9,y-11);ctx.moveTo(x-15,y-6);ctx.lineTo(x+9,y-6);ctx.stroke();} }
+  else if(p.ikon==='katedral'){ rekt(x-18,y-22,36,22,g);
+    tri(x-14,y-22,x-2,y-22,x-8,y-48,m); tri(x+2,y-22,x+14,y-22,x+8,y-48,m);
+    if(oppen)cirkel(x,y-12,6,'#8FB7E8'); }
+  else if(p.ikon==='riksdag'){ tri(x-24,y-16,x+24,y-16,x,y-30,g); rekt(x-24,y-16,48,4,m);
+    for(let i=0;i<5;i++)rekt(x-19+i*9,y-12,6,12,g);
+    rekt(x-24,y,48,0,m);
+    if(oppen){ctx.globalAlpha=.3;cirkel(x,y-26,24,'#F2C94C');ctx.globalAlpha=1;} }
+  else if(p.ikon==='fabrik'){ rekt(x-20,y-16,40,16,g); rekt(x+8,y-32,8,16,m);
+    tri(x-20,y-16,x-4,y-16,x-12,y-26,m); tri(x-4,y-16,x+8,y-16,x+2,y-26,m);
+    if(oppen){ctx.globalAlpha=.55;cirkel(x+12,y-40,6,'#D8CFC4');cirkel(x+6,y-48,4,'#D8CFC4');ctx.globalAlpha=1;} }
+  else if(p.ikon==='affar'){ rekt(x-20,y-20,40,20,oppen?'#E8DCC0':m);
+    for(let i=0;i<5;i++) rekt(x-20+i*8,y-24,8,6,oppen?(i%2?'#E0596F':'#F4EFE2'):g);
+    if(oppen){rekt(x-15,y-15,14,10,'#8FB7E8'); rekt(x+4,y-15,10,15,'#6A5C4E');} }
+  else if(p.ikon==='bank'){ rekt(x-22,y-4,44,4,g); tri(x-24,y-22,x+24,y-22,x,y-34,g);
+    for(let i=0;i<4;i++)rekt(x-18+i*11,y-22,6,18,oppen?'#F4EFE2':m);
+    if(oppen){cirkel(x,y-27,3.4,'#F2C94C');} }
+  else if(p.ikon==='kok'){ ctx.fillStyle=oppen?'#FFFFFF':m;ctx.beginPath();ctx.ellipse(x,y-12,20,13,0,0,7);ctx.fill();
+    if(oppen){ctx.fillStyle='#7FB069';ctx.beginPath();ctx.moveTo(x,y-12);ctx.ellipse(x,y-12,16,10,0,Math.PI*.5,Math.PI*1.3);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#F2C94C';ctx.beginPath();ctx.moveTo(x,y-12);ctx.ellipse(x,y-12,16,10,0,Math.PI*1.3,Math.PI*2.1);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#A8664A';ctx.beginPath();ctx.moveTo(x,y-12);ctx.ellipse(x,y-12,16,10,0,Math.PI*2.1,Math.PI*2.5);ctx.closePath();ctx.fill();} }
+  else if(p.ikon==='hamn'){ rekt(x-20,y-6,40,6,g); rekt(x-6,y-34,5,28,g); rekt(x-14,y-36,30,5,g);
+    rekt(x+10,y-31,4,10,m);
+    const bf=oppen?['#A8324A','#7FB069','#F2C94C']:[m,m,m];
+    for(let i=0;i<3;i++)rekt(x-18+i*13,y-16,11,10,bf[i]); }
+  else { tri(x-22,y-18,x+22,y-18,x,y-32,oppen?'#A8324A':m);
+    rekt(x-17,y-18,34,18,oppen?'#F4EFE2':m);
+    rekt(x-4,y-11,9,11,'#6A5C4E');
+    if(oppen){rekt(x-13,y-14,7,7,'#8FB7E8'); rekt(x+7,y-14,7,7,'#8FB7E8');
+      ctx.globalAlpha=.3;cirkel(x,y-22,26,'#F2C94C');ctx.globalAlpha=1;} }
+}
+
+function ritaEtikett(p){
+  const v=VARLDAR.find(v=>v.id===p.id), oppen=uppLast(p.id), ljus=spar.ljus[p.id]||0;
+  ctx.font='700 12px Assistant,sans-serif';
+  const txt=p.id+'. '+v.namn, w=ctx.measureText(txt).width+12;
+  let lx=p.x, ly=p.y+18;
+  if(p.lbl==='over')ly=p.y-42; else if(p.lbl==='vanster'){lx=p.x-w/2-24;ly=p.y-12;}
+  else if(p.lbl==='hoger'){lx=p.x+w/2+24;ly=p.y-12;}
+  ctx.textAlign='center';
+  ctx.fillStyle='rgba(12,20,40,.78)'; ctx.fillRect(lx-w/2,ly-12,w,17);
+  ctx.fillStyle=oppen?'#F6EDDA':'#96A2C4'; ctx.fillText(txt,lx,ly);
+  if(!oppen){ ctx.font='11px sans-serif'; ctx.fillText('🔒',p.x,p.y-4); }
+  else if(ljus>0){ for(let i=0;i<3;i++){ ctx.globalAlpha=i<ljus?1:.2;
+      cirkel(p.x-11+i*11,ly+11,3.2,'#F2A83B'); ctx.globalAlpha=1; } }
+  ctx.textAlign='left';
+}
+
+function stegKarta(){
+  if(!mask)byggMask();
+  karta.bat=arVatten(karta.x,karta.y);
+  const fart=karta.bat?1.7:2.6; let dx=0,dy=0;
+  if(tang.vanster)dx-=1; if(tang.hoger)dx+=1;
+  if(tang.upp)dy-=1; if(tang.ner)dy+=1;
+  if(dx||dy){const l=Math.hypot(dx,dy);karta.x+=dx/l*fart;karta.y+=dy/l*fart;
+    if(dx)karta.riktning=dx>0?1:-1;
+    karta.fart=fart; karta.steg+=fart*.24;}
+  else karta.fart=0;
+  karta.x=clamp(karta.x,10,MW-10); karta.y=clamp(karta.y,16,MH-10);
+  karta.narmast=null;
+  for(const p of PLATSER) if(Math.hypot(p.x-karta.x,p.y-karta.y)<34) karta.narmast=p;
+  if(hoppTryck){
+    hoppTryck=false;
+    if(karta.narmast){
+      if(uppLast(karta.narmast.id)) startaBana(karta.narmast.id);
+      else { pip(180,.2,'square',.05); las('Den här platsen är låst. Klara banan innan först.'); }
+    }
+  }
+  karta.cam.x+=(clamp(karta.x-W/2,0,Math.max(0,MW-W))-karta.cam.x)*.15;
+  karta.cam.y+=(clamp(karta.y-VH/2,0,Math.max(0,MH-VH))-karta.cam.y)*.15;
+}
+
+function ritaKarta(){
+  if(!mask)byggMask();
+  const cx=Math.round(karta.cam.x), cy=Math.round(karta.cam.y);
+  ctx.fillStyle='#0B1226'; ctx.fillRect(0,0,W,VH);
+  ctx.save(); ctx.translate(-cx,-cy);
+
+  // hav
+  ctx.fillStyle='#2E6C93'; ctx.fillRect(0,0,MW,MH);
+  ctx.globalAlpha=.16; ctx.strokeStyle='#CFE9F5'; ctx.lineWidth=2;
+  for(let i=0;i<70;i++){const x=(i*173)%MW, y=(i*277)%MH;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+7,y-3,x+14,y);ctx.quadraticCurveTo(x+21,y+3,x+28,y);ctx.stroke();}
+  ctx.globalAlpha=1;
+  // land
+  [ON,HOLMEN].forEach(l=>fyllGeo(l,'#C6CFA2'));
+  // parker och dungar
+  ctx.fillStyle='#A8B886';
+  for(let i=0;i<160;i++){const x=(i*151)%MW,y=(i*233)%MH;
+    if(!arVatten(x,y)){ctx.beginPath();ctx.ellipse(x,y,9,4,0,0,7);ctx.fill();}}
+  // bergen
+  for(const kedja of BERG)
+    for(let i=0;i<kedja.length-1;i++){
+      const [x1,y1]=P(kedja[i][0],kedja[i][1]), [x2,y2]=P(kedja[i+1][0],kedja[i+1][1]);
+      const n=Math.max(2,Math.round(Math.hypot(x2-x1,y2-y1)/20));
+      for(let j=0;j<n;j++){const t=j/n,x=x1+(x2-x1)*t,y=y1+(y2-y1)*t+((j%2)?4:-3);
+        tri(x-12,y+6,x+12,y+6,x,y-11,'#9C9184'); tri(x-5,y-1,x+5,y-1,x,y-11,'#F2F6FF');}
+    }
+  // vägar
+  for(const v of VAGAR){ strackGeo(v,'#E2D6B4',7); strackGeo(v,'#CDBF98',3); }
+  // sjö, vik och å
+  [SJON,VIKEN].forEach(s=>fyllGeo(s,'#2E6C93'));
+  strackGeo(ALVEN,'#3B7FA6',3);
+  // kustlinje
+  ctx.globalAlpha=.5;
+  [ON,HOLMEN].forEach(l=>{bana(l,true); ctx.strokeStyle='#8FD0EA';ctx.lineWidth=2;ctx.stroke();});
+  ctx.globalAlpha=1;
+  // resvägen
+  ctx.strokeStyle='rgba(246,237,218,.5)';ctx.lineWidth=3;ctx.setLineDash([7,8]);
+  ctx.beginPath();ctx.moveTo(PLATSER[0].x,PLATSER[0].y);
+  for(let i=1;i<PLATSER.length;i++){const a=PLATSER[i-1],b=PLATSER[i];
+    ctx.quadraticCurveTo((a.x+b.x)/2+((i%2)?26:-26),(a.y+b.y)/2-14,b.x,b.y);}
+  ctx.stroke();ctx.setLineDash([]);
+  // regionnamn
+  ctx.textAlign='center';
+  for(const [namn,lo,la,typ,st] of REGIONER){
+    const [x,y]=P(lo,la);
+    ctx.font=`700 ${st}px Assistant,sans-serif`;
+    ctx.fillStyle= typ==='hav'?'rgba(228,244,252,.75)': typ==='sjo'?'rgba(226,242,250,.9)'
+                 : typ==='flod'?'rgba(226,242,250,.85)':'rgba(60,70,40,.55)';
+    ctx.save();
+    if(typ==='flod'){ctx.translate(x,y);ctx.rotate(-.5);ctx.fillText(namn,0,0);}
+    else{ctx.translate(x,y);ctx.fillText(namn.split('').join(String.fromCharCode(8202)),0,0);}
+    ctx.restore();
+  }
+  ctx.textAlign='left';
+  // hänvisningsstreck
+  for(const p of PLATSER) if(p.pekar){
+    const m=PLATSER.find(q=>q.id===p.pekar);
+    ctx.strokeStyle='rgba(246,237,218,.45)';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);
+    ctx.beginPath();ctx.moveTo(p.x,p.y+2);ctx.lineTo(m.x,m.y-20);ctx.stroke();ctx.setLineDash([]);
+  }
+  // platser
+  for(const p of PLATSER) ritaPlatsIkon(p,uppLast(p.id));
+  for(const p of PLATSER) ritaEtikett(p);
+  // spelaren (med båt på vatten)
+  if(karta.bat){
+    const b=Math.sin(tick/12)*1.5;
+    ritaSpelare({x:karta.x-8,y:karta.y-26+b,w:15,h:24,riktning:karta.riktning,paMark:true,vx:0,steg:0});
+    ctx.fillStyle='#8A6A44';ctx.beginPath();
+    ctx.moveTo(karta.x-15,karta.y-4+b);ctx.lineTo(karta.x+15,karta.y-4+b);
+    ctx.lineTo(karta.x+10,karta.y+4+b);ctx.lineTo(karta.x-10,karta.y+4+b);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=.6;
+    for(let i=0;i<3;i++)rekt(karta.x-16-i*5,karta.y+6+((tick/6+i)%3),9,2,'#CFE9F5');
+    ctx.globalAlpha=1;
+  }else{
+    ritaSpelare({x:karta.x-8,y:karta.y-24,w:15,h:24,riktning:karta.riktning,paMark:true,
+      vx:karta.fart*1.25,steg:karta.steg});
+  }
+  // kompass
+  const [kx,ky]=P(0.55,0.75);
+  cirkel(kx,ky,15,'rgba(12,20,40,.6)');
+  tri(kx,ky-12,kx-5,ky+4,kx+5,ky+4,'#F6EDDA');
+  ctx.fillStyle='#F6EDDA';ctx.font='700 9px Assistant,sans-serif';ctx.textAlign='center';
+  ctx.fillText('N',kx,ky+13);ctx.textAlign='left';
+  ctx.restore();
+
+
+  // minikarta
+  const mw=56,mh=Math.round(mw*MH/MW),mx=W-mw-10,my=10;
+  ctx.fillStyle='rgba(10,16,34,.8)';ctx.fillRect(mx-3,my-3,mw+6,mh+6);
+  ctx.fillStyle='rgba(150,172,124,.45)';ctx.fillRect(mx,my,mw,mh);
+  ctx.strokeStyle='rgba(246,237,218,.35)';ctx.lineWidth=1;
+  ctx.beginPath();
+  PLATSER.forEach((q,i)=>{const px=mx+q.x/MW*mw,py=my+q.y/MH*mh;i?ctx.lineTo(px,py):ctx.moveTo(px,py);});
+  ctx.stroke();
+  for(const q of PLATSER){const px=mx+q.x/MW*mw,py=my+q.y/MH*mh;
+    cirkel(px,py,3,(spar.ljus[q.id]||0)>0?'#F2A83B':uppLast(q.id)?'#5B87F0':'#5A6280');}
+  const pxs=mx+karta.x/MW*mw,pys=my+karta.y/MH*mh;
+  ctx.globalAlpha=.5+.5*Math.abs(Math.sin(tick/22)); cirkel(pxs,pys,5,'#FFFFFF'); ctx.globalAlpha=1;
+  cirkel(pxs,pys,2.4,'#FFFFFF');
+
+  // pil mot nästa mål
+  const mal=PLATSER.find(q=>uppLast(q.id)&&!((spar.ljus[q.id]||0)>0));
+  if(mal && karta.narmast!==mal){
+    const sx=mal.x-cx, sy=mal.y-cy;
+    if(sx<24||sx>W-24||sy<24||sy>VH-70){
+      const mx2=W/2, my2=(VH-38)/2, dx=sx-mx2, dy=sy-my2, l=Math.hypot(dx,dy)||1;
+      const r=Math.min(W,VH-38)/2-30, ax=mx2+dx/l*r, ay=my2+dy/l*r;
+      ctx.save(); ctx.translate(ax,ay); ctx.rotate(Math.atan2(dy,dx));
+      ctx.globalAlpha=.55+.45*Math.abs(Math.sin(tick/18));
+      tri(-10,-9,-10,9,12,0,'#F2A83B'); ctx.globalAlpha=1; ctx.restore();
+    }
+  }
+  // banner
+  ctx.fillStyle='rgba(10,16,34,.78)';ctx.fillRect(0,VH-38,W,38);
+  ctx.fillStyle='#F6EDDA';ctx.font='600 13px Assistant,sans-serif';ctx.textAlign='center';
+  if(karta.narmast){
+    const v=VARLDAR.find(v=>v.id===karta.narmast.id);
+    const g=pekskarm()?'tryck HOPP':'tryck mellanslag';
+    ctx.fillText(uppLast(v.id)? `${v.namn} – ${g} för att gå in` : `${v.namn} är låst – klara bana ${v.id-1} först`, W/2,VH-15);
+  }else if(karta.bat){
+    ctx.fillText('Du seglar · styr mot land med pilarna',W/2,VH-15);
+  }else if(mal){
+    ctx.fillStyle='#F2A83B';
+    ctx.fillText('Nästa mål: '+VARLDAR.find(v=>v.id===mal.id).namn+' – vandra dit',W/2,VH-15);
+  }else{
+    ctx.fillText(pekskarm()?'Gå omkring med pilarna · gå fram till en plats och tryck HOPP'
+      :'Gå omkring med piltangenterna · tryck mellanslag vid en plats',W/2,VH-15);
+  }
+  ctx.textAlign='left';
+}
+
+/* =======================  LOOP  ======================= */
+let sist=0,ack=0;
+function loop(nu){
+  requestAnimationFrame(loop);
+  const dt=Math.min(50,nu-sist); sist=nu; ack+=dt;
+  let steg=0;
+  while(ack>=16.7 && steg<3){ ack-=16.7; steg++;
+    tick++;
+    if(!pausad){ if(lage==='bana')stegBana(); else stegKarta(); }
+    else hoppTryck=false;
+  }
+  if(lage==='bana'&&spel) ritaBana(); else ritaKarta();
+}
+
+/* =======================  START  ======================= */
+document.getElementById('menyknapp').onclick=()=>{ if(overlagg.classList.contains('dold'))visaMeny(); else dolj(); };
+const lj=document.getElementById('ljudknapp');
+function visaLjud(){ lj.setAttribute('aria-pressed',String(spar.tal)); lj.textContent=spar.tal?'🔊':'🔇'; }
+lj.onclick=()=>{ spar.tal=!spar.tal; spara(); visaLjud(); tyst(); if(spar.tal)las('Uppläsning på.'); };
+visaLjud();
+
+function startskarm(){
+  const klara=Object.keys(spar.ljus).length, n=VARLDAR.length;
+  visa(`<h2>Konsumentkollen</h2>
+    <p class="mitt">${klara?`Du har klarat ${klara} av ${n} banor och samlat ${totLjus()} stjärnor.`
+      :'Bli en smart konsument i Köpstad – från klädbutiken till hamnen. Spring, hoppa och samla mynt. Portarna öppnas bara om du svarar rätt.'}</p>
+    <div class="siffror"><div><b>${totLjus()}/${n*3}</b><span>Stjärnor</span></div>
+      <div><b>${klara}/${n}</b><span>Banor</span></div></div>
+    <div class="rad">
+      <button class="knapp primar" id="start">${klara?'Fortsätt':'Börja'}</button>
+      <button class="knapp" id="om">🎯 Träna ett område</button>
+      <button class="knapp" id="pl">📖 Plugglista</button>
+      <button class="knapp" id="re">💬 Förklara</button>
+    </div>
+    <p class="mitt" style="margin-top:14px;font-size:.88rem">Konsumentkunskap åk 9: reklam, dina rättigheter, märkningar och mat för hälsa, ekonomi och miljö. Tryck på Förklara för hjälp med H.E.M-svar.</p>`);
+  document.getElementById('start').onclick=()=>{ dolj(); pip(523,.1,'sine',.05); las('Välkommen till Konsumentkollen. Gå till en plats på kartan och tryck hopp.'); };
+  document.getElementById('pl').onclick=()=>{ visaPlugg();
+    const s=document.getElementById('stang'); s.onclick=startskarm; };
+  document.getElementById('re').onclick=()=>{ visaResonemang();
+    const s=document.getElementById('stang'); s.onclick=startskarm; };
+  document.getElementById('om').onclick=()=>{ visaOmraden();
+    const s=document.getElementById('stang'); s.onclick=startskarm; };
+}
+if(!(navigator.maxTouchPoints>0||'ontouchstart' in window))
+  document.getElementById('kontroller').style.display='none';
+passaDuk(); uppdateraHud(); startskarm(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

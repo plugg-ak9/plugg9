@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Öva muntligt · Plugg åk 9</title>
+<meta name="description" content="Öva inför ett muntligt prov: säg svaret högt, jämför med ett exempel och bocka av nyckelorden.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#10141C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plugg åk 9">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../ikon-180.png">
+<link rel="icon" type="image/png" href="../ikon-192.png">
+<link rel="stylesheet" href="../fonter/fonter.css">
+<script src="../rost/rost.js" data-spel="muntligt"></script>
+<style>
+:root{--bg:#0F1524;--kort:#18213A;--kort2:#1F2A48;--text:#F2F5FA;--dov:#A9B3C6;--linje:#2C3758;--acc:#7EA6FF;--ratt:#5FCB8A;--gul:#F2C14E;--rod:#E86A6A;--knapp:#26314F;
+  --rubrik:"Lexend","Avenir Next","Segoe UI",sans-serif;--brod:"Atkinson Hyperlegible","Verdana",sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,#25335C,transparent),var(--bg);color:var(--text);font:18px/1.5 var(--brod);min-height:100vh;
+  padding:calc(16px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom))}
+.wrap{max-width:680px;margin:0 auto;display:grid;gap:14px}
+.topp{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.topp a{font:700 .95rem var(--rubrik);color:var(--text);text-decoration:none;border:1px solid var(--linje);border-radius:12px;padding:10px 14px;background:#1E2638;min-height:44px;display:inline-flex;align-items:center}
+.topp a[hidden]{display:none}
+h1{font:800 clamp(1.7rem,6vw,2.1rem)/1.1 var(--rubrik);margin:4px 0 0;text-wrap:balance}
+h2{font:800 1.25rem/1.25 var(--rubrik);margin:0 0 6px}
+.under{margin:6px 0 0;color:var(--dov)}
+.mjuk{color:var(--dov);margin:6px 0 0}
+.etikett{display:inline-block;font:700 .74rem var(--rubrik);letter-spacing:.08em;text-transform:uppercase;color:var(--acc);background:rgba(126,166,255,.14);border-radius:999px;padding:3px 10px;margin:0}
+.flikar{display:flex;gap:8px;overflow-x:auto;padding:2px}
+.flikar[hidden]{display:none}
+.flikar button{flex:0 0 auto;font:700 .95rem var(--rubrik);color:var(--text);background:#1E2638;border:1px solid var(--linje);border-radius:12px;padding:8px 14px;min-height:44px;cursor:pointer}
+.flikar button.vald{background:var(--acc);color:#0B1428;border-color:var(--acc)}
+.kort{background:linear-gradient(180deg,var(--kort2),var(--kort));border:1px solid var(--linje);border-radius:18px;padding:16px;box-shadow:0 3px 0 #0A0F1C;display:grid;gap:10px;min-width:0}
+.kort>*{margin-top:0;margin-bottom:0}
+.vyhuvud{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.status{margin:0;font:700 .95rem var(--rubrik);color:var(--dov)}
+.matare{height:12px;border-radius:999px;background:#232C47;overflow:hidden}
+.matare i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--ratt));border-radius:inherit;transition:width .4s}
+.val{display:grid;gap:10px}
+.knapp{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;text-align:left;font:700 1.02rem/1.25 var(--rubrik);color:var(--text);background:var(--knapp);
+  border:1px solid var(--linje);border-radius:14px;padding:12px 16px;min-height:52px;cursor:pointer;box-shadow:0 3px 0 #0A0F1C;transition:transform .1s,box-shadow .1s;-webkit-tap-highlight-color:transparent}
+.knapp small{font:400 .84rem/1.3 var(--brod);opacity:.85}
+.knapp.primar{background:var(--acc);color:#0B1428;border-color:var(--acc);box-shadow:0 4px 0 #3E5BA8}
+.knapp.stor{min-height:60px;font-size:1.1rem}
+.knapp.liten{min-height:44px;padding:8px 14px;font-size:.95rem}
+.knapp:active{transform:translateY(3px);box-shadow:0 1px 0 #0A0F1C}
+.knapp.primar:active{box-shadow:0 1px 0 #3E5BA8}
+.las{font:700 .95rem var(--rubrik);color:var(--acc);background:transparent;border:2px solid var(--acc);border-radius:12px;padding:8px 14px;min-height:44px;cursor:pointer}
+.rad{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+.rad .knapp{flex:1 1 200px}
+.dm{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.dm li{display:flex;gap:8px;align-items:stretch}
+.dm .knapp{flex:1 1 auto;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.dm .knapp span{min-width:0}
+.mono{font-family:var(--mono);font-weight:600}
+.svag{font:700 .72rem var(--rubrik);font-style:normal;color:var(--gul);border:1px solid var(--gul);border-radius:999px;padding:1px 7px;margin-left:6px;white-space:nowrap}
+.fraga{font:700 clamp(1.25rem,4.6vw,1.55rem)/1.3 var(--rubrik);margin:0;text-wrap:pretty}
+.fraga.liten{font-size:1.05rem;color:var(--dov)}
+.prickar{display:flex;gap:6px;flex-wrap:wrap}
+.prickar i{width:12px;height:12px;border-radius:50%;background:#2C3758}
+.prickar i.ok{background:var(--ratt)}
+.prickar i.nu{background:var(--acc);box-shadow:0 0 0 3px rgba(126,166,255,.3)}
+.tips{margin:0;background:rgba(242,193,78,.12);border-left:4px solid var(--gul);border-radius:10px;padding:10px 12px}
+.borja{margin:0;background:rgba(126,166,255,.12);border-left:4px solid var(--acc);border-radius:10px;padding:10px 12px;font-weight:700}
+.borja[hidden]{display:none}
+.svartext{margin:0;font-size:1.06rem;background:#121A2E;border-radius:14px;padding:14px;border:1px solid var(--linje)}
+.ordrad{display:flex;gap:8px;flex-wrap:wrap}
+.ord{font:700 .95rem/1.2 var(--rubrik);color:var(--text);background:transparent;border:2px solid var(--linje);border-radius:999px;padding:9px 14px;min-height:44px;cursor:pointer;text-align:left}
+.ord::before{content:"○ ";color:var(--dov)}
+.ord[aria-pressed="true"]{background:var(--ratt);border-color:var(--ratt);color:#0B2414}
+.ord[aria-pressed="true"]::before{content:"✓ ";color:#0B2414}
+.ord.fast{cursor:default;border-style:dashed}
+.ord.fast::before{content:""}
+.raknare{margin:0;font:700 .95rem var(--rubrik);color:var(--dov);min-height:1.4em}
+.raknare.alla{color:var(--ratt)}
+.bild{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 10px;background:#0E1424;border:1px solid var(--linje);border-radius:14px;padding:12px 8px}
+.bild figure{margin:0;display:grid;justify-items:center;gap:2px;min-width:0}
+.bild svg{display:block;max-width:100%;height:auto}
+.bild figcaption{text-align:center;line-height:1.25}
+.bild figcaption b{font:800 1.05rem var(--rubrik)}
+.bild figcaption span{display:block;font-size:.82rem;color:var(--dov)}
+.bild .op{font:800 1.6rem var(--rubrik);color:var(--dov);padding:0 2px}
+.bild .bryt{flex-basis:100%;height:6px}
+.bild text{font-family:var(--rubrik)}
+.forklaring{display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;width:100%;font-size:.8rem;color:var(--dov);margin-top:4px}
+.forklaring span{display:inline-flex;align-items:center;gap:6px}
+.forklaring i{display:inline-block;width:10px;height:10px;border-radius:50%}
+.resultat{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.resultat li{display:flex;gap:10px;align-items:flex-start;font-size:.95rem}
+.resultat b{font-family:var(--rubrik);flex:0 0 auto;width:1.4em;text-align:center}
+.resultat .n2 b{color:var(--ratt)} .resultat .n1 b{color:var(--gul)} .resultat .n0 b{color:var(--rod)}
+.vaxel{display:flex;gap:10px;align-items:center;font:700 .95rem var(--rubrik);min-height:44px;cursor:pointer}
+.vaxel input{width:24px;height:24px;accent-color:var(--acc)}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--gul);outline-offset:3px}
+@media (max-width:420px){.dm .las{padding:8px 10px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="topp" aria-label="Länkar"><a href="../index.html">‹ Hem</a><a id="spellank" href="../spel/atomresan.html">Atomresan →</a></nav>
+<header>
+<p class="etikett" id="amne">Muntligt prov</p>
+<h1 id="rubrik">Öva muntligt</h1>
+<p class="under" id="under">Säg svaret högt först. Sen jämför du med ett exempel och bockar av nyckelorden.</p>
+</header>
+<nav class="flikar" id="flikar" aria-label="Välj ämne" hidden></nav>
+<main id="app"><p class="mjuk">Laddar frågorna …</p></main>
+<noscript><p>Sidan behöver javascript.</p></noscript>
+</div>
+<script type="application/json" id="muntligt-data">[{"id":"kemi","amne":"Kemi","omrade":"atomkemi","rubrik":"Öva muntligt – kemi","underrubrik":"Atomen, joner och bindningar. Säg svaret högt först. Sen jämför du med ett exempel och bockar av nyckelorden.","spel":["Atomresan","spel/atomresan.html"],"delmoment":[{"id":"atomen","namn":"Atomen"},{"id":"skal","namn":"Skal och valenselektroner"},{"id":"periodiska","namn":"Periodiska systemet"},{"id":"familjer","namn":"Grundämnesfamiljerna"},{"id":"joner","namn":"Joner"},{"id":"jonforeningar","namn":"Jonföreningar och formler"},{"id":"bindningar","namn":"Molekyler och bindningar"},{"id":"losningar","namn":"Lösningar som leder ström"},{"id":"massa","namn":"Atommassa och isotoper"},{"id":"reaktioner","namn":"Reaktionsformler"}],"fragor":[{"id":"ke-atomen-1","omrade":"atomkemi","delmoment":"atomen","fraga":"Vilka tre partiklar finns i en atom, och vilken laddning har de?","borja":"En atom består av …","svar":"En atom består av protoner, neutroner och elektroner. Protonerna är positiva och elektronerna är negativa. Neutronerna är neutrala, de saknar laddning.","nyckelord":["protoner är positiva","elektroner är negativa","neutroner saknar laddning"]},{"id":"ke-atomen-2","omrade":"atomkemi","delmoment":"atomen","fraga":"Var i atomen finns protonerna, neutronerna och elektronerna?","borja":"I mitten av atomen finns …","svar":"I mitten av atomen finns atomkärnan. Där sitter protonerna och neutronerna. Elektronerna rör sig i elektronskal runt kärnan.","nyckelord":["atomkärnan","protoner och neutroner i kärnan","elektroner i skal runt kärnan"]},{"id":"ke-atomen-3","omrade":"atomkemi","delmoment":"atomen","fraga":"Vad är atomnummer? Och varför är en atom oladdad?","borja":"Atomnumret är antalet …","svar":"Atomnumret är antalet protoner i kärnan, och det bestämmer vilket grundämne det är. En atom har lika många elektroner som protoner. Plus och minus tar ut varandra, så atomen är oladdad.","nyckelord":["antal protoner","bestämmer grundämnet","lika många elektroner","tar ut varandra"]},{"id":"ke-atomen-4","omrade":"atomkemi","delmoment":"atomen","typ":"rita","fraga":"Rita en heliumatom och förklara din bild.","borja":"Helium har atomnummer 2, så …","svar":"Helium har atomnummer 2, så kärnan har två protoner. Kärnan har också två neutroner. Runt kärnan finns K-skalet med två elektroner, och då är skalet fullt.","nyckelord":["atomnummer 2","två protoner","K-skalet","två elektroner"],"bild":[{"t":"He","p":2,"n":2,"skal":[2],"namn":"Heliumatom"}]},{"id":"ke-atomen-5","omrade":"atomkemi","delmoment":"atomen","fraga":"Vad är skillnaden mellan ett grundämne och en kemisk förening?","borja":"Ett grundämne består av …","svar":"Ett grundämne består av bara en sorts atomer, till exempel syre eller järn. En kemisk förening består av minst två grundämnen som sitter ihop. Vatten är en förening av väte och syre.","nyckelord":["en sorts atomer","minst två grundämnen","sitter ihop","vatten"]},{"id":"ke-atomen-6","omrade":"atomkemi","delmoment":"atomen","fraga":"Berätta hur idén om atomen har vuxit fram.","borja":"Förr trodde man att allt bestod av …","svar":"Förr trodde man att allt bestod av jord, eld, luft och vatten. Demokritos fick idén om atomer, och långt senare visade Dalton att de finns. Thomson hittade elektronen, och Rutherford visade att atomen mest är tomrum med en liten kärna. Bohr satte elektronerna i skal, och Chadwick hittade neutronen.","nyckelord":["Demokritos och Dalton","Thomson: elektronen","Rutherford: mest tomrum","Bohr: skal"]},{"id":"ke-atomen-7","omrade":"atomkemi","delmoment":"atomen","fraga":"Vad är en partikelmodell, och varför använder vi den?","borja":"En partikelmodell är en förenklad bild …","svar":"En partikelmodell är en förenklad bild av att allt består av små partiklar, som atomer och molekyler. Skalmodellen av atomen är ett exempel. Så ser atomen inte ut på riktigt, men modellen hjälper oss förklara varför ämnen reagerar.","nyckelord":["förenklad bild","små partiklar","skalmodellen","förklarar reaktioner"]},{"id":"ke-atomen-8","omrade":"atomkemi","delmoment":"atomen","fraga":"Vad består en atom mest av? Och varför åker elektronerna inte in i kärnan?","borja":"En atom består mest av …","svar":"En atom består mest av tomrum. Kärnan är pytteliten, och elektronerna finns i skal långt ut från den. Elektronerna dras mot den positiva kärnan, men de rör sig så fort att de inte åker in.","nyckelord":["mest tomrum","liten kärna","dras mot kärnan","så hög fart"]},{"id":"ke-skal-1","omrade":"atomkemi","delmoment":"skal","fraga":"Vad heter de två innersta elektronskalen, och hur många elektroner får plats i dem?","borja":"Det innersta skalet heter …","svar":"Det innersta skalet heter K-skalet, och där får två elektroner plats. Nästa skal heter L-skalet, och där får åtta plats. Skalen utanför har också åtta platser.","nyckelord":["K-skalet","två platser","L-skalet","åtta platser"]},{"id":"ke-skal-2","omrade":"atomkemi","delmoment":"skal","fraga":"Vad är valenselektroner, och varför är de viktiga?","borja":"Valenselektroner är elektronerna i …","svar":"Valenselektroner är elektronerna i det yttersta skalet. De bestämmer hur ämnet reagerar, alltså ämnets kemiska egenskaper. Ämnen med lika många valenselektroner liknar varandra.","nyckelord":["yttersta skalet","kemiska egenskaper","hur ämnet reagerar"]},{"id":"ke-skal-3","omrade":"atomkemi","delmoment":"skal","typ":"rita","fraga":"Rita en litiumatom och berätta hur elektronerna sitter.","borja":"Litium har tre protoner, så …","svar":"Litium har tre protoner, så atomen har tre elektroner. Två sitter i K-skalet, som då är fullt. Den tredje hamnar i L-skalet. Litium har alltså en valenselektron.","nyckelord":["tre elektroner","två i K-skalet","en i L-skalet","en valenselektron"],"bild":[{"t":"Li","p":3,"skal":[2,1],"namn":"Litiumatom"}]},{"id":"ke-skal-4","omrade":"atomkemi","delmoment":"skal","typ":"rita","fraga":"Rita en kloratom. Var finns den lediga platsen?","borja":"Klor har 17 protoner och 17 elektroner …","svar":"Klor har 17 protoner och 17 elektroner. De sitter två i K-skalet, åtta i L-skalet och sju i M-skalet. I det yttersta skalet finns alltså en ledig plats. Därför tar klor gärna emot en elektron.","nyckelord":["17 elektroner","2, 8, 7","sju valenselektroner","en ledig plats"],"bild":[{"t":"Cl","p":17,"skal":[2,8,7],"namn":"Kloratom","lediga":true}]},{"id":"ke-skal-5","omrade":"atomkemi","delmoment":"skal","fraga":"Vad menas med ädelgasstruktur?","borja":"Ädelgasstruktur betyder att …","svar":"Ädelgasstruktur betyder att det yttersta skalet är fullt, precis som hos en ädelgas. Då är atomen eller jonen stabil och reagerar ogärna. Atomer bildar joner eller delar elektroner för att få ädelgasstruktur.","nyckelord":["fullt yttersta skal","som en ädelgas","stabil"]},{"id":"ke-per-1","omrade":"atomkemi","delmoment":"periodiska","fraga":"Hur är periodiska systemet ordnat?","borja":"Grundämnena står i ordning efter …","svar":"Grundämnena står i ordning efter atomnummer, och väte med atomnummer 1 kommer först. De lodräta raderna kallas grupper. De vågräta raderna kallas perioder.","nyckelord":["atomnummer","grupper är lodräta","perioder är vågräta"]},{"id":"ke-per-2","omrade":"atomkemi","delmoment":"periodiska","fraga":"Vad har ämnen i samma grupp gemensamt? Hur ser du hur många valenselektroner ett ämne har?","borja":"Ämnen i samma grupp har lika många …","svar":"Ämnen i samma grupp har lika många valenselektroner, och därför liknar de varandra. Grupp 1 har en och grupp 2 har två. I grupp 13–18 visar sista siffran hur många, så grupp 17 har sju och grupp 18 har åtta, utom helium som har två. I häftet numreras grupperna 1–8, och där är gruppnumret lika med antalet valenselektroner.","nyckelord":["lika många valenselektroner","liknar varandra","sista siffran i gruppnumret"]},{"id":"ke-per-3","omrade":"atomkemi","delmoment":"periodiska","fraga":"Vad har ämnen i samma period gemensamt? Varför finns bara två ämnen i period 1?","borja":"Ämnen i samma period har lika många …","svar":"Ämnen i samma period har lika många elektronskal. I period 1 finns bara K-skalet, och där får bara två elektroner plats. Därför får bara väte och helium plats i period 1.","nyckelord":["lika många elektronskal","K-skalet","bara två platser","väte och helium"]},{"id":"ke-per-4","omrade":"atomkemi","delmoment":"periodiska","typ":"rita","fraga":"Syre är en gas och svavel är ett fast ämne. Rita båda atomerna och förklara varför de står i samma grupp.","borja":"Syre har elektronerna 2 och 6 …","svar":"Syre har elektronerna 2 och 6, och svavel har 2, 8 och 6. Båda har sex valenselektroner, och därför står de i samma grupp. Svavel har ett skal till, så det står en period längre ner.","nyckelord":["sex valenselektroner","samma grupp","svavel har ett skal till"],"bild":[{"t":"O","p":8,"skal":[2,6],"namn":"Syreatom"},{"t":"S","p":16,"skal":[2,8,6],"namn":"Svavelatom"}]},{"id":"ke-per-5","omrade":"atomkemi","delmoment":"periodiska","fraga":"Var finns metallerna och ickemetallerna i periodiska systemet? Nämn några skillnader.","borja":"Metallerna finns till vänster och i mitten …","svar":"Metallerna finns till vänster och i mitten. Ickemetallerna finns nästan alla till höger. Metaller glänser och leder ström och värme bra. Ickemetaller leder oftast inte ström, och många av dem är gaser.","nyckelord":["metaller till vänster","ickemetaller till höger","metaller leder ström","många ickemetaller är gaser"]},{"id":"ke-per-6","omrade":"atomkemi","delmoment":"periodiska","fraga":"Syre har atomnummer 8. Hur sitter elektronerna i skalen, och i vilken period står syre?","borja":"Atomnummer 8 betyder att …","svar":"Atomnummer 8 betyder att atomen har åtta protoner och åtta elektroner. Två sitter i K-skalet och sex i L-skalet, så syre har sex valenselektroner. Atomen har två skal och står därför i period 2.","nyckelord":["2 i K-skalet","6 valenselektroner","två skal","period 2"]},{"id":"ke-fam-1","omrade":"atomkemi","delmoment":"familjer","fraga":"Vad är alkalimetaller, och varför reagerar de så lätt?","borja":"Alkalimetaller är ämnena i grupp 1 …","svar":"Alkalimetaller är ämnena i grupp 1, utom väte. Exempel är litium, natrium och kalium. De har bara en valenselektron, och den lämnar de gärna bort. Därför reagerar de lätt och bildar plusjoner.","nyckelord":["grupp 1 utom väte","en valenselektron","lämnar bort den","natrium, kalium"]},{"id":"ke-fam-2","omrade":"atomkemi","delmoment":"familjer","fraga":"Varför är det farligt att lägga natrium i vatten?","borja":"Natrium reagerar väldigt häftigt …","svar":"Natrium reagerar väldigt häftigt med vatten. Det bildas vätgas, som kan explodera. Det bildas också hydroxidjoner, som är frätande och kan skvätta.","nyckelord":["reagerar häftigt","vätgas","hydroxidjoner","frätande"]},{"id":"ke-fam-3","omrade":"atomkemi","delmoment":"familjer","fraga":"Vad är halogener? Ge exempel och berätta varför de reagerar lätt.","borja":"Halogener är ämnena i grupp 17 …","svar":"Halogener är ämnena i grupp 17, i häftet grupp 7, till exempel fluor, klor och brom. De har sju valenselektroner och vill gärna ta emot en till. Därför reagerar de lätt, och de passar bra ihop med alkalimetallerna.","nyckelord":["grupp 17","sju valenselektroner","tar emot en elektron","fluor, klor, brom"]},{"id":"ke-fam-4","omrade":"atomkemi","delmoment":"familjer","fraga":"Ge exempel på hur halogener används i vardagen.","borja":"Klor används i …","svar":"Klor används i simbassänger, för det dödar bakterier. I tandkräm finns fluoridjoner som skyddar tänderna. Ren fluor är en giftig gas, men fluoridjonen har fullt skal och är stabil. Ordet halogen betyder saltbildare.","nyckelord":["klor i simbassänger","dödar bakterier","fluorid i tandkräm","saltbildare"]},{"id":"ke-fam-5","omrade":"atomkemi","delmoment":"familjer","fraga":"Vad är ädelgaser, och varför reagerar de inte? Ge exempel på hur de används.","borja":"Ädelgaserna står i den sista gruppen …","svar":"Ädelgaserna står i den sista gruppen, grupp 18, i häftet grupp 8. Exempel är helium, neon och argon. De har redan fulla yttersta skal, så de vill inte reagera. Därför används argon i glödlampor och neon i lysande skyltar.","nyckelord":["grupp 18","fulla yttersta skal","reagerar inte","argon i glödlampor"]},{"id":"ke-fam-6","omrade":"atomkemi","delmoment":"familjer","fraga":"Varför fyller man ballonger med helium och inte med väte?","borja":"Väte reagerar lätt och …","svar":"Väte reagerar lätt och kan explodera, för det vill få fullt skal. Helium har redan fullt skal och reagerar inte. Därför är helium säkert i ballonger. Båda gaserna är lättare än luft.","nyckelord":["väte kan explodera","helium reagerar inte","fullt skal","lättare än luft"]},{"id":"ke-fam-7","omrade":"atomkemi","delmoment":"familjer","typ":"rita","fraga":"Rita en argonatom. Varför reagerar argon inte?","borja":"Argon har 18 protoner och …","svar":"Argon har 18 protoner och 18 elektroner. De sitter två, åtta och åtta i skalen. Det yttersta skalet är fullt med åtta valenselektroner. Därför reagerar argon inte och bildar inga joner.","nyckelord":["2, 8, 8","fullt yttersta skal","reagerar inte","bildar inga joner"],"bild":[{"t":"Ar","p":18,"skal":[2,8,8],"namn":"Argonatom"}]},{"id":"ke-fam-8","omrade":"atomkemi","delmoment":"familjer","fraga":"Vilken alkalimetall reagerar häftigast? Och varför reagerar fluor häftigare än klor?","borja":"Francium längst ner i grupp 1 …","svar":"Francium längst ner i grupp 1 reagerar häftigast. Dess valenselektron sitter längst från kärnan och lossnar lättast. Hos halogenerna är det tvärtom. Fluor är minst, kärnan är närmast och drar lättast till sig en elektron.","nyckelord":["francium","långt från kärnan","fluor är minst","drar lättast till sig"]},{"id":"ke-fam-9","omrade":"atomkemi","delmoment":"familjer","typ":"rita","fraga":"Rita en kaliumatom och en kaliumjon.","borja":"Kalium har 19 protoner och …","svar":"Kalium har 19 protoner och 19 elektroner, fördelade 2, 8, 8 och 1. Atomen lämnar bort sin enda valenselektron och har kvar 18. Jonen har en proton mer än elektroner och skrivs K⁺.","nyckelord":["19 protoner","2, 8, 8, 1","lämnar en elektron","K⁺"],"bild":[{"t":"K","p":19,"skal":[2,8,8,1],"namn":"Kaliumatom","markera":1},"→",{"t":"K","p":19,"skal":[2,8,8],"namn":"Kaliumjon"}]},{"id":"ke-jon-1","omrade":"atomkemi","delmoment":"joner","fraga":"Vad är en jon? När blir den positiv och när blir den negativ?","borja":"En jon är en atom där …","svar":"En jon är en atom där protonerna och elektronerna inte är lika många, så den har en elektrisk laddning. Det händer när atomen lämnar bort eller tar emot elektroner. Har jonen flest protoner är laddningen positiv. Har den flest elektroner är laddningen negativ.","nyckelord":["olika många protoner och elektroner","elektrisk laddning","flest protoner → positiv","flest elektroner → negativ"]},{"id":"ke-jon-8","omrade":"atomkemi","delmoment":"joner","fraga":"Hur kan du lista ut om en atom lämnar eller tar emot elektroner?","borja":"Jag tittar på antalet valenselektroner …","svar":"Jag tittar på antalet valenselektroner. Har atomen en, två eller tre lämnar den bort dem. Har den fem, sex eller sju tar den emot fler. Då töms eller fylls det yttersta skalet, och atomen får ädelgasstruktur.","nyckelord":["antalet valenselektroner","få → lämnar","många → tar emot","ädelgasstruktur"]},{"id":"ke-jon-2","omrade":"atomkemi","delmoment":"joner","typ":"rita","fraga":"Rita en natriumatom och en natriumjon. Vad är skillnaden?","borja":"Natriumatomen har 11 protoner och 11 elektroner …","svar":"Natriumatomen har 11 protoner och 11 elektroner, fördelade 2, 8, 1. Jonen har lämnat bort sin valenselektron och har kvar 10 elektroner. Nu är det yttersta skalet fullt. Det finns en proton mer än elektroner, så jonen skrivs Na⁺.","nyckelord":["lämnar en elektron","11 protoner, 10 elektroner","fullt yttersta skal","Na⁺"],"bild":[{"t":"Na","p":11,"skal":[2,8,1],"namn":"Natriumatom","markera":1},"→",{"t":"Na","p":11,"skal":[2,8],"namn":"Natriumjon"}]},{"id":"ke-jon-3","omrade":"atomkemi","delmoment":"joner","typ":"rita","fraga":"Rita en fluoratom och en fluoridjon. Vad händer?","borja":"Fluoratomen har nio protoner och …","svar":"Fluoratomen har nio protoner och elektronerna 2 och 7, så den har en ledig plats. Den tar emot en elektron och får 10 elektroner, men har bara 9 protoner. Flest elektroner ger minusladdning. Jonen heter fluoridjon och skrivs F⁻.","nyckelord":["tar emot en elektron","9 protoner, 10 elektroner","fluoridjon","F⁻"],"bild":[{"t":"F","p":9,"skal":[2,7],"namn":"Fluoratom","lediga":true},"→",{"t":"F","p":9,"skal":[2,8],"namn":"Fluoridjon","markera":1}]},{"id":"ke-jon-4","omrade":"atomkemi","delmoment":"joner","typ":"rita","fraga":"Rita en syreatom och den jon som syre bildar.","borja":"Syre har åtta protoner och …","svar":"Syre har åtta protoner och elektronerna 2 och 6. Atomen tar emot två elektroner, så det yttersta skalet blir fullt. Då har jonen 10 elektroner men 8 protoner, och laddningen blir två minus. Jonen kallas oxidjon eller syrejon och skrivs O²⁻.","nyckelord":["tar emot två elektroner","2, 8","två minus","O²⁻"],"bild":[{"t":"O","p":8,"skal":[2,6],"namn":"Syreatom","lediga":true},"→",{"t":"O","p":8,"skal":[2,8],"namn":"Oxidjon","markera":2}]},{"id":"ke-jon-7","omrade":"atomkemi","delmoment":"joner","typ":"rita","fraga":"Rita en litiumjon och en berylliumjon. Varför får de olika laddning?","borja":"Litium har en valenselektron och beryllium …","svar":"Litium har en valenselektron och beryllium har två. Båda lämnar bort sina valenselektroner, och då är bara K-skalet kvar med två elektroner. Litiumjonen har en proton mer än elektroner och skrivs Li⁺. Berylliumjonen har två protoner mer och skrivs Be²⁺.","nyckelord":["lämnar bort valenselektronerna","bara K-skalet kvar","Li⁺","Be²⁺"],"bild":[{"t":"Li","p":3,"skal":[2,1],"namn":"Litiumatom","markera":1},"→",{"t":"Li","p":3,"skal":[2],"namn":"Litiumjon"},"|",{"t":"Be","p":4,"skal":[2,2],"namn":"Berylliumatom","markera":2},"→",{"t":"Be","p":4,"skal":[2],"namn":"Berylliumjon"}]},{"id":"ke-jon-9","omrade":"atomkemi","delmoment":"joner","typ":"rita","fraga":"Rita en magnesiumjon och en aluminiumjon.","borja":"Magnesium har elektronerna 2, 8, 2 och …","svar":"Magnesium har elektronerna 2, 8, 2 och lämnar bort två, så det blir Mg²⁺. Aluminium har 2, 8, 3 och lämnar bort tre, så det blir Al³⁺. Båda jonerna har kvar 2, 8, alltså fullt yttersta skal.","nyckelord":["Mg²⁺","Al³⁺","lämnar två och tre","fullt yttersta skal"],"bild":[{"t":"Mg","p":12,"skal":[2,8,2],"namn":"Magnesiumatom","markera":2},"→",{"t":"Mg","p":12,"skal":[2,8],"namn":"Magnesiumjon"},"|",{"t":"Al","p":13,"skal":[2,8,3],"namn":"Aluminiumatom","markera":3},"→",{"t":"Al","p":13,"skal":[2,8],"namn":"Aluminiumjon"}]},{"id":"ke-jon-5","omrade":"atomkemi","delmoment":"joner","fraga":"Vilken laddning får jonerna i grupp 1, 2, 13, 16 och 17?","borja":"Grupp 1 lämnar en elektron och får …","svar":"Grupp 1 lämnar en elektron och får ett plus, och grupp 2 får två plus. Grupp 13 lämnar tre och får tre plus. Grupp 16 tar emot två elektroner och får två minus, och grupp 17 tar emot en och får ett minus. I häftet heter grupp 13, 16 och 17 grupp 3, 6 och 7.","nyckelord":["grupp 1 → ett plus","grupp 2 → två plus","grupp 16 → två minus","grupp 17 → ett minus"]},{"id":"ke-jf-6","omrade":"atomkemi","delmoment":"jonforeningar","fraga":"Vad är en jonförening, och vad håller ihop den?","borja":"En jonförening består av …","svar":"En jonförening består av positiva och negativa joner. Jonerna dras till varandra, för motsatser attraherar, och det kallas jonbindning. Alla salter är jonföreningar, till exempel koksalt och natriumfluorid. Syror och baser räknas också till jonföreningarna.","nyckelord":["positiva och negativa joner","motsatser attraherar","jonbindning","salter, syror och baser"]},{"id":"ke-jf-1","omrade":"atomkemi","delmoment":"jonforeningar","typ":"rita","fraga":"Rita och förklara hur natrium och klor blir natriumklorid.","borja":"Natrium har en valenselektron och klor …","svar":"Natrium har en valenselektron och klor har en ledig plats. Natriums elektron hoppar över till kloratomen. Då bildas en natriumjon, Na⁺, och en kloridjon, Cl⁻, och båda har fulla skal. Plus och minus drar i varandra, och det blir natriumklorid, alltså koksalt.","nyckelord":["elektronen hoppar över","Na⁺ och Cl⁻","fulla skal","koksalt"],"bild":[{"t":"Na","p":11,"skal":[2,8,1],"namn":"Natriumatom","markera":1},"+",{"t":"Cl","p":17,"skal":[2,8,7],"namn":"Kloratom","lediga":true},"→",{"t":"Na","p":11,"skal":[2,8],"namn":"Natriumjon"},"+",{"t":"Cl","p":17,"skal":[2,8,8],"namn":"Kloridjon","markera":1}]},{"id":"ke-jf-7","omrade":"atomkemi","delmoment":"jonforeningar","typ":"rita","fraga":"Rita hur en natriumjon och en fluoridjon bildar natriumfluorid.","borja":"Natriumjonen har 11 protoner men …","svar":"Natriumjonen har 11 protoner men bara 10 elektroner, så den skrivs Na⁺. Fluoridjonen har 9 protoner och 10 elektroner, så den skrivs F⁻. Motsatser attraherar, så jonerna dras till varandra och bildar natriumfluorid, NaF. Båda jonerna har fulla yttersta skal, alltså ädelgasstruktur.","nyckelord":["Na⁺","F⁻","motsatser attraherar","NaF"],"bild":[{"t":"Na","p":11,"skal":[2,8],"namn":"Natriumjon"},"+",{"t":"F","p":9,"skal":[2,8],"namn":"Fluoridjon"}]},{"id":"ke-jf-2","omrade":"atomkemi","delmoment":"jonforeningar","fraga":"Varför blir formeln för magnesiumklorid MgCl₂?","borja":"Magnesium har två valenselektroner …","svar":"Magnesium har två valenselektroner som det vill lämna bort. Varje kloratom vill bara ta emot en. Därför behövs två kloratomer. Det blir en Mg²⁺ och två Cl⁻, och då tar laddningarna ut varandra.","nyckelord":["två valenselektroner","klor tar en var","Mg²⁺ och två Cl⁻","laddningarna tar ut varandra"]},{"id":"ke-jf-3","omrade":"atomkemi","delmoment":"jonforeningar","fraga":"Hur kommer du fram till formeln för kalciumfluorid?","borja":"Kalcium står i grupp 2, så jonen blir …","svar":"Kalcium står i grupp 2, så jonen blir Ca²⁺. Fluor står i grupp 17, så jonen blir F⁻. Det behövs två fluoridjoner för att ta ut två plus. Formeln blir CaF₂.","nyckelord":["Ca²⁺","F⁻","två fluoridjoner","CaF₂"]},{"id":"ke-jf-4","omrade":"atomkemi","delmoment":"jonforeningar","fraga":"Förklara formeln för aluminiumoxid, Al₂O₃.","borja":"Aluminium lämnar tre elektroner …","svar":"Aluminium lämnar tre elektroner och blir Al³⁺. Syre tar emot två och blir O²⁻. Två aluminium lämnar sex elektroner, och tre syre tar emot sex. Då går det jämnt upp, och formeln blir Al₂O₃.","nyckelord":["Al³⁺","O²⁻","sex elektroner","går jämnt upp"]},{"id":"ke-jf-8","omrade":"atomkemi","delmoment":"jonforeningar","fraga":"Hur kommer du fram till formeln när magnesium och kväve bildar en jonförening?","borja":"Magnesium står i grupp 2 och blir …","svar":"Magnesium står i grupp 2 och blir Mg²⁺. Kväve har fem valenselektroner, tar emot tre och blir N³⁻. Tre Mg²⁺ ger sex plus och två N³⁻ ger sex minus. Formeln blir Mg₃N₂.","nyckelord":["Mg²⁺","N³⁻","sex plus och sex minus","Mg₃N₂"]},{"id":"ke-jf-5","omrade":"atomkemi","delmoment":"jonforeningar","fraga":"Hur namnger man joner? Ge exempel på en metalljon och en ickemetalljon.","borja":"Metalljoner heter som metallen …","svar":"Metalljoner heter som metallen, till exempel natriumjon och magnesiumjon. Negativa joner av ickemetaller får ofta ändelsen id. Klor blir kloridjon, fluor blir fluoridjon och brom blir bromidjon.","nyckelord":["natriumjon","ändelsen -id","kloridjon","bromidjon"]},{"id":"ke-bin-1","omrade":"atomkemi","delmoment":"bindningar","fraga":"Vad är en molekyl, och vad är en molekylbindning?","borja":"En molekyl är flera atomer som …","svar":"En molekyl är flera atomer som sitter ihop. Atomerna delar valenselektroner med varandra, och det kallas molekylbindning, elektronparbindning eller kovalent bindning. Två delade elektroner är ett elektronpar. Genom att dela får atomerna ädelgasstruktur.","nyckelord":["atomer som sitter ihop","delar valenselektroner","molekylbindning","ädelgasstruktur"]},{"id":"ke-bin-2","omrade":"atomkemi","delmoment":"bindningar","typ":"rita","fraga":"Rita en vätemolekyl, H₂, och förklara bindningen.","borja":"Varje väteatom har en elektron …","svar":"Varje väteatom har en elektron. De två atomerna delar på sina elektroner, så det blir ett elektronpar mellan dem. Då har båda två elektroner i K-skalet, och det är fullt. Molekylen har två plus och två minus, så den är neutral.","nyckelord":["en elektron var","delar ett elektronpar","K-skalet fullt","neutral"],"bild":[{"molekyl":"H₂","namn":"Vätemolekyl","atomer":[{"t":"H","p":1,"x":0,"y":0},{"t":"H","p":1,"x":1,"y":0}],"bindningar":[[0,1,1]]}]},{"id":"ke-bin-3","omrade":"atomkemi","delmoment":"bindningar","typ":"rita","fraga":"Rita en vattenmolekyl, H₂O. Varför är den polär?","borja":"Syre delar ett elektronpar med …","svar":"Syre delar ett elektronpar med varje väteatom, så syre får åtta elektroner ytterst och varje väte får två. Molekylen har 10 protoner och 10 elektroner, så den är neutral. Men syre drar lite hårdare i elektronerna, så syresidan blir lite negativ och vätesidan lite positiv. Därför är vattenmolekylen polär.","nyckelord":["två elektronpar","syre drar hårdare","lite minus, lite plus","polär"],"bild":[{"molekyl":"H₂O","namn":"Vattenmolekyl","atomer":[{"t":"O","p":8,"x":0,"y":0,"delta":"-","enkla":true},{"t":"H","p":1,"x":-0.79,"y":-0.61,"delta":"+"},{"t":"H","p":1,"x":0.79,"y":-0.61,"delta":"+"}],"bindningar":[[0,1,1],[0,2,1]]}]},{"id":"ke-bin-4","omrade":"atomkemi","delmoment":"bindningar","typ":"rita","fraga":"Rita en metanmolekyl, CH₄. Varför binder kol fyra väteatomer?","borja":"Kol har fyra valenselektroner …","svar":"Kol har fyra valenselektroner. Det delar ett elektronpar med var och en av fyra väteatomer. Då får kolet åtta elektroner i yttersta skalet, och varje väte får två. Alla får fulla skal.","nyckelord":["fyra valenselektroner","fyra elektronpar","kolet får åtta","väte får två"],"bild":[{"molekyl":"CH₄","namn":"Metanmolekyl","atomer":[{"t":"C","p":6,"x":0,"y":0},{"t":"H","p":1,"x":0,"y":-1},{"t":"H","p":1,"x":1,"y":0},{"t":"H","p":1,"x":0,"y":1},{"t":"H","p":1,"x":-1,"y":0}],"bindningar":[[0,1,1],[0,2,1],[0,3,1],[0,4,1]]}]},{"id":"ke-bin-5","omrade":"atomkemi","delmoment":"bindningar","typ":"rita","fraga":"Rita en syremolekyl, O₂. Hur många elektronpar delar atomerna?","borja":"Varje syreatom har sex valenselektroner …","svar":"Varje syreatom har sex valenselektroner och behöver två till. Därför delar atomerna två elektronpar, och det kallas dubbelbindning. Då har båda åtta elektroner i yttersta skalet.","nyckelord":["sex valenselektroner","två elektronpar","dubbelbindning","åtta var"],"bild":[{"molekyl":"O₂","namn":"Syremolekyl","atomer":[{"t":"O","p":8,"x":0,"y":0},{"t":"O","p":8,"x":1,"y":0}],"bindningar":[[0,1,2]]}]},{"id":"ke-bin-8","omrade":"atomkemi","delmoment":"bindningar","typ":"rita","fraga":"Rita en koldioxidmolekyl, CO₂.","borja":"Kol har fyra valenselektroner och …","svar":"Kol har fyra valenselektroner och delar två elektronpar med varje syreatom. Det blir två dubbelbindningar. Då får kolet och båda syreatomerna åtta elektroner i yttersta skalet.","nyckelord":["fyra valenselektroner","två par med varje syre","dubbelbindningar","alla får åtta"],"bild":[{"molekyl":"CO₂","namn":"Koldioxidmolekyl","atomer":[{"t":"O","p":8,"x":-1,"y":0},{"t":"C","p":6,"x":0,"y":0},{"t":"O","p":8,"x":1,"y":0}],"bindningar":[[0,1,2],[1,2,2]]}]},{"id":"ke-bin-6","omrade":"atomkemi","delmoment":"bindningar","fraga":"Vad är skillnaden mellan jonbindning, molekylbindning och metallbindning?","borja":"I en jonbindning drar …","svar":"I en jonbindning drar plusjoner och minusjoner i varandra, som i koksalt. I en molekylbindning delar atomerna elektroner, som i vatten. I en metallbindning har atomerna släppt sina valenselektroner till ett gemensamt elektronmoln. Därför leder metaller ström.","nyckelord":["jonbindning: plus och minus","molekylbindning: delar elektroner","metallbindning: elektronmoln"]},{"id":"ke-bin-7","omrade":"atomkemi","delmoment":"bindningar","fraga":"Vad skiljer en jonförening från en molekylförening?","borja":"En jonförening består av plus- och minusjoner …","svar":"En jonförening består av plus- och minusjoner, oftast en metall och en ickemetall, som koksalt. Den är fast, har hög smältpunkt och leder ström när den är löst i vatten. En molekylförening består av ickemetaller som delar elektroner, som vatten och socker. Den är ofta en gas eller vätska och bildar oftast inga joner.","nyckelord":["plus- och minusjoner","fast, hög smältpunkt","ickemetaller delar elektroner","ofta gas eller vätska"]},{"id":"ke-los-1","omrade":"atomkemi","delmoment":"losningar","fraga":"I labben testade ni vilka lösningar som leder ström. Vad kom ni fram till?","borja":"Saltvatten ledde ström, men …","svar":"Saltvatten ledde ström, men sockervatten och destillerat vatten ledde nästan inte alls. I saltvatten finns lösta joner som kan röra sig. Socker består av molekyler och bildar inga joner.","nyckelord":["saltvatten leder","lösta joner","socker bildar inga joner","destillerat vatten leder knappt"]},{"id":"ke-los-2","omrade":"atomkemi","delmoment":"losningar","fraga":"Vad händer när man löser koksalt i vatten?","borja":"Jonbindningarna bryts när …","svar":"Jonbindningarna bryts när vattenmolekyler lägger sig runt jonerna. Vattnets minussida vänds mot natriumjonerna och plussidan mot kloridjonerna. Jonerna flyter sedan fritt i vattnet, och därför kan lösningen leda ström.","nyckelord":["jonbindningarna bryts","vattenmolekyler runt jonerna","jonerna rör sig fritt"]},{"id":"ke-los-3","omrade":"atomkemi","delmoment":"losningar","fraga":"Ledde kranvattnet ström? Varför kan det vara farligt med våta händer och el?","borja":"Kranvatten är inte rent vatten …","svar":"Kranvatten är inte rent vatten. Det finns lösta salter i det, alltså joner. Därför leder kranvatten ström, och strömmen kan gå genom en våt hand.","nyckelord":["lösta salter","joner","kranvatten leder ström"]},{"id":"ke-los-4","omrade":"atomkemi","delmoment":"losningar","fraga":"Saltsyra är HCl löst i vatten. Varför leder saltsyra ström?","borja":"HCl är från början en molekyl …","svar":"HCl är från början en molekyl. När den löses i vatten delar den upp sig i joner, vätejoner och kloridjoner. Därför räknas syror till jonföreningar. Jonerna kan röra sig, så saltsyra leder ström.","nyckelord":["delar upp sig i joner","vätejoner och kloridjoner","syror räknas till jonföreningar","jonerna rör sig"]},{"id":"ke-los-5","omrade":"atomkemi","delmoment":"losningar","fraga":"Vilken bindning finns i natriumklorid, i socker och i saltsyra?","borja":"Natriumklorid har jonbindning …","svar":"Natriumklorid har jonbindning. Socker, sackaros, har molekylbindning, som också kallas kovalent bindning. Saltsyra är HCl, en molekyl som bildar joner när den löses i vatten.","nyckelord":["NaCl: jonbindning","socker: molekylbindning","kovalent","HCl bildar joner"]},{"id":"ke-mas-1","omrade":"atomkemi","delmoment":"massa","fraga":"Vad är masstal, som också kallas atommassa? Hur räknar du ut antalet neutroner?","borja":"Masstalet är antalet …","svar":"Masstalet är antalet protoner plus antalet neutroner. Det kallas också atommassa. Antalet neutroner får jag om jag tar masstalet minus atomnumret. En syreatom med masstal 18 har 8 protoner och 10 neutroner.","nyckelord":["protoner + neutroner","kallas också atommassa","masstal minus atomnummer","18 − 8 = 10"]},{"id":"ke-mas-2","omrade":"atomkemi","delmoment":"massa","fraga":"Vad är isotoper? Ge ett exempel.","borja":"Isotoper är atomer av samma grundämne …","svar":"Isotoper är atomer av samma grundämne som har olika många neutroner. Protonerna är lika många, så det är samma ämne. Kol-12 har sex neutroner och kol-14 har åtta, så kol-14 väger mer.","nyckelord":["samma grundämne","olika många neutroner","kol-12 och kol-14"]},{"id":"ke-mas-3","omrade":"atomkemi","delmoment":"massa","fraga":"I vilken enhet anger man en atoms massa, och hur mycket väger partiklarna?","borja":"Atomens massa anges i u …","svar":"Atomens massa anges i u, den universella massenheten. En proton väger ungefär 1 u, och en neutron väger också ungefär 1 u. En elektron väger nästan ingenting. Därför räknar man bara protonerna och neutronerna.","nyckelord":["u","proton ungefär 1 u","neutron ungefär 1 u","elektron nästan inget"]},{"id":"ke-mas-4","omrade":"atomkemi","delmoment":"massa","fraga":"Räkna ut formelmassan för vatten, H₂O.","borja":"Väte väger ungefär 1 u och syre …","svar":"Väte väger ungefär 1 u och syre ungefär 16 u. Vatten har två väteatomer och en syreatom. Två gånger 1 plus 16 blir 18. Formelmassan är alltså 18 u.","nyckelord":["H ungefär 1 u","O ungefär 16 u","2 · 1 + 16","18 u"]},{"id":"ke-mas-5","omrade":"atomkemi","delmoment":"massa","fraga":"Räkna ut formelmassan för koldioxid, CO₂.","borja":"Kol väger ungefär 12 u och …","svar":"Kol väger ungefär 12 u och syre ungefär 16 u. Koldioxid har en kolatom och två syreatomer. Det blir 12 plus 2 gånger 16, alltså 44. Formelmassan är 44 u.","nyckelord":["C ungefär 12 u","två syre","12 + 32","44 u"]},{"id":"ke-mas-6","omrade":"atomkemi","delmoment":"massa","fraga":"Vad är en mol, och vad väger en mol vatten?","borja":"En mol av ett ämne väger …","svar":"En mol av ett ämne väger lika många gram som formelmassan i u. Vatten har formelmassan 18 u. Därför väger en mol vatten 18 gram.","nyckelord":["lika många gram","formelmassan i u","18 u","18 gram"]},{"id":"ke-rea-1","omrade":"atomkemi","delmoment":"reaktioner","fraga":"Vad betyder det att en reaktionsformel är balanserad?","borja":"Före pilen står det som reagerar …","svar":"Före pilen står det som reagerar, och efter pilen det som bildas. Balanserad betyder att det finns lika många atomer av varje sort på båda sidor. Atomer kan inte försvinna i en reaktion, de byter bara partner.","nyckelord":["före och efter pilen","lika många atomer av varje sort","atomer försvinner inte"]},{"id":"ke-rea-2","omrade":"atomkemi","delmoment":"reaktioner","fraga":"Balansera reaktionen när väte och syre bildar vatten.","borja":"Jag börjar med H₂ + O₂ → H₂O …","svar":"Jag börjar med H₂ + O₂ → H₂O. Till vänster finns två syreatomer men till höger bara en, så jag sätter en tvåa framför vattnet. Då blir det fyra väte till höger, så jag sätter en tvåa framför vätet också. Svaret blir 2 H₂ + O₂ → 2 H₂O.","nyckelord":["2 H₂ + O₂ → 2 H₂O","räkna syre","siffran framför"]},{"id":"ke-rea-3","omrade":"atomkemi","delmoment":"reaktioner","fraga":"Balansera förbränningen av metan. CH₄ + O₂ → CO₂ + H₂O","borja":"Jag börjar med kolet och vätet …","svar":"Jag börjar med kolet och vätet. Det finns ett kol på varje sida, men fyra väte till vänster, så det behövs 2 H₂O. Då blir det fyra syre till höger, så jag tar 2 O₂. Svaret blir CH₄ + 2 O₂ → CO₂ + 2 H₂O.","nyckelord":["CH₄ + 2 O₂ → CO₂ + 2 H₂O","räkna väte","räkna syre"]},{"id":"ke-rea-4","omrade":"atomkemi","delmoment":"reaktioner","fraga":"När magnesium brinner bildas magnesiumoxid. Vad händer med elektronerna, och hur blir formeln?","borja":"Magnesium har två valenselektroner …","svar":"Magnesium har två valenselektroner som det ger till en syreatom. Magnesium blir Mg²⁺ och syre blir O²⁻, och båda får fulla yttersta skal. Formeln för magnesiumoxid blir MgO. Den balanserade formeln är 2 Mg + O₂ → 2 MgO.","nyckelord":["ger två elektroner","Mg²⁺ och O²⁻","MgO","2 Mg + O₂ → 2 MgO"]},{"id":"ke-rea-5","omrade":"atomkemi","delmoment":"reaktioner","fraga":"Analysera formeln H₂SO₄. Hur många grundämnen och atomer finns det?","borja":"H₂SO₄ har tre grundämnen …","svar":"H₂SO₄ har tre grundämnen, väte, svavel och syre. Den lilla siffran visar antalet atomer. Det finns två väte, ett svavel och fyra syre, alltså sju atomer.","nyckelord":["tre grundämnen","lilla siffran","sju atomer"]}]}]</script>
+<script>
+/* Öva muntligt: läraren frågar en elev i taget, eleven förklarar högt och kan rita.
+   Fråga, svara högt, se exempelsvaret och bilden, bocka av nyckelorden. Nivån sparas i localStorage.
+   Datat byggs in av bygget (kalla/muntligt/AMNE.json). Ingen mikrofon. */
+
+/* Uppläsning: formler läses som bokstäver, MgCl₂ blir em ge ce ell två. Bygget använder samma
+   funktion när det gör röstklippen (rost/meningar.mjs, talTextFran), så den måste stå för sig själv. */
+const TAL_L = 'a be ce de e eff ge hå i ji kå ell em en o pe ku ärr ess te u ve dubbelve ex y säta'.split(' ');
+const TAL_ORD = 'noll ett två tre fyra fem sex sju åtta nio tio elva tolv'.split(' ');
+const TAL_SYM = 'He|Li|Be|Ne|Na|Mg|Al|Si|Cl|Ar|Ca|Fe|Cu|Zn|Ag|Au|Br|Kr|Pb|Cs|Fr|Hg|Xe|Rn|Ba|Cr|Sr|H|B|C|N|O|F|P|S|K';
+const TAL_SUB = '₀₁₂₃₄₅₆₇₈₉', TAL_SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+const TAL_BOKSTAV = 'A-Za-zÅÄÖåäöÉé';
+const TAL_FORMEL = new RegExp('(^|[^' + TAL_BOKSTAV + '])((?:(?:' + TAL_SYM + ')[' + TAL_SUB + ']*)+)([' + TAL_SUP + ']*[⁺⁻])?(?![' + TAL_BOKSTAV + '])', 'g');
+const TAL_DEL = new RegExp('(' + TAL_SYM + ')([' + TAL_SUB + ']*)', 'g');
+function talText(t){
+  const tal = (s, siffror) => {
+    const n = Number(s.split('').map(c => siffror.indexOf(c)).join(''));
+    return TAL_ORD[n] || String(n);
+  };
+  const bokstaver = sym => sym.split('').map(c => TAL_L[c.toUpperCase().charCodeAt(0) - 65] || c).join(' ');
+  return String(t)
+    .replace(TAL_FORMEL, (hel, fore, formel, laddning) => {
+      if (formel.length === 1 && !laddning) return hel;
+      const delar = [];
+      formel.replace(TAL_DEL, (x, sym, sub) => { delar.push(bokstaver(sym) + (sub ? ' ' + tal(sub, TAL_SUB) : '')); return x; });
+      let ut = delar.join(' ');
+      if (laddning) {
+        const siffra = laddning.slice(0, -1);
+        ut += (siffra ? ' ' + tal(siffra, TAL_SUP) : '') + (laddning.slice(-1) === '⁺' ? ' plus' : ' minus');
+      }
+      return fore + ut;
+    })
+    .replace(/\s\+\s/g, ' plus ')
+    .replace(/\s*→\s*/g, ' ger ')
+    .replace(/\s*·\s*/g, ' gånger ')
+    .replace(/≈/g, 'ungefär')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/* ---------- bilder: atomer, joner och molekyler som svg, ritade ur datat ----------
+   atom/jon:  { t, p, skal:[2,8,1], namn, n?, markera?, lediga? }   laddningen räknas ut: p minus antal elektroner
+   molekyl:   { molekyl, namn, atomer:[{t,p,x,y,delta?}], bindningar:[[a,b,antal elektronpar]] }   x och y i bindningslängder
+   markera = så många av de sista elektronerna i yttersta skalet ritas gula (elektronerna som flyttar)
+   lediga  = tomma platser i yttersta skalet ritas som streckade ringar
+   enkla   = (atom i molekyl) de fria elektronerna sprids ut en och en i stället för i par
+   mellan delarna: + och → som tecken, | som ny rad */
+const FARG = { karna: '#E2595F', skal: '#5B6B99', e: '#7EA6FF', flytt: '#F2C14E', yta: 'rgba(126,166,255,.07)', text: '#FFFFFF', dov: '#C9D2E3' };
+const UPPHOJT = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+function summa(l){ return l.reduce((s, x) => s + x, 0); }
+function fordela(e){ const ut = []; [2, 8, 8, 18].forEach(k => { if (e > 0) { const n = Math.min(k, e); ut.push(n); e -= n; } }); return ut; }
+function laddningAv(a){ return a.p - summa(a.skal); }
+function formelFor(a){
+  const q = laddningAv(a), b = Math.abs(q);
+  return a.t + (q === 0 ? '' : (b > 1 ? String(b).split('').map(c => UPPHOJT[+c]).join('') : '') + (q > 0 ? '⁺' : '⁻'));
+}
+function platser(kap){ if (kap === 2) return [-90, 90]; const s = [-90, 0, 90, 180]; return s.map(v => v - 13).concat(s.map(v => v + 13)); }
+function rund(x){ return Math.round(x * 10) / 10; }
+function svgEsc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function ring(x, y, r, stil){ return '<circle cx="' + rund(x) + '" cy="' + rund(y) + '" r="' + rund(r) + '" ' + stil + '/>'; }
+function skrift(x, y, s, storlek, farg){ return '<text x="' + rund(x) + '" y="' + rund(y) + '" font-size="' + storlek + '" font-weight="700" text-anchor="middle" fill="' + farg + '">' + svgEsc(s) + '</text>'; }
+function prick(x, y, farg){ return ring(x, y, 4.6, 'fill="' + farg + '"'); }
+function tomPlats(x, y){ return ring(x, y, 4.6, 'fill="none" stroke="' + FARG.flytt + '" stroke-width="1.6" stroke-dasharray="2.4 2"'); }
+function svgRam(b, h, etikett, inne){
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + rund(b) + ' ' + rund(h) + '" width="' + rund(b) + '" height="' + rund(h) + '" role="img" aria-label="' + svgEsc(etikett) + '">' + inne + '</svg>';
+}
+
+function atomSvg(a){
+  const rk = a.n ? 17 : 15, steg = 13, yttre = rk + steg * a.skal.length, S = 2 * (yttre + 9), c = S / 2;
+  let s = '';
+  a.skal.forEach((n, i) => {
+    const r = rk + steg * (i + 1), kap = i === 0 ? 2 : 8, ytterst = i === a.skal.length - 1, mark = ytterst ? (a.markera || 0) : 0;
+    s += ring(c, c, r, 'fill="none" stroke="' + FARG.skal + '" stroke-width="2"');
+    platser(kap).forEach((v, k) => {
+      const x = c + r * Math.cos(v * Math.PI / 180), y = c + r * Math.sin(v * Math.PI / 180);
+      if (k < n) s += prick(x, y, k >= n - mark ? FARG.flytt : FARG.e);
+      else if (ytterst && a.lediga) s += tomPlats(x, y);
+    });
+  });
+  s += ring(c, c, rk, 'fill="' + FARG.karna + '"');
+  if (a.n) s += skrift(c, c - 0.5, a.p + '+', 11, FARG.text) + skrift(c, c + 10, a.n + ' n', 8.5, FARG.text);
+  else s += skrift(c, c + 4.5, a.p + '+', 12.5, FARG.text);
+  const text = (a.namn || a.t) + '. ' + a.p + ' protoner i kärnan. Elektroner i skalen: ' + a.skal.join(', ') + '.';
+  return svgRam(S, S, text, s);
+}
+
+function friaVinklar(bind, antal){
+  if (!antal) return [];
+  if (!bind.length) return Array.from({ length: antal }, (x, i) => -90 + 360 * i / antal);
+  const b = bind.map(v => (v + 360) % 360).sort((x, y) => x - y);
+  const luckor = b.map((v, i) => ({ fran: v, storlek: (i + 1 < b.length ? b[i + 1] : b[0] + 360) - v, n: 0 }));
+  for (let k = 0; k < antal; k++) {
+    let bast = luckor[0];
+    luckor.forEach(l => { if (l.storlek / (l.n + 1) > bast.storlek / (bast.n + 1)) bast = l; });
+    bast.n++;
+  }
+  const ut = [];
+  luckor.forEach(l => { for (let j = 1; j <= l.n; j++) ut.push(l.fran + l.storlek * j / (l.n + 1)); });
+  return ut;
+}
+
+/* räknar ut var varje elektron hamnar i en molekyl (används av molekylSvg och av testet) */
+function molekylData(m){
+  const D = 50, R = 34;
+  const P = m.atomer.map(a => ({ x: a.x * D, y: a.y * D }));
+  const delade = m.atomer.map(() => 0), riktning = m.atomer.map(() => []);
+  const vinkel = (A, B) => Math.atan2(B.y - A.y, B.x - A.x) * 180 / Math.PI;
+  m.bindningar.forEach(b => {
+    delade[b[0]] += b[2]; delade[b[1]] += b[2];
+    riktning[b[0]].push(vinkel(P[b[0]], P[b[1]])); riktning[b[1]].push(vinkel(P[b[1]], P[b[0]]));
+  });
+  const atomer = m.atomer.map((a, i) => {
+    const sk = fordela(a.p), valens = sk[sk.length - 1], fria = valens - delade[i];
+    const par = a.enkla ? 0 : Math.floor(fria / 2), ensam = a.enkla ? fria : fria % 2;
+    const prickar = [];
+    friaVinklar(riktning[i], par + ensam).forEach((v, j) => {
+      (j < par ? [v - 10, v + 10] : [v]).forEach(w => prickar.push({ x: P[i].x + R * Math.cos(w * Math.PI / 180), y: P[i].y + R * Math.sin(w * Math.PI / 180) }));
+    });
+    return { t: a.t, p: a.p, x: P[i].x, y: P[i].y, inre: sk.slice(0, -1), valens: valens, delade: delade[i], fria: prickar, delta: a.delta };
+  });
+  const bindPrickar = [];
+  m.bindningar.forEach(b => {
+    const A = P[b[0]], B = P[b[1]], l = Math.hypot(B.x - A.x, B.y - A.y), nx = -(B.y - A.y) / l, ny = (B.x - A.x) / l;
+    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, k = 2 * b[2];
+    for (let i = 0; i < k; i++) { const o = (i - (k - 1) / 2) * 10; bindPrickar.push({ x: mx + nx * o, y: my + ny * o, a: b[0], b: b[1] }); }
+  });
+  // inre skal: två motsatta elektroner, vridna så långt från bindningarna som möjligt
+  atomer.forEach((a, i) => {
+    let bast = 90, avst = -1;
+    for (let v = 0; v < 180; v += 5) {
+      const m2 = Math.min.apply(null, riktning[i].map(r => { const d2 = Math.abs(((v - r) % 180 + 180) % 180); return Math.min(d2, 180 - d2); }).concat([90]));
+      if (m2 > avst + 0.01) { avst = m2; bast = v; }
+    }
+    a.inrePrickar = [];
+    a.inre.forEach((n, j) => {
+      const r = 16 + 8 * j;
+      platser(j === 0 ? 2 : 8).slice(0, n).forEach(v => {
+        const w = (v + (j === 0 ? bast + 90 : 0)) * Math.PI / 180;
+        a.inrePrickar.push({ x: a.x + r * Math.cos(w), y: a.y + r * Math.sin(w) });
+      });
+    });
+  });
+  return { D: D, R: R, atomer: atomer, bind: bindPrickar };
+}
+
+function molekylSvg(m){
+  const d = molekylData(m), R = d.R, A = d.atomer;
+  const cx = summa(A.map(a => a.x)) / A.length, cy = summa(A.map(a => a.y)) / A.length;
+  const etiketter = A.filter(a => a.delta).map(a => {
+    let ux = a.x - cx, uy = a.y - cy; const l = Math.hypot(ux, uy);
+    if (l < 5) { ux = 0; uy = -1; } else { ux /= l; uy /= l; }
+    return { x: a.x + ux * (R + 20), y: a.y + uy * (R + 14) + 4, s: 'lite ' + (a.delta === '-' ? '−' : '+') };
+  });
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  A.forEach(a => { x0 = Math.min(x0, a.x - R); x1 = Math.max(x1, a.x + R); y0 = Math.min(y0, a.y - R); y1 = Math.max(y1, a.y + R); });
+  etiketter.forEach(e => { x0 = Math.min(x0, e.x - 24); x1 = Math.max(x1, e.x + 24); y0 = Math.min(y0, e.y - 14); y1 = Math.max(y1, e.y + 6); });
+  const pad = 8, ox = pad - x0, oy = pad - y0;
+  let s = '';
+  A.forEach(a => { s += ring(a.x + ox, a.y + oy, R, 'fill="' + FARG.yta + '" stroke="' + FARG.skal + '" stroke-width="2"'); });
+  A.forEach(a => {
+    a.inre.forEach((n, j) => { s += ring(a.x + ox, a.y + oy, 16 + 8 * j, 'fill="none" stroke="' + FARG.skal + '" stroke-width="1.6"'); });
+    a.inrePrickar.forEach(q => { s += ring(q.x + ox, q.y + oy, 3.6, 'fill="' + FARG.e + '"'); });
+    s += ring(a.x + ox, a.y + oy, 9.5, 'fill="' + FARG.karna + '"') + skrift(a.x + ox, a.y + oy + 4.2, a.t, 11.5, FARG.text);
+    a.fria.forEach(q => { s += ring(q.x + ox, q.y + oy, 4.2, 'fill="' + FARG.e + '"'); });
+  });
+  d.bind.forEach(q => { s += ring(q.x + ox, q.y + oy, 4.2, 'fill="' + FARG.e + '"'); });
+  etiketter.forEach(e => { s += skrift(e.x + ox, e.y + oy, e.s, 12, FARG.dov); });
+  return svgRam(x1 - x0 + 2 * pad, y1 - y0 + 2 * pad, (m.namn || m.molekyl) + ', ' + m.molekyl + '. Delade elektronpar sitter mellan atomerna.', s);
+}
+
+function bildHtml(bild){
+  let markerad = false, ledig = false, molekyl = false;
+  const delar = bild.map(x => {
+    if (x === '|') return '<span class="bryt"></span>';
+    if (typeof x === 'string') return '<span class="op" aria-hidden="true">' + svgEsc(x) + '</span>';
+    if (x.molekyl) {
+      molekyl = true;
+      return '<figure>' + molekylSvg(x) + '<figcaption><b>' + svgEsc(x.molekyl) + '</b><span>' + svgEsc((x.namn || '').toLowerCase()) + '</span></figcaption></figure>';
+    }
+    if (x.markera) markerad = true;
+    if (x.lediga) ledig = true;
+    return '<figure>' + atomSvg(x) + '<figcaption><b>' + svgEsc(formelFor(x)) + '</b><span>' + svgEsc((x.namn || '').toLowerCase()) + '</span><span class="mono">' + x.skal.join(', ') + '</span></figcaption></figure>';
+  });
+  const forkl = ['<span><i style="background:' + FARG.karna + '"></i>kärna, antal protoner</span>', '<span><i style="background:' + FARG.e + '"></i>elektron</span>'];
+  if (markerad) forkl.push('<span><i style="background:' + FARG.flytt + '"></i>elektroner som flyttar</span>');
+  if (ledig) forkl.push('<span><i style="border:1.6px dashed ' + FARG.flytt + '"></i>ledig plats</span>');
+  if (molekyl) forkl.push('<span>elektronparen mellan atomerna delas</span>');
+  return '<div class="bild">' + delar.join('') + '<div class="forklaring">' + forkl.join('') + '</div></div>';
+}
+
+/* ---------- sidan ---------- */
+if (typeof document !== 'undefined') (function(){
+  'use strict';
+  const PER_OMGANG = 6;
+  const $ = s => document.querySelector(s);
+  const app = $('#app');
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  let AMNEN = [], amne = null, spar = { f: {} };
+
+  // sparning: try/catch överallt, sidan fungerar även utan
+  function hamta(k){ try { return localStorage.getItem('plugg9.muntligt.' + k); } catch (e) { return null; } }
+  function lagra(k, v){ try { localStorage.setItem('plugg9.muntligt.' + k, v); } catch (e) {} }
+  function spara(){ lagra(amne.id, JSON.stringify(spar)); }
+  function auto(){ return hamta('auto') !== '0'; }
+  function idag(){ const d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+
+  // uppläsning: samma meningsdelning som rost/meningar.mjs, så att klippen hittas
+  function meningar(t){ return String(t).replace(/([.!?])\s+/g, '$1\n').split('\n').map(s => s.trim()).filter(Boolean); }
+  function las(){
+    if (!window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    [].slice.call(arguments).forEach(t => meningar(talText(t)).forEach(b => {
+      const u = new SpeechSynthesisUtterance(b); u.lang = 'sv-SE'; u.rate = .94; speechSynthesis.speak(u);
+    }));
+  }
+  function tyst(){ try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} }
+
+  function blanda(l){ l = l.slice(); for (let i = l.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)), t = l[i]; l[i] = l[j]; l[j] = t; } return l; }
+  function niva(m){ const v = spar.f[m.id]; return v ? v.niva : -1; }
+  function svarastForst(lista, n){ return blanda(lista).sort((a, b) => niva(a) - niva(b)).slice(0, n); }
+  function dmNamn(m){ const d = amne.delmoment.find(x => x.id === m.delmoment); return d ? d.namn : m.delmoment; }
+  function unika(l){ return l.filter((x, i) => l.indexOf(x) === i); }
+
+  function vy(rubrik, html){
+    tyst();
+    app.innerHTML = '<div class="vyhuvud"><button class="knapp liten" type="button" id="tillMeny">‹ Meny</button><p class="etikett">' + esc(rubrik) + '</p></div>' + html;
+    $('#tillMeny').onclick = meny;
+    window.scrollTo(0, 0);
+  }
+  function prickar(gjorda, antal){
+    let h = '<div class="prickar" aria-hidden="true">';
+    for (let i = 0; i < antal; i++) h += '<i class="' + (i < gjorda ? 'ok' : i === gjorda ? 'nu' : '') + '"></i>';
+    return h + '</div>';
+  }
+  const RITA = '<p class="tips">✏️ Rita på ett papper medan du förklarar. Sen jämför du med bilden.</p>';
+
+  /* ---------- menyn ---------- */
+  function meny(){
+    tyst();
+    const alla = amne.fragor, klara = alla.filter(m => niva(m) === 2).length, rita = alla.filter(m => m.typ === 'rita');
+    const dms = amne.delmoment.map(d => {
+      const l = alla.filter(m => m.delmoment === d.id);
+      return { d: d, l: l, klara: l.filter(m => niva(m) === 2).length, poang: l.length ? summa(l.map(m => Math.max(0, niva(m)))) / (2 * l.length) : 1, ovat: l.some(m => niva(m) >= 0) };
+    }).filter(x => x.l.length);
+    let svag = null;
+    if (dms.some(x => x.ovat)) dms.forEach(x => { if (!svag || x.poang < svag.poang) svag = x; });
+    app.innerHTML =
+      '<section class="kort">' +
+        '<p class="status">' + klara + ' av ' + alla.length + ' frågor sagda med alla nyckelord</p>' +
+        '<div class="matare" aria-hidden="true"><i style="width:' + Math.round(100 * klara / alla.length) + '%"></i></div>' +
+        '<div class="val">' +
+          '<button class="knapp primar stor" type="button" id="gBlandat"><span>▶ Öva blandat</span><small>6 frågor, det svåraste först</small></button>' +
+          '<button class="knapp stor" type="button" id="gProv"><span>🎓 Provsimulering</span><small>6 frågor i rad, svaren kommer efteråt</small></button>' +
+          (rita.length ? '<button class="knapp" type="button" id="gRita"><span>✏️ Rita och förklara</span><small>' + rita.length + ' frågor där du ritar på papper</small></button>' : '') +
+        '</div>' +
+      '</section>' +
+      '<section class="kort"><h2>Välj ett område</h2><p class="mjuk">Siffran visar hur många frågor du har sagt med alla nyckelord. Tryck på Läs för att läsa och lyssna på svaren först.</p><ul class="dm">' +
+        dms.map(x => '<li><button class="knapp" type="button" data-dm="' + esc(x.d.id) + '"><span>' + esc(x.d.namn) + (x === svag ? '<em class="svag">öva här</em>' : '') + '</span>' +
+          '<small class="mono">' + x.klara + '/' + x.l.length + '</small></button>' +
+          '<button class="las" type="button" data-lasdm="' + esc(x.d.id) + '" aria-label="Läs och lyssna, ' + esc(x.d.namn) + '">📖 Läs</button></li>').join('') +
+      '</ul></section>' +
+      '<section class="kort"><label class="vaxel"><input type="checkbox" id="auto"' + (auto() ? ' checked' : '') + '> Läs upp frågorna automatiskt</label>' +
+        '<div class="rad"><button class="las" type="button" id="nollstall">Börja om från noll</button></div></section>';
+    $('#gBlandat').onclick = () => ova(() => svarastForst(amne.fragor, PER_OMGANG), 'Blandat');
+    $('#gProv').onclick = prov;
+    if ($('#gRita')) $('#gRita').onclick = () => ova(() => svarastForst(amne.fragor.filter(m => m.typ === 'rita'), PER_OMGANG), 'Rita och förklara');
+    app.querySelectorAll('[data-dm]').forEach(b => b.onclick = () => {
+      const id = b.dataset.dm, d = amne.delmoment.find(x => x.id === id);
+      ova(() => svarastForst(amne.fragor.filter(m => m.delmoment === id), PER_OMGANG), d.namn);
+    });
+    app.querySelectorAll('[data-lasdm]').forEach(b => b.onclick = () => lasOmrade(b.dataset.lasdm));
+    $('#auto').onchange = e => lagra('auto', e.target.checked ? '1' : '0');
+    $('#nollstall').onclick = () => {
+      if (!window.confirm('Vill du börja om? Alla bockar för ' + amne.amne.toLowerCase() + ' försvinner.')) return;
+      spar = { f: {} }; spara(); meny();
+    };
+  }
+
+  /* ---------- svaret: exempel, bild och nyckelord att bocka av ---------- */
+  function svarKort(m, rubrik, etikett, klar){
+    vy(rubrik,
+      '<section class="kort">' +
+        '<p class="etikett">' + esc(etikett) + '</p>' +
+        '<p class="fraga liten">' + esc(m.fraga) + '</p>' +
+        (m.bild ? bildHtml(m.bild) : '') +
+        '<p class="svartext">' + esc(m.svar) + '</p>' +
+        '<p class="etikett">Vilka nyckelord sa du? Tryck på dem.</p>' +
+        '<div class="ordrad">' + m.nyckelord.map((k, i) => '<button type="button" class="ord" aria-pressed="false" data-i="' + i + '">' + esc(k) + '</button>').join('') + '</div>' +
+        '<p class="raknare" id="raknare" aria-live="polite"></p>' +
+        '<div class="rad"><button class="knapp primar stor" type="button" id="klar">Klar, nästa</button>' +
+        '<button class="las" type="button" id="lasSvar">🔊 Lyssna på exemplet</button></div>' +
+      '</section>');
+    const ord = [].slice.call(app.querySelectorAll('.ord')), raknare = $('#raknare');
+    const valda = () => ord.filter(b => b.getAttribute('aria-pressed') === 'true').length;
+    const visa = () => {
+      const n = valda(), alla = n === ord.length;
+      raknare.textContent = alla ? 'Alla ' + n + ' nyckelord. Snyggt!' : n + ' av ' + ord.length + ' nyckelord';
+      raknare.classList.toggle('alla', alla);
+    };
+    ord.forEach(b => b.onclick = () => { b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); visa(); });
+    visa();
+    $('#lasSvar').onclick = () => las('Så kan man säga.', m.svar);
+    $('#klar').onclick = () => {
+      const n = valda(), nv = n === ord.length ? 2 : n > 0 ? 1 : 0, f = spar.f[m.id] || { antal: 0 };
+      spar.f[m.id] = { niva: nv, antal: f.antal + 1, senast: idag(), ord: ord.map(b => b.getAttribute('aria-pressed') === 'true' ? 1 : 0) };
+      spara();
+      klar(nv);
+    };
+    if (auto()) las('Så kan man säga.', m.svar);
+  }
+
+  /* ---------- öva: fråga, säg högt, jämför ---------- */
+  function ova(valj, rubrik){
+    const urval = valj(), ko = urval.slice(), betyg = {}, igen = {}, antal = urval.length;
+    let gjorda = 0;
+    if (!antal) { meny(); return; }
+    function fraga(){
+      const m = ko[0];
+      vy(rubrik,
+        '<section class="kort">' +
+          '<p class="etikett">Fråga ' + Math.min(antal, gjorda + 1) + ' av ' + antal + ' · ' + esc(dmNamn(m)) + (igen[m.id] ? ' · en gång till' : '') + '</p>' +
+          prickar(gjorda, antal) +
+          '<h2 class="fraga">' + esc(m.fraga) + '</h2>' +
+          (m.typ === 'rita' ? RITA : '') +
+          '<p class="mjuk">Säg svaret högt, som om du pratade med läraren. Du behöver inte skriva något.</p>' +
+          '<p class="borja" id="borja" hidden></p>' +
+          '<div class="rad"><button class="knapp primar stor" type="button" id="sagt">Jag har sagt mitt svar</button>' +
+          '<button class="knapp" type="button" id="hjalp">💡 Hjälp mig börja</button></div>' +
+          '<div class="rad"><button class="las" type="button" id="lasFraga">🔊 Läs frågan</button></div>' +
+        '</section>');
+      $('#lasFraga').onclick = () => las(m.fraga);
+      $('#hjalp').onclick = () => { const h = $('#borja'); h.hidden = false; h.textContent = m.borja; las(m.borja); };
+      $('#sagt').onclick = () => svarKort(m, rubrik, 'Så kan man säga', n => {
+        betyg[m.id] = n; ko.shift();
+        if (n < 2 && !igen[m.id]) { igen[m.id] = 1; ko.push(m); }   // en andra chans, en enda gång
+        else gjorda++;
+        if (ko.length) fraga(); else sammanfatta(urval, betyg, rubrik, () => ova(valj, rubrik));
+      });
+      if (auto()) las(m.fraga);
+    }
+    fraga();
+  }
+
+  /* ---------- provsimulering: sex frågor i rad, svaren efteråt ---------- */
+  function prov(){
+    const rubrik = 'Provsimulering';
+    const omraden = blanda(amne.delmoment.filter(d => amne.fragor.some(m => m.delmoment === d.id)));
+    let urval = omraden.slice(0, PER_OMGANG).map(d => blanda(amne.fragor.filter(m => m.delmoment === d.id))[0]);
+    if (urval.length < PER_OMGANG) urval = urval.concat(blanda(amne.fragor.filter(m => urval.indexOf(m) < 0)).slice(0, PER_OMGANG - urval.length));
+    urval = blanda(urval);
+    const betyg = {};
+    vy(rubrik,
+      '<section class="kort"><h2>Som på provet</h2>' +
+        '<p>Sex frågor i rad, som när läraren frågar. Svara högt på varje fråga. Ta den tid du behöver.</p>' +
+        '<p>Du ser svaren först när alla sex är klara. Fastnar du, säg det du vet och gå vidare.</p>' +
+        '<div class="rad"><button class="knapp primar stor" type="button" id="starta">Starta</button></div></section>');
+    $('#starta').onclick = () => fraga(0);
+    if (auto()) las('Sex frågor i rad, som när läraren frågar. Svara högt på varje fråga. Ta den tid du behöver.', 'Du ser svaren först när alla sex är klara. Fastnar du, säg det du vet och gå vidare.');
+    function fraga(i){
+      const m = urval[i], sist = i + 1 >= urval.length;
+      vy(rubrik,
+        '<section class="kort">' +
+          '<p class="etikett">Fråga ' + (i + 1) + ' av ' + urval.length + '</p>' + prickar(i, urval.length) +
+          '<h2 class="fraga">' + esc(m.fraga) + '</h2>' +
+          (m.typ === 'rita' ? RITA : '') +
+          '<p class="mjuk">Svara högt. När du är klar går du vidare.</p>' +
+          '<div class="rad"><button class="knapp primar stor" type="button" id="nasta">' + (sist ? 'Klar, visa svaren' : 'Nästa fråga →') + '</button></div>' +
+          '<div class="rad"><button class="las" type="button" id="lasFraga">🔊 Läs frågan</button></div>' +
+        '</section>');
+      $('#lasFraga').onclick = () => las(m.fraga);
+      $('#nasta').onclick = () => { if (sist) mellan(); else fraga(i + 1); };
+      if (auto()) las(m.fraga);
+    }
+    function mellan(){
+      vy(rubrik,
+        '<section class="kort"><h2>Bra kämpat!</h2>' +
+          '<p>Nu tittar vi på svaren, ett i taget. Bocka av de nyckelord du sa.</p>' +
+          '<div class="rad"><button class="knapp primar stor" type="button" id="visa">Visa svaren</button></div></section>');
+      $('#visa').onclick = () => genomgang(0);
+      if (auto()) las('Bra kämpat!', 'Nu tittar vi på svaren, ett i taget.');
+    }
+    function genomgang(j){
+      if (j >= urval.length) { sammanfatta(urval, betyg, rubrik, prov); return; }
+      svarKort(urval[j], rubrik, 'Svar ' + (j + 1) + ' av ' + urval.length, n => { betyg[urval[j].id] = n; genomgang(j + 1); });
+    }
+  }
+
+  /* ---------- sammanfattning ---------- */
+  function sammanfatta(urval, betyg, rubrik, igen){
+    const allt = urval.filter(m => betyg[m.id] === 2).length, kvar = urval.filter(m => betyg[m.id] !== 2);
+    const tecken = ['✗', '½', '✓'];
+    vy(rubrik,
+      '<section class="kort">' +
+        '<p class="etikett">Klart</p>' +
+        '<h2 class="fraga">' + allt + ' av ' + urval.length + ' frågor med alla nyckelord</h2>' +
+        '<p>' + (kvar.length ? 'Öva mer på: <b>' + esc(unika(kvar.map(dmNamn)).join(', ')) + '</b>. De frågorna kommer först nästa gång du övar.' : 'Du fick med allt. Snyggt jobbat!') + '</p>' +
+        '<ul class="resultat">' + urval.map(m => { const n = betyg[m.id] || 0; return '<li class="n' + n + '"><b aria-hidden="true">' + tecken[n] + '</b><span>' + esc(m.fraga) + '</span></li>'; }).join('') + '</ul>' +
+        '<div class="rad"><button class="knapp primar" type="button" id="igen">Öva fler frågor</button><button class="knapp" type="button" id="hem">‹ Till menyn</button></div>' +
+      '</section>');
+    $('#igen').onclick = igen;
+    $('#hem').onclick = meny;
+    if (auto()) las(kvar.length ? 'Bra kämpat. Titta på vad du kan öva mer på.' : 'Du fick med allt. Snyggt jobbat!');
+  }
+
+  /* ---------- läs och lyssna: alla frågor och svar i ett område ---------- */
+  function lasOmrade(id){
+    const d = amne.delmoment.find(x => x.id === id), lista = amne.fragor.filter(m => m.delmoment === id);
+    vy(d.namn,
+      '<section class="kort"><h2>' + esc(d.namn) + '</h2><p class="mjuk">Läs eller lyssna på frågorna och exempelsvaren. Sen övar du på att säga dem själv.</p>' +
+        '<div class="rad"><button class="knapp primar" type="button" id="ovaHar">▶ Öva det här området</button></div></section>' +
+      lista.map((m, i) => '<section class="kort"><h3 class="fraga">' + esc(m.fraga) + '</h3>' + (m.bild ? bildHtml(m.bild) : '') +
+        '<p class="svartext">' + esc(m.svar) + '</p>' +
+        '<div class="ordrad">' + m.nyckelord.map(k => '<span class="ord fast">' + esc(k) + '</span>').join('') + '</div>' +
+        '<div class="rad"><button class="las" type="button" data-l="' + i + '">🔊 Lyssna</button></div></section>').join(''));
+    $('#ovaHar').onclick = () => ova(() => svarastForst(lista, PER_OMGANG), d.namn);
+    app.querySelectorAll('[data-l]').forEach(b => b.onclick = () => { const m = lista[+b.dataset.l]; las(m.fraga, m.svar); });
+  }
+
+  /* ---------- start ---------- */
+  function valjAmne(id){
+    amne = AMNEN.find(a => a.id === id) || AMNEN[0];
+    lagra('amne', amne.id);
+    try { spar = JSON.parse(hamta(amne.id)) || {}; } catch (e) { spar = {}; }
+    if (!spar.f || typeof spar.f !== 'object') spar.f = {};
+    document.title = amne.rubrik + ' · Plugg åk 9';
+    $('#rubrik').textContent = amne.rubrik;
+    $('#under').textContent = amne.underrubrik;
+    $('#amne').textContent = 'Muntligt prov · ' + amne.amne;
+    const l = $('#spellank');
+    if (amne.spel) { l.hidden = false; l.href = '../' + amne.spel[1]; l.textContent = amne.spel[0] + ' →'; } else l.hidden = true;
+    const nav = $('#flikar');
+    nav.hidden = AMNEN.length < 2;
+    nav.innerHTML = AMNEN.map(a => '<button type="button" data-amne="' + esc(a.id) + '" class="' + (a === amne ? 'vald' : '') + '">' + esc(a.amne) + '</button>').join('');
+    nav.querySelectorAll('[data-amne]').forEach(b => b.onclick = () => valjAmne(b.dataset.amne));
+    meny();
+  }
+  function start(lista){
+    AMNEN = lista.filter(a => a && a.id && Array.isArray(a.fragor) && a.fragor.length);
+    if (!AMNEN.length) { app.innerHTML = '<p class="kort">Det finns inga frågor än.</p>'; return; }
+    const fran = decodeURIComponent((location.hash || '').slice(1));
+    valjAmne(AMNEN.some(a => a.id === fran) ? fran : hamta('amne'));
+  }
+  let data = null;
+  try { data = JSON.parse($('#muntligt-data').textContent); } catch (e) {}
+  if (data) start(Array.isArray(data) ? data : [data]);
+  else fetch('kemi.json').then(r => r.json()).then(d => start([d])).catch(() => { app.innerHTML = '<p class="kort">Frågorna kunde inte laddas.</p>'; });   // bara när sidan provas obyggd
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js').catch(function(){});
+})();
+</script>
+</body>
+</html>
