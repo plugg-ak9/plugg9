@@ -213,7 +213,8 @@
     var gung = paMark && fart > .3 ? steg : 0;
     // skugga på marken under spelaren (krymper när man är högt upp)
     var c = Math.floor(x / TILE), golv = -1;
-    for (var r = Math.max(0, Math.floor(y / TILE)); r < ROWS; r++) if (fastRuta(c, r)) { golv = r * TILE; break; }
+    // bara i en bana: på kartan finns ingen bana att leta mark i (spel är null innan första banan)
+    if (lage === 'bana' && spel) for (var r = Math.max(0, Math.floor(y / TILE)); r < ROWS; r++) if (fastRuta(c, r)) { golv = r * TILE; break; }
     if (golv > 0) { var h = Math.max(0, golv - y), bb = Math.max(4, 16 - h / 8); skugga(x, golv, bb); }
     var sq = clamp(p.squash || 0, -1, 1);
     ctx.save(); ctx.translate(Math.round(x), Math.round(y)); ctx.scale(1 + sq * .15, 1 - sq * .2);

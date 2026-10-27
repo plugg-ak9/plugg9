@@ -1915,6 +1915,8 @@ const PLATSER=[
  [11,2,4,'atom','under'],    // Kalcium – lösningar som leder ström
  [12,18,5,'tempel','vanster'] // Provet – vid xenon, längst ner till höger
 ].map(([id,kol,per,ikon,lbl])=>{ const [x,y]=P(kol,per); return {id,x:x+18,y:y+30,ikon,lbl}; });
+const karta={x:0,y:0,cam:{x:0,y:0},riktning:1,narmast:null,bat:false,steg:0,fart:0};
+(function(){const u=PLATSER[0];karta.x=u.x+30;karta.y=u.y+22;})();
 
 function ritaPlatsIkon(p,oppen){
   const x=p.x,y=p.y, g=oppen?'#C9A46A':'#6A7290', m=oppen?'#8E6E42':'#4E5570';
