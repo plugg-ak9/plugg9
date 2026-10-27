@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vad kan jag? · Plugg åk 9</title>
+<meta name="description" content="Inför provet: vad du redan kan och vad som är kvar, räknat från spelen och muntliga övningar.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#10141C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plugg åk 9">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../ikon-180.png">
+<link rel="icon" type="image/png" href="../ikon-192.png">
+<link rel="stylesheet" href="../fonter/fonter.css">
+<script src="../rost/rost.js" data-spel="provkoll"></script>
+<style>
+:root{--bg:#0F1524;--kort:#18213A;--kort2:#1F2A48;--text:#F2F5FA;--dov:#A9B3C6;--linje:#2C3758;--acc:#7EA6FF;--ratt:#5FCB8A;--gul:#F2C14E;
+  --rubrik:"Lexend","Avenir Next","Segoe UI",sans-serif;--brod:"Atkinson Hyperlegible","Verdana",sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,#25335C,transparent),var(--bg);color:var(--text);font:18px/1.5 var(--brod);min-height:100vh;
+  padding:calc(16px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom))}
+.wrap{max-width:640px;margin:0 auto;display:grid;gap:14px}
+.topp{display:flex;gap:10px;align-items:center}
+.topp a{font:700 .95rem var(--rubrik);color:var(--text);text-decoration:none;border:1px solid var(--linje);border-radius:12px;padding:8px 12px;background:#1E2638}
+h1{font:800 2rem/1.1 var(--rubrik);margin:6px 0 0}
+h2{font:800 1.2rem/1.2 var(--rubrik);margin:8px 0 0}
+.under{margin:0;color:var(--dov)}
+.flikar{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;margin:0 -2px}
+.flikar button{flex:0 0 auto;font:700 .92rem var(--rubrik);color:var(--text);background:#1E2638;border:1px solid var(--linje);border-radius:12px;padding:8px 12px;cursor:pointer}
+.flikar button.vald{background:var(--acc);color:#0B1428;border-color:var(--acc)}
+.siffror{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.siffra{background:linear-gradient(180deg,var(--kort2),var(--kort));border:1px solid var(--linje);border-radius:18px;padding:12px 14px}
+.siffra b{display:block;font:800 1.7rem/1.1 var(--rubrik)}
+.siffra span{color:var(--dov);font-size:.95rem}
+.matare{height:10px;border-radius:999px;background:#232C47;overflow:hidden;margin-top:8px}
+.matare i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--ratt));border-radius:inherit;transition:width .4s}
+.nasta{background:linear-gradient(180deg,var(--kort2),var(--kort));border:2px solid var(--acc);border-radius:18px;padding:14px;display:grid;gap:8px}
+.nasta p{margin:0}
+.nasta .etikett{font:700 .8rem var(--rubrik);color:var(--acc);text-transform:uppercase;letter-spacing:.04em}
+.nasta b{font:700 1.15rem/1.3 var(--rubrik)}
+.knappar{display:flex;gap:8px;flex-wrap:wrap}
+.knappar a,.knapp{font:700 .95rem var(--rubrik);color:#0B1428;background:var(--acc);text-decoration:none;border:0;border-radius:12px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 #3E5BA8}
+.knapp.ram{background:transparent;color:var(--acc);border:2px solid var(--acc);box-shadow:none;padding:8px 12px}
+ol{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+li{background:var(--kort);border:1px solid var(--linje);border-radius:14px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:start}
+.ikon{grid-row:span 2;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font:800 1.1rem var(--rubrik);border:2px solid var(--linje);color:var(--dov)}
+li.kan .ikon{background:var(--ratt);border-color:var(--ratt);color:#0b2414}
+li.nastan .ikon{border-color:var(--gul);color:var(--gul)}
+li .mal{font-weight:700}
+li .detalj{color:var(--dov);font-size:.9rem}
+.hem{background:var(--kort);border:1px dashed var(--linje);border-radius:18px;padding:14px;display:grid;gap:10px}
+.hem p{margin:0}
+.svar{background:#121a2e;border:1px solid var(--linje);border-radius:12px;padding:10px 12px;font-size:.95rem;white-space:pre-wrap}
+details{color:var(--dov);font-size:.9rem}
+details input{font:inherit;font-size:1rem;width:100%;margin-top:6px;padding:8px 10px;border-radius:10px;border:1px solid var(--linje);background:#121a2e;color:var(--text)}
+.tom{color:var(--dov)}
+[hidden]{display:none!important}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--gul);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topp"><a class="hem-lank" href="../index.html">‹ Hem</a></div>
+<nav class="flikar" id="flikar" aria-label="Välj prov"></nav>
+<h1 id="rubrik"></h1>
+<p class="under" id="under"></p>
+<div class="siffror">
+  <div class="siffra"><b id="banor"></b><span id="banorText"></span><div class="matare" aria-hidden="true"><i id="banorMatare"></i></div></div>
+  <div class="siffra"><b id="munt"></b><span>muntliga frågor säkra</span><div class="matare" aria-hidden="true"><i id="muntMatare"></i></div></div>
+</div>
+<div class="nasta" id="nasta"></div>
+<div class="knappar"><button class="knapp ram" id="lasUpp" type="button">Läs upp</button></div>
+<h2>Det här ska du kunna</h2>
+<ol id="lista"></ol>
+<section class="hem" aria-labelledby="hemRubrik">
+  <h2 id="hemRubrik">Skicka hem hur långt du kommit</h2>
+  <p>Det här skickas, och bara om du trycker:</p>
+  <div class="svar" id="svarText"></div>
+  <div class="knappar"><a id="skicka" href="#">Skicka som sms</a></div>
+  <details><summary>Inställning: numret att skicka till</summary>
+    <label for="nummer">Sparas bara på den här telefonen.</label>
+    <input id="nummer" type="tel" inputmode="tel" autocomplete="off" placeholder="07…">
+  </details>
+</section>
+<p class="tom">Framstegen räknas från spelen och muntliga övningar på den här enheten. Spelar du på en annan enhet syns det där.</p>
+</div>
+<script type="application/json" id="provkoll-data">[{"id":"kemi","amne":"Kemi","kod":"ke","rubrik":"Inför kemiprovet","underrubrik":"Atomkemi och periodiska systemet. Provet är muntligt, så öva på att säga svaren högt.","spel":{"id":"atomresan","namn":"Atomresan","nyckel":"atomresan.v1","banor":12},"muntligt":"kemi","mal":[{"text":"Protoner, neutroner och elektroner","kort":"atomen","banor":[1],"delmoment":["atomen"]},{"text":"Elektronskal: K-skalet 2, L-skalet 8","kort":"elektronskal","banor":[2],"delmoment":["skal"]},{"text":"Atomnummer, masstal och isotoper","kort":"atomnummer och isotoper","banor":[3],"delmoment":["massa"]},{"text":"Grupper, perioder och valenselektroner","kort":"periodiska systemet","banor":[4],"delmoment":["periodiska"]},{"text":"Alkalimetaller, halogener och ädelgaser","kort":"grundämnesfamiljer","banor":[5],"delmoment":["familjer"]},{"text":"Joner: varför atomer lämnar eller tar elektroner","kort":"joner","banor":[6],"delmoment":["joner"]},{"text":"Jonföreningar och formler, till exempel NaCl","kort":"jonföreningar och formler","banor":[7,8],"delmoment":["jonforeningar"]},{"text":"Reaktionsformler","kort":"reaktionsformler","banor":[9],"delmoment":["reaktioner"]},{"text":"Molekyler och bindningar","kort":"molekyler","banor":[10],"delmoment":["bindningar"]},{"text":"Varför saltvatten leder ström men inte sockervatten","kort":"lösningar","banor":[11],"delmoment":["losningar"]},{"text":"Allt blandat: slutprovet i spelet","kort":"slutprovet","banor":[12],"delmoment":[]}],"fragor":{"atomen":["ke-atomen-1","ke-atomen-2","ke-atomen-3","ke-atomen-4","ke-atomen-5","ke-atomen-6","ke-atomen-7","ke-atomen-8"],"skal":["ke-skal-1","ke-skal-2","ke-skal-3","ke-skal-4","ke-skal-5"],"massa":["ke-mas-1","ke-mas-2","ke-mas-3","ke-mas-4","ke-mas-5","ke-mas-6"],"periodiska":["ke-per-1","ke-per-2","ke-per-3","ke-per-4","ke-per-5","ke-per-6"],"familjer":["ke-fam-1","ke-fam-2","ke-fam-3","ke-fam-4","ke-fam-5","ke-fam-6","ke-fam-7","ke-fam-8","ke-fam-9"],"joner":["ke-jon-1","ke-jon-8","ke-jon-2","ke-jon-3","ke-jon-4","ke-jon-7","ke-jon-9","ke-jon-5"],"jonforeningar":["ke-jf-6","ke-jf-1","ke-jf-7","ke-jf-2","ke-jf-3","ke-jf-4","ke-jf-8","ke-jf-5"],"reaktioner":["ke-rea-1","ke-rea-2","ke-rea-3","ke-rea-4","ke-rea-5"],"bindningar":["ke-bin-1","ke-bin-2","ke-bin-3","ke-bin-4","ke-bin-5","ke-bin-8","ke-bin-6","ke-bin-7"],"losningar":["ke-los-1","ke-los-2","ke-los-3","ke-los-4","ke-los-5"]}}]</script>
+<script>
+(function(){
+  'use strict';
+  var PROV = JSON.parse(document.getElementById('provkoll-data').textContent);
+  var NUMMER = 'plugg9.provkoll.nummer', VALT = 'plugg9.provkoll.prov';
+  function hamta(n){ try { return JSON.parse(localStorage.getItem(n)) || {}; } catch (e) { return {}; } }
+  function hamtaText(n){ try { return localStorage.getItem(n) || ''; } catch (e) { return ''; } }
+  function spara(n, v){ try { localStorage.setItem(n, v); } catch (e) {} }
+  function el(id){ return document.getElementById(id); }
+  function las(t){ if (!window.speechSynthesis) return; speechSynthesis.cancel();
+    String(t).split(/(?<=[.!?])\s+/).filter(Boolean).forEach(function(b){ var u = new SpeechSynthesisUtterance(b); u.lang = 'sv-SE'; u.rate = .94; speechSynthesis.speak(u); }); }
+
+  // status för ett mål: kan = alla banor klarade och minst 60 % av de muntliga frågorna säkra
+  function bedom(p, ljus, munt){
+    var allaBanor = 0, allaSakra = 0, allaFragor = 0;
+    for (var b = 1; b <= p.spel.banor; b++) if ((ljus[b] || 0) > 0) allaBanor++;
+    var mal = p.mal.map(function(m){
+      var klara = m.banor.filter(function(b){ return (ljus[b] || 0) > 0; }).length;
+      var ids = [];
+      m.delmoment.forEach(function(d){ ids = ids.concat(p.fragor[d] || []); });
+      var sakra = ids.filter(function(id){ return munt[id] && munt[id].niva === 2; }).length;
+      var ovade = ids.filter(function(id){ return munt[id] && munt[id].niva >= 0; }).length;
+      var banorOk = klara === m.banor.length, muntOk = !ids.length || sakra / ids.length >= 0.6;
+      var status = banorOk && muntOk ? 'kan' : (klara || ovade ? 'nastan' : 'inte');
+      return { m: m, klara: klara, sakra: sakra, ovade: ovade, antal: ids.length, status: status };
+    });
+    Object.keys(p.fragor).forEach(function(d){ p.fragor[d].forEach(function(id){ allaFragor++; if (munt[id] && munt[id].niva === 2) allaSakra++; }); });
+    return { mal: mal, banor: allaBanor, sakra: allaSakra, fragor: allaFragor };
+  }
+
+  function visa(p){
+    spara(VALT, p.id);
+    [].forEach.call(el('flikar').children, function(k){ k.className = k.dataset.id === p.id ? 'vald' : ''; });
+    var r = bedom(p, hamta(p.spel.nyckel).ljus || {}, hamta('plugg9.muntligt.' + p.muntligt).f || {});
+    el('rubrik').textContent = p.rubrik;
+    el('under').textContent = p.underrubrik;
+    el('banor').textContent = r.banor + ' av ' + p.spel.banor;
+    el('banorText').textContent = 'banor klara i ' + p.spel.namn;
+    el('banorMatare').style.width = Math.round(100 * r.banor / p.spel.banor) + '%';
+    el('munt').textContent = r.sakra + ' av ' + r.fragor;
+    el('muntMatare').style.width = (r.fragor ? Math.round(100 * r.sakra / r.fragor) : 0) + '%';
+
+    // nästa sak: först nästa bana som inte är spelad, sedan det område där minst muntligt är säkert
+    var kvar = r.mal.filter(function(x){ return x.status !== 'kan'; });
+    var nasta = kvar.filter(function(x){ return x.klara < x.m.banor.length; })[0] || kvar[0], nastaText;
+    var n = el('nasta'); n.innerHTML = '';
+    if (!nasta) {
+      nastaText = 'Du har klarat allt. Snyggt! Öva muntligt en gång till dagen före provet.';
+      n.innerHTML = '<p class="etikett">Klart</p><b></b>';
+      n.querySelector('b').textContent = nastaText;
+    } else {
+      var bana = nasta.m.banor.filter(function(b){ return !((hamta(p.spel.nyckel).ljus || {})[b] > 0); })[0];
+      nastaText = 'Nästa: ' + nasta.m.text + '.';
+      n.innerHTML = '<p class="etikett">Nästa sak</p><b></b><div class="knappar"></div>';
+      n.querySelector('b').textContent = nasta.m.text;
+      var k = n.querySelector('.knappar');
+      var a1 = document.createElement('a'); a1.setAttribute('href', '../spel/' + p.spel.id + '.html');
+      a1.textContent = bana ? 'Spela bana ' + bana + ' i ' + p.spel.namn : 'Spela ' + p.spel.namn;
+      var a2 = document.createElement('a'); a2.setAttribute('href', '../muntligt/index.html'); a2.textContent = 'Öva muntligt';
+      if (bana) k.appendChild(a1);
+      if (nasta.antal) k.appendChild(a2);
+      if (!bana) { a1.className = 'knapp ram'; k.appendChild(a1); }
+    }
+
+    var lista = el('lista'); lista.innerHTML = '';
+    r.mal.forEach(function(x){
+      var li = document.createElement('li'); li.className = x.status;
+      var detalj = [];
+      if (x.m.banor.length) detalj.push((x.m.banor.length > 1 ? 'Banorna ' + x.m.banor.join(' och ') : 'Bana ' + x.m.banor[0]) + ': ' + x.klara + ' av ' + x.m.banor.length + ' klar');
+      if (x.antal) detalj.push('muntligt: ' + x.sakra + ' av ' + x.antal + ' säkra');
+      li.innerHTML = '<span class="ikon" aria-hidden="true"></span><span class="mal"></span><span class="detalj"></span>';
+      li.querySelector('.ikon').textContent = x.status === 'kan' ? '✓' : (x.status === 'nastan' ? '½' : '○');
+      li.querySelector('.mal').textContent = x.m.text + (x.status === 'kan' ? ' – kan' : (x.status === 'nastan' ? ' – nästan' : ''));
+      li.querySelector('.detalj').textContent = detalj.join(' · ');
+      lista.appendChild(li);
+    });
+
+    var inteBorjat = r.mal.filter(function(x){ return x.status === 'inte' && x.m.delmoment.length; }).map(function(x){ return x.m.kort; });
+    var antalKan = r.mal.filter(function(x){ return x.status === 'kan'; }).length;
+    var hemText = 'Provkoll ' + p.amne.toLowerCase() + ': ' + r.banor + ' av ' + p.spel.banor + ' banor, ' + r.sakra + ' av ' + r.fragor + ' muntliga frågor säkra. ' +
+      'Kan ' + antalKan + ' av ' + r.mal.length + ' områden.' + (inteBorjat.length ? ' Inte börjat: ' + inteBorjat.slice(0, 4).join(', ') + '.' : '') +
+      '\n#PROVKOLL ' + p.kod + ' ' + r.banor + '/' + p.spel.banor + ' ' + r.sakra + '/' + r.fragor + ' kan ' + antalKan + '/' + r.mal.length;
+    el('svarText').textContent = hemText;
+    var nr = hamtaText(NUMMER).replace(/[^\d+]/g, '');
+    el('skicka').setAttribute('href', (nr ? 'sms:' + nr + '?&body=' : 'sms:&body=') + encodeURIComponent(hemText));
+
+    el('lasUpp').onclick = function(){
+      las(p.rubrik + '. Du har klarat ' + r.banor + ' av ' + p.spel.banor + ' banor. ' + r.sakra + ' av ' + r.fragor + ' muntliga frågor är säkra. ' + nastaText);
+    };
+  }
+
+  var flikar = el('flikar');
+  PROV.forEach(function(p){
+    var b = document.createElement('button'); b.type = 'button'; b.dataset.id = p.id; b.textContent = p.amne;
+    b.onclick = function(){ visa(p); }; flikar.appendChild(b);
+  });
+  if (PROV.length < 2) flikar.hidden = true;
+  var nummer = el('nummer'); nummer.value = hamtaText(NUMMER);
+  nummer.addEventListener('change', function(){ spara(NUMMER, nummer.value.trim()); visa(aktuellt()); });
+  function aktuellt(){ var v = hamtaText(VALT); return PROV.filter(function(p){ return p.id === v; })[0] || PROV[0]; }
+  visa(aktuellt());
+  window.addEventListener('pageshow', function(){ visa(aktuellt()); });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js').catch(function(){});
+})();
+</script>
+</body>
+</html>

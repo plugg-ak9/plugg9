@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pluggflödet · Plugg åk 9</title>
+<meta name="description" content="Korta videor och reels, sen spelar du.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#10141C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plugg åk 9">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../ikon-180.png">
+<link rel="icon" type="image/png" href="../ikon-192.png">
+<link rel="stylesheet" href="../fonter/fonter.css">
+<style>
+/* Layout: en smal kolumn att scrolla i, ett kort per ämne, videor först. */
+:root{
+  --bg:#EDF1F6; --yta:#FFFFFF; --text:#18202E; --dov:#556074; --linje:#D5DCE7;
+  --hkk:#C98A10; --so:#2F64CF; --tk:#1F8A5B; --kost:#D0503F; --no:#7B57C9; --ma:#0D8293; --fokus:#2F64CF;
+  --rubrik:"Lexend","Avenir Next","Segoe UI",sans-serif;
+  --brod:"Atkinson Hyperlegible","Verdana",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#10141C; --yta:#1A202B; --text:#EEF2F8; --dov:#A3ADBF; --linje:#2C3442;
+  --hkk:#F0B640; --so:#7EA6FF; --tk:#4FCB8E; --kost:#FF8574; --no:#B89BFF; --ma:#45C7D6; --fokus:#7EA6FF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141C; --yta:#1A202B; --text:#EEF2F8; --dov:#A3ADBF; --linje:#2C3442;
+  --hkk:#F0B640; --so:#7EA6FF; --tk:#4FCB8E; --kost:#FF8574; --no:#B89BFF; --ma:#45C7D6; --fokus:#7EA6FF; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--brod);font-size:19px;line-height:1.55;padding:calc(20px + env(safe-area-inset-top)) 16px 48px;letter-spacing:.01em}
+.wrap{max-width:640px;margin:0 auto;display:grid;gap:28px}
+.hem{justify-self:start;font-family:var(--rubrik);font-weight:700;font-size:.95rem;color:var(--text);text-decoration:none;background:var(--yta);border:2px solid var(--linje);border-radius:12px;padding:6px 12px}
+.topp h1{font-family:var(--rubrik);font-weight:800;font-size:2.1rem;line-height:1.1;margin:0;text-wrap:balance}
+.topp p{margin:8px 0 0;color:var(--dov)}
+.nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-family:var(--rubrik);font-weight:700;font-size:.85rem;text-decoration:none;color:var(--text);border:2px solid var(--c);border-radius:99px;padding:6px 14px}
+.hkk{--c:var(--hkk)} .no{--c:var(--no)} .ma{--c:var(--ma)} .so{--c:var(--so)} .tk{--c:var(--tk)} .kost{--c:var(--kost)}
+.avsnitt{background:var(--yta);border-radius:22px;padding:22px 18px;display:grid;gap:18px;border-top:8px solid var(--c);scroll-margin-top:12px}
+.avh{display:grid;gap:4px}
+.nar{margin:0;font-family:var(--rubrik);font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
+h2{font-family:var(--rubrik);font-weight:800;font-size:1.6rem;line-height:1.15;margin:0;text-wrap:balance}
+h3{font-family:var(--rubrik);font-weight:700;font-size:1.05rem;margin:0 0 8px}
+.las{justify-self:start;font-family:var(--rubrik);font-weight:700;font-size:.85rem;color:var(--c);background:transparent;border:2px solid var(--c);border-radius:12px;padding:6px 12px;cursor:pointer;margin-top:6px}
+.las.pa{background:var(--c);color:var(--yta)}
+.videor{display:grid;gap:16px}
+.video{margin:0;display:grid;gap:6px}
+.video video{width:100%;max-width:100%;aspect-ratio:16/9;border-radius:14px;background:#000;display:block}
+.staende video{aspect-ratio:9/16;width:auto;max-height:78vh;margin-inline:auto}
+.video figcaption{font-family:var(--rubrik);font-weight:700;font-size:1rem}
+.snart{margin:0;color:var(--dov);font-size:.95rem}
+.block{border-top:1px solid var(--linje);padding-top:14px;display:grid;gap:4px}
+.kan{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.kan li{padding-left:28px;position:relative}
+.kan li::before{content:"";position:absolute;left:4px;top:.5em;width:12px;height:12px;border-radius:50%;border:3px solid var(--c)}
+.spel{display:grid;gap:2px;text-decoration:none;color:var(--yta);background:var(--c);border-radius:16px;padding:14px 18px}
+.spel b{font-family:var(--rubrik);font-size:1.1rem}
+.spel span{font-size:.92rem}
+.spel[hidden]{display:none}
+.reel .nu{margin-top:8px}
+.offline{display:grid;gap:8px;justify-items:start}
+.offline button{font:700 .95rem var(--rubrik);color:var(--text);background:var(--yta);border:2px solid var(--linje);border-radius:12px;padding:8px 14px;cursor:pointer}
+a:focus-visible,button:focus-visible{outline:3px solid var(--fokus);outline-offset:3px}
+.fot{color:var(--dov);font-size:.9rem;text-align:center;margin:0}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+<script src="../rost/rost.js" data-spel="flode"></script>
+</head>
+<body>
+<div class="wrap">
+<a class="hem" href="../index.html" aria-label="Till startsidan">‹ Hem</a>
+<header class="topp">
+<h1>Pluggflödet</h1>
+<p>Scrolla, titta, klart. En video i taget räcker.</p>
+<nav class="nav" aria-label="Hoppa till"><a href="#kemi" class="chip no">Kemi</a><a href="#fysik" class="chip no">Fysik</a><a href="#konsument" class="chip hkk">Konsument</a><a href="#privatekonomi" class="chip hkk">Privatekonomi</a><a href="#pengar" class="chip hkk">Pengakollen</a><a href="#kost" class="chip kost">Kost</a><a href="#biologi" class="chip no">Biologi</a><a href="#genetik" class="chip no">Genetik</a><a href="#so" class="chip so">Demokrati</a><a href="#samhalle" class="chip so">Sverigeresan</a><a href="#religion" class="chip so">Religion</a><a href="#teknik" class="chip tk">Teknik</a><a href="#matte" class="chip ma">Matte</a></nav>
+</header>
+<section class="avsnitt no" id="kemi">
+<header class="avh"><p class="nar">Kemi</p><h2>Kemi: atomen, joner och molekyler</h2>
+<button class="las" type="button" data-las="Kemi: atomen, joner och molekyler">Läs upp</button></header>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Protoner, neutroner och elektroner</li><li>Atomnummer, masstal och isotoper</li><li>Elektronskal: K-skalet 2, L-skalet 8</li><li>Grupper, perioder och valenselektroner</li><li>Alkalimetaller, halogener och ädelgaser</li><li>Joner: varför atomer lämnar eller tar elektroner</li><li>Jonföreningar och formler, till exempel NaCl och MgCl₂</li><li>Molekyler och bindningar</li><li>Varför saltvatten leder ström men inte sockervatten</li><li>Förklara högt med egna ord</li></ul><button class="las" type="button" data-las="Protoner, neutroner och elektroner. Atomnummer, masstal och isotoper. Elektronskal: K-skalet 2, L-skalet 8. Grupper, perioder och valenselektroner. Alkalimetaller, halogener och ädelgaser. Joner: varför atomer lämnar eller tar elektroner. Jonföreningar och formler, till exempel NaCl och MgCl₂. Molekyler och bindningar. Varför saltvatten leder ström men inte sockervatten. Förklara högt med egna ord">Läs upp</button></div>
+<div class="block"><h3>Välj själv</h3><p class="snart">Titta på en reel (ca 1 minut) och spela sen. Eller hoppa direkt till spelet.</p></div>
+<div class="block"><h3>Reels: titta först</h3><div class="videor">
+<figure class="video staende reel" id="kemi-forklara-1"><video controls playsinline preload="metadata" src="../videor/kemi-forklara-1.mp4?v=7d46457a#t=0.5"></video><figcaption>Joner: varför atomer lämnar eller tar elektroner</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="kemi-forklara-2"><video controls playsinline preload="metadata" src="../videor/kemi-forklara-2.mp4?v=21e52ac4#t=0.5"></video><figcaption>Alkalimetaller och natrium i vatten</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="kemi-forklara-3"><video controls playsinline preload="metadata" src="../videor/kemi-forklara-3.mp4?v=02d82b6c#t=0.5"></video><figcaption>Halogener och ädelgaser i vardagen</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="kemi-forklara-4"><video controls playsinline preload="metadata" src="../videor/kemi-forklara-4.mp4?v=63d51caf#t=0.5"></video><figcaption>Molekyler och bindningar</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="kemi-forklara-5"><video controls playsinline preload="metadata" src="../videor/kemi-forklara-5.mp4?v=71fb9153#t=0.5"></video><figcaption>Varför saltvatten leder ström</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="kemi-forklara-6"><video controls playsinline preload="metadata" src="../videor/kemi-forklara-6.mp4?v=a2bc1bf0#t=0.5"></video><figcaption>Atommassa och isotoper</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="kemi-forklara-7"><video controls playsinline preload="metadata" src="../videor/kemi-forklara-7.mp4?v=7c7a38af#t=0.5"></video><figcaption>Formler för jonföreningar</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="kemi-forklara-8"><video controls playsinline preload="metadata" src="../videor/kemi-forklara-8.mp4?v=600c8293#t=0.5"></video><figcaption>Formelanalys och formelmassa</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="kemi-atomen"><video controls playsinline preload="metadata" src="../videor/kemi-atomen.mp4?v=f83ef44d#t=0.5"></video><figcaption>Atomen</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="kemi-periodiska"><video controls playsinline preload="metadata" src="../videor/kemi-periodiska.mp4?v=8b621523#t=0.5"></video><figcaption>Periodiska systemet</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="kemi-familjer"><video controls playsinline preload="metadata" src="../videor/kemi-familjer.mp4?v=5474ce63#t=0.5"></video><figcaption>Grundämnesfamiljer</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="kemi-natriumklorid"><video controls playsinline preload="metadata" src="../videor/kemi-natriumklorid.mp4?v=bd9de765#t=0.5"></video><figcaption>Natrium + klor = koksalt</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="atom-bana-1"><video controls playsinline preload="metadata" src="../videor/atom-bana-1.mp4?v=05125e8d#t=0.5"></video><figcaption>Bana 1: Atomens byggstenar</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="atom-bana-2"><video controls playsinline preload="metadata" src="../videor/atom-bana-2.mp4?v=fe0c92a7#t=0.5"></video><figcaption>Bana 2: Elektronskalen</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="atom-bana-3"><video controls playsinline preload="metadata" src="../videor/atom-bana-3.mp4?v=b9ece235#t=0.5"></video><figcaption>Bana 3: Atomnummer och atommassa</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="atom-bana-4"><video controls playsinline preload="metadata" src="../videor/atom-bana-4.mp4?v=fb6a0ab8#t=0.5"></video><figcaption>Bana 4: Periodiska systemet</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="atom-bana-5"><video controls playsinline preload="metadata" src="../videor/atom-bana-5.mp4?v=8d8bf668#t=0.5"></video><figcaption>Bana 5: Grundämnesfamiljer</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="atom-bana-6"><video controls playsinline preload="metadata" src="../videor/atom-bana-6.mp4?v=9ec4fd8e#t=0.5"></video><figcaption>Bana 6: Joner</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="atom-bana-7"><video controls playsinline preload="metadata" src="../videor/atom-bana-7.mp4?v=d357da1e#t=0.5"></video><figcaption>Bana 7: Jonföreningar</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="atom-bana-8"><video controls playsinline preload="metadata" src="../videor/atom-bana-8.mp4?v=f80041b3#t=0.5"></video><figcaption>Bana 8: Formler och formelmassa</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="atom-bana-9"><video controls playsinline preload="metadata" src="../videor/atom-bana-9.mp4?v=4e651ef1#t=0.5"></video><figcaption>Bana 9: Balansera reaktionsformler</figcaption><a class="spel nu" hidden href="../spel/atomresan.html"><b>Nu spelar vi →</b><span>Öppna Atomresan och testa det du just såg</span></a></figure>
+</div></div>
+<a class="spel" href="../spel/atomresan.html"><b>Spela Atomresan</b><span>Atomresan: 12 banor genom periodiska systemet</span></a>
+<a class="spel" href="../muntligt/index.html"><b>Öva muntligt</b><span>Säg svaret högt, jämför med ett exempel och bocka av nyckelorden</span></a>
+</section>
+<section class="avsnitt no" id="fysik">
+<header class="avh"><p class="nar">Fysik</p><h2>Fysik: Materia och krafter, Optik</h2>
+<button class="las" type="button" data-las="Fysik: Materia och krafter, Optik">Läs upp</button></header>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Vad materia är, och densitet</li><li>Massa, tyngd och newton</li><li>Krafter och nettokraft</li><li>Hävstänger och vridmoment</li><li>Ljus, reflektion och osynligt ljus</li><li>Brytning, linser och speglar</li><li>Ögat och synfel</li></ul><button class="las" type="button" data-las="Vad materia är, och densitet. Massa, tyngd och newton. Krafter och nettokraft. Hävstänger och vridmoment. Ljus, reflektion och osynligt ljus. Brytning, linser och speglar. Ögat och synfel">Läs upp</button></div>
+<div class="block"><h3>Välj själv</h3><p class="snart">Titta på en reel (ca 1 minut) och spela sen. Eller hoppa direkt till spelet.</p></div>
+<div class="block"><h3>Reels: titta först</h3><div class="videor">
+<figure class="video staende reel" id="fysik-materia"><video controls playsinline preload="metadata" src="../videor/fysik-materia.mp4?v=88566b00#t=0.5"></video><figcaption>Vad är materia?</figcaption><a class="spel nu" hidden href="../spel/fysiklabbet.html"><b>Nu spelar vi →</b><span>Öppna Fysiklabbet och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="fysik-densitet"><video controls playsinline preload="metadata" src="../videor/fysik-densitet.mp4?v=e6ddbae6#t=0.5"></video><figcaption>Densitet</figcaption><a class="spel nu" hidden href="../spel/fysiklabbet.html"><b>Nu spelar vi →</b><span>Öppna Fysiklabbet och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="fysik-massa-tyngd"><video controls playsinline preload="metadata" src="../videor/fysik-massa-tyngd.mp4?v=e302da04#t=0.5"></video><figcaption>Massa, tyngd och newton</figcaption><a class="spel nu" hidden href="../spel/fysiklabbet.html"><b>Nu spelar vi →</b><span>Öppna Fysiklabbet och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="fysik-krafter"><video controls playsinline preload="metadata" src="../videor/fysik-krafter.mp4?v=e7e61a35#t=0.5"></video><figcaption>Fyra sorters krafter och tröghet</figcaption><a class="spel nu" hidden href="../spel/fysiklabbet.html"><b>Nu spelar vi →</b><span>Öppna Fysiklabbet och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="fysik-nettokraft"><video controls playsinline preload="metadata" src="../videor/fysik-nettokraft.mp4?v=3669e436#t=0.5"></video><figcaption>Nettokraft</figcaption><a class="spel nu" hidden href="../spel/fysiklabbet.html"><b>Nu spelar vi →</b><span>Öppna Fysiklabbet och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="fysik-havstang"><video controls playsinline preload="metadata" src="../videor/fysik-havstang.mp4?v=45f07241#t=0.5"></video><figcaption>Hävstänger och vridmoment</figcaption><a class="spel nu" hidden href="../spel/fysiklabbet.html"><b>Nu spelar vi →</b><span>Öppna Fysiklabbet och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="fysik-ljus"><video controls playsinline preload="metadata" src="../videor/fysik-ljus.mp4?v=f36aba03#t=0.5"></video><figcaption>Ljus och reflektion</figcaption><a class="spel nu" hidden href="../spel/fysiklabbet.html"><b>Nu spelar vi →</b><span>Öppna Fysiklabbet och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="fysik-linser"><video controls playsinline preload="metadata" src="../videor/fysik-linser.mp4?v=ad8eb006#t=0.5"></video><figcaption>Brytning, linser och speglar</figcaption><a class="spel nu" hidden href="../spel/fysiklabbet.html"><b>Nu spelar vi →</b><span>Öppna Fysiklabbet och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="fysik-ogat"><video controls playsinline preload="metadata" src="../videor/fysik-ogat.mp4?v=64a6492d#t=0.5"></video><figcaption>Ögat och synfel</figcaption><a class="spel nu" hidden href="../spel/fysiklabbet.html"><b>Nu spelar vi →</b><span>Öppna Fysiklabbet och testa det du just såg</span></a></figure>
+</div></div>
+<a class="spel" href="../spel/fysiklabbet.html"><b>Spela Fysiklabbet</b><span>Börja med rummen märkta Börja här. Tryck på Öva muntligt.</span></a>
+</section>
+<section class="avsnitt hkk" id="konsument">
+<header class="avh"><p class="nar">Hem- och konsumentkunskap</p><h2>Konsumentkunskap: reklam, rättigheter och märkningar</h2>
+<button class="las" type="button" data-las="Konsumentkunskap: reklam, rättigheter och märkningar">Läs upp</button></header>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Behov och begär, och vad en medveten konsument gör</li><li>Hur reklam och influencers försöker påverka dig</li><li>Reklamation: rätt att klaga i tre år på fel som fanns från början</li><li>Ångerrätt i 14 dagar när du handlar på nätet</li><li>Vad miljömärkningar och Nyckelhålet betyder</li><li>Jämförpris, ingrediensförteckning och bäst före</li><li>Hälsa, ekonomi och miljö (H.E.M) när du väljer mat</li><li>Matsvinn och livsmedelskedjan från hav till bord</li></ul><button class="las" type="button" data-las="Behov och begär, och vad en medveten konsument gör. Hur reklam och influencers försöker påverka dig. Reklamation: rätt att klaga i tre år på fel som fanns från början. Ångerrätt i 14 dagar när du handlar på nätet. Vad miljömärkningar och Nyckelhålet betyder. Jämförpris, ingrediensförteckning och bäst före. Hälsa, ekonomi och miljö (H.E.M) när du väljer mat. Matsvinn och livsmedelskedjan från hav till bord">Läs upp</button></div>
+<div class="block"><h3>Välj själv</h3><p class="snart">Titta på en reel (ca 1 minut) och spela sen. Eller hoppa direkt till spelet.</p></div>
+<div class="block"><h3>Reels: titta först</h3><div class="videor">
+<figure class="video staende reel" id="konsument-bana-1"><video controls playsinline preload="metadata" src="../videor/konsument-bana-1.mp4?v=7da81f2a#t=0.5"></video><figcaption>Bana 1: Medveten konsument</figcaption><a class="spel nu" hidden href="../spel/konsumentkollen.html"><b>Nu spelar vi →</b><span>Öppna Konsumentkollen och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="konsument-bana-2"><video controls playsinline preload="metadata" src="../videor/konsument-bana-2.mp4?v=76d4f18f#t=0.5"></video><figcaption>Bana 2: Reklam och påverkan</figcaption><a class="spel nu" hidden href="../spel/konsumentkollen.html"><b>Nu spelar vi →</b><span>Öppna Konsumentkollen och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="konsument-bana-3"><video controls playsinline preload="metadata" src="../videor/konsument-bana-3.mp4?v=296ca21e#t=0.5"></video><figcaption>Bana 3: Dina rättigheter i butik</figcaption><a class="spel nu" hidden href="../spel/konsumentkollen.html"><b>Nu spelar vi →</b><span>Öppna Konsumentkollen och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="konsument-bana-4"><video controls playsinline preload="metadata" src="../videor/konsument-bana-4.mp4?v=8ad42c5b#t=0.5"></video><figcaption>Bana 4: Handla på nätet</figcaption><a class="spel nu" hidden href="../spel/konsumentkollen.html"><b>Nu spelar vi →</b><span>Öppna Konsumentkollen och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="konsument-bana-5"><video controls playsinline preload="metadata" src="../videor/konsument-bana-5.mp4?v=be322705#t=0.5"></video><figcaption>Bana 5: Märkningar</figcaption><a class="spel nu" hidden href="../spel/konsumentkollen.html"><b>Nu spelar vi →</b><span>Öppna Konsumentkollen och testa det du just såg</span></a></figure>
+</div></div>
+<a class="spel" href="../spel/konsumentkollen.html"><b>Spela Konsumentkollen</b><span>Konsumentkollen: 9 banor i Köpstad</span></a>
+</section>
+<section class="avsnitt hkk" id="privatekonomi">
+<header class="avh"><p class="nar">Hem- och konsumentkunskap</p><h2>Privatekonomi</h2>
+<button class="las" type="button" data-las="Privatekonomi">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="inkomst-budget"><video controls playsinline preload="metadata" src="../videor/inkomst-budget.mp4?v=2bcd9f7e#t=0.5"></video><figcaption>Inkomst, utgifter och budget</figcaption></figure>
+<figure class="video" id="sparande"><video controls playsinline preload="metadata" src="../videor/sparande.mp4?v=88b9c330#t=0.5"></video><figcaption>Sparande</figcaption></figure>
+<figure class="video" id="lan-kredit"><video controls playsinline preload="metadata" src="../videor/lan-kredit.mp4?v=5a5ea353#t=0.5"></video><figcaption>Lån och kredit</figcaption></figure>
+<figure class="video staende" id="faktura-kronofogden"><video controls playsinline preload="metadata" src="../videor/faktura-kronofogden.mp4?v=36752a77#t=0.5"></video><figcaption>Fakturan och Kronofogden</figcaption></figure>
+<figure class="video" id="forsakringar"><video controls playsinline preload="metadata" src="../videor/forsakringar.mp4?v=38637d57#t=0.5"></video><figcaption>Abonnemang och försäkringar</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Inkomst, bruttolön och nettolön</li><li>Fasta och rörliga utgifter, budget</li><li>Målsparande, buffert, sparränta</li><li>Ränta, amortering, sms-lån</li><li>Faktura → påminnelse → inkasso → Kronofogden</li><li>Hemförsäkring och självrisk</li></ul><button class="las" type="button" data-las="Inkomst, bruttolön och nettolön. Fasta och rörliga utgifter, budget. Målsparande, buffert, sparränta. Ränta, amortering, sms-lån. Faktura → påminnelse → inkasso → Kronofogden. Hemförsäkring och självrisk">Läs upp</button></div>
+<a class="spel" href="../spel/pengakollen.html"><b>Spela Pengakollen</b><span>Bana 1–6, sen provet på bana 7</span></a>
+</section>
+<section class="avsnitt hkk" id="pengar">
+<header class="avh"><p class="nar">Hem- och konsumentkunskap</p><h2>Pengakollen: en film per bana</h2>
+<button class="las" type="button" data-las="Pengakollen: en film per bana">Läs upp</button></header>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Pengar som kommer in</li><li>Utgifter och budget</li><li>Sparande</li><li>Lån och kredit</li><li>Fakturan som inte betalades</li><li>Abonnemang och försäkringar</li><li>Extra: kost</li></ul><button class="las" type="button" data-las="Pengar som kommer in. Utgifter och budget. Sparande. Lån och kredit. Fakturan som inte betalades. Abonnemang och försäkringar. Extra: kost">Läs upp</button></div>
+<div class="block"><h3>Välj själv</h3><p class="snart">Titta på en reel (ca 1 minut) och spela sen. Eller hoppa direkt till spelet.</p></div>
+<div class="block"><h3>Reels: titta först</h3><div class="videor">
+<figure class="video staende reel" id="peng-bana-1"><video controls playsinline preload="metadata" src="../videor/peng-bana-1.mp4?v=6274f490#t=0.5"></video><figcaption>Bana 1: Pengar som kommer in</figcaption><a class="spel nu" hidden href="../spel/pengakollen.html"><b>Nu spelar vi →</b><span>Öppna Pengakollen och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="peng-bana-2"><video controls playsinline preload="metadata" src="../videor/peng-bana-2.mp4?v=194a12eb#t=0.5"></video><figcaption>Bana 2: Utgifter och budget</figcaption><a class="spel nu" hidden href="../spel/pengakollen.html"><b>Nu spelar vi →</b><span>Öppna Pengakollen och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="peng-bana-3"><video controls playsinline preload="metadata" src="../videor/peng-bana-3.mp4?v=d8ea1461#t=0.5"></video><figcaption>Bana 3: Sparande</figcaption><a class="spel nu" hidden href="../spel/pengakollen.html"><b>Nu spelar vi →</b><span>Öppna Pengakollen och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="peng-bana-4"><video controls playsinline preload="metadata" src="../videor/peng-bana-4.mp4?v=af4a0eff#t=0.5"></video><figcaption>Bana 4: Lån och kredit</figcaption><a class="spel nu" hidden href="../spel/pengakollen.html"><b>Nu spelar vi →</b><span>Öppna Pengakollen och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="peng-bana-5"><video controls playsinline preload="metadata" src="../videor/peng-bana-5.mp4?v=8ebe56cb#t=0.5"></video><figcaption>Bana 5: Fakturan som inte betalades</figcaption><a class="spel nu" hidden href="../spel/pengakollen.html"><b>Nu spelar vi →</b><span>Öppna Pengakollen och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="peng-bana-6"><video controls playsinline preload="metadata" src="../videor/peng-bana-6.mp4?v=16c9c105#t=0.5"></video><figcaption>Bana 6: Abonnemang och försäkringar</figcaption><a class="spel nu" hidden href="../spel/pengakollen.html"><b>Nu spelar vi →</b><span>Öppna Pengakollen och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="peng-bana-8"><video controls playsinline preload="metadata" src="../videor/peng-bana-8.mp4?v=1684cfc9#t=0.5"></video><figcaption>Bana 8: Extra: kost</figcaption><a class="spel nu" hidden href="../spel/pengakollen.html"><b>Nu spelar vi →</b><span>Öppna Pengakollen och testa det du just såg</span></a></figure>
+</div></div>
+<a class="spel" href="../spel/pengakollen.html"><b>Spela Pengakollen</b><span>Varje bana har sin film: tryck på Titta först</span></a>
+</section>
+<section class="avsnitt kost" id="kost">
+<header class="avh"><p class="nar">Hem- och konsumentkunskap</p><h2>Kost och tallriksmodellen</h2>
+<button class="las" type="button" data-las="Kost och tallriksmodellen">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="tallriksmodellen"><video controls playsinline preload="metadata" src="../videor/tallriksmodellen.mp4?v=7e1eadf0#t=0.5"></video><figcaption>Tallriksmodellen och rött kött</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Tallriksmodellen: kolhydrater, protein, grönsaker</li><li>Rör dig mycket: lika mycket kolhydrater och grönsaker</li><li>Rör dig lite: mer grönsaker, mindre kolhydrater</li><li>Protein: kött, fisk, ägg, bönor · Kolhydrater: pasta, ris, potatis</li><li>Rött kött: max 350 g i veckan</li></ul><button class="las" type="button" data-las="Tallriksmodellen: kolhydrater, protein, grönsaker. Rör dig mycket: lika mycket kolhydrater och grönsaker. Rör dig lite: mer grönsaker, mindre kolhydrater. Protein: kött, fisk, ägg, bönor · Kolhydrater: pasta, ris, potatis. Rött kött: max 350 g i veckan">Läs upp</button></div>
+<a class="spel" href="../spel/pengakollen.html"><b>Spela Pengakollen</b><span>Köket – bana 8</span></a>
+</section>
+<section class="avsnitt no" id="biologi">
+<header class="avh"><p class="nar">Biologi</p><h2>Biologi: en film per bana</h2>
+<button class="las" type="button" data-las="Biologi: en film per bana">Läs upp</button></header>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Ekologi</li><li>Hjärnan och sinnena</li><li>Celler och liv</li><li>Arv och genteknik</li><li>Evolution och mångfald</li><li>Kroppens samarbete</li><li>Mikrober och immunförsvar</li><li>Hälsa och levnadsvillkor</li><li>Reproduktion och relationer</li><li>Forskarstationen</li></ul><button class="las" type="button" data-las="Ekologi. Hjärnan och sinnena. Celler och liv. Arv och genteknik. Evolution och mångfald. Kroppens samarbete. Mikrober och immunförsvar. Hälsa och levnadsvillkor. Reproduktion och relationer. Forskarstationen">Läs upp</button></div>
+<div class="block"><h3>Välj själv</h3><p class="snart">Titta på en reel (ca 1 minut) och spela sen. Eller hoppa direkt till spelet.</p></div>
+<div class="block"><h3>Reels: titta först</h3><div class="videor">
+<figure class="video staende reel" id="bio-bana-1"><video controls playsinline preload="metadata" src="../videor/bio-bana-1.mp4?v=f9e9f566#t=0.5"></video><figcaption>Bana 1: Ekologi</figcaption><a class="spel nu" hidden href="../spel/biologiresan.html"><b>Nu spelar vi →</b><span>Öppna Biologiresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="bio-bana-2"><video controls playsinline preload="metadata" src="../videor/bio-bana-2.mp4?v=706c7e1a#t=0.5"></video><figcaption>Bana 2: Hjärnan och sinnena</figcaption><a class="spel nu" hidden href="../spel/biologiresan.html"><b>Nu spelar vi →</b><span>Öppna Biologiresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="bio-bana-3"><video controls playsinline preload="metadata" src="../videor/bio-bana-3.mp4?v=60026648#t=0.5"></video><figcaption>Bana 3: Celler och liv</figcaption><a class="spel nu" hidden href="../spel/biologiresan.html"><b>Nu spelar vi →</b><span>Öppna Biologiresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="bio-bana-4"><video controls playsinline preload="metadata" src="../videor/bio-bana-4.mp4?v=df5f4bdd#t=0.5"></video><figcaption>Bana 4: Arv och genteknik</figcaption><a class="spel nu" hidden href="../spel/biologiresan.html"><b>Nu spelar vi →</b><span>Öppna Biologiresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="bio-bana-5"><video controls playsinline preload="metadata" src="../videor/bio-bana-5.mp4?v=1af1db75#t=0.5"></video><figcaption>Bana 5: Evolution och mångfald</figcaption><a class="spel nu" hidden href="../spel/biologiresan.html"><b>Nu spelar vi →</b><span>Öppna Biologiresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="bio-bana-6"><video controls playsinline preload="metadata" src="../videor/bio-bana-6.mp4?v=6b4b12dd#t=0.5"></video><figcaption>Bana 6: Kroppens samarbete</figcaption><a class="spel nu" hidden href="../spel/biologiresan.html"><b>Nu spelar vi →</b><span>Öppna Biologiresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="bio-bana-7"><video controls playsinline preload="metadata" src="../videor/bio-bana-7.mp4?v=24f16ee0#t=0.5"></video><figcaption>Bana 7: Mikrober och immunförsvar</figcaption><a class="spel nu" hidden href="../spel/biologiresan.html"><b>Nu spelar vi →</b><span>Öppna Biologiresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="bio-bana-8"><video controls playsinline preload="metadata" src="../videor/bio-bana-8.mp4?v=94d3909f#t=0.5"></video><figcaption>Bana 8: Hälsa och levnadsvillkor</figcaption><a class="spel nu" hidden href="../spel/biologiresan.html"><b>Nu spelar vi →</b><span>Öppna Biologiresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="bio-bana-9"><video controls playsinline preload="metadata" src="../videor/bio-bana-9.mp4?v=77669883#t=0.5"></video><figcaption>Bana 9: Reproduktion och relationer</figcaption><a class="spel nu" hidden href="../spel/biologiresan.html"><b>Nu spelar vi →</b><span>Öppna Biologiresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="bio-bana-10"><video controls playsinline preload="metadata" src="../videor/bio-bana-10.mp4?v=21fb3edd#t=0.5"></video><figcaption>Bana 10: Forskarstationen</figcaption><a class="spel nu" hidden href="../spel/biologiresan.html"><b>Nu spelar vi →</b><span>Öppna Biologiresan och testa det du just såg</span></a></figure>
+</div></div>
+<a class="spel" href="../spel/biologiresan.html"><b>Spela Biologiresan</b><span>Varje bana har sin film: tryck på Titta först</span></a>
+</section>
+<section class="avsnitt no" id="genetik">
+<header class="avh"><p class="nar">Biologi</p><h2>Genetik</h2>
+<button class="las" type="button" data-las="Genetik">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="genetik"><video controls playsinline preload="metadata" src="../videor/genetik.mp4?v=f4656dc8#t=0.5"></video><figcaption>Genetik – det viktigaste</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>DNA, gener och kromosomer</li><li>Hur egenskaper ärvs</li><li>Dominant och recessiv</li><li>Korsningsschema</li><li>Mutation och genteknik</li></ul><button class="las" type="button" data-las="DNA, gener och kromosomer. Hur egenskaper ärvs. Dominant och recessiv. Korsningsschema. Mutation och genteknik">Läs upp</button></div>
+<a class="spel" href="../spel/biologiresan.html"><b>Spela Biologiresan</b><span>Bana 4: Arv och genteknik</span></a>
+</section>
+<section class="avsnitt so" id="so">
+<header class="avh"><p class="nar">Samhällskunskap</p><h2>Demokrati och riksdagen</h2>
+<button class="las" type="button" data-las="Demokrati och riksdagen">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="demokrati-valdeltagande"><video controls playsinline preload="metadata" src="../videor/demokrati-valdeltagande.mp4?v=8d1449cb#t=0.5"></video><figcaption>Demokratiska villkor och valdeltagande</figcaption></figure>
+<figure class="video" id="regering-lag"><video controls playsinline preload="metadata" src="../videor/regering-lag.mp4?v=a485b44e#t=0.5"></video><figcaption>Regeringstyper och hur en lag blir till</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Vilka villkor ska en demokrati uppfylla?</li><li>Vilka sorters regeringar kan Sverige ha?</li><li>Hur ändras en lag?</li><li>Är högt valdeltagande bra? Varför?</li></ul><button class="las" type="button" data-las="Vilka villkor ska en demokrati uppfylla?. Vilka sorters regeringar kan Sverige ha?. Hur ändras en lag?. Är högt valdeltagande bra? Varför?">Läs upp</button></div>
+<a class="spel" href="../spel/demokratiuppdraget.html"><b>Spela Demokratiuppdraget</b><span>Fyra uppdrag: demokrati, valdeltagande, regeringar, lagar</span></a>
+<a class="spel" href="../spel/sverigeresan.html"><b>Spela Sverigeresan</b><span>Bana 2 Visby och bana 7 Stockholm</span></a>
+</section>
+<section class="avsnitt so" id="samhalle">
+<header class="avh"><p class="nar">Samhällskunskap</p><h2>Samhällskunskap: en film per bana</h2>
+<button class="las" type="button" data-las="Samhällskunskap: en film per bana">Läs upp</button></header>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Samhället, du och de andra</li><li>Demokrati eller diktatur</li><li>Minoriteter och mänskliga rättigheter</li><li>Lag och rätt</li><li>Medier och källkritik</li><li>Partier och ideologier</li><li>Så styrs Sverige, EU och Norden</li><li>Arbete, ekonomi och välfärd</li><li>En global värld</li></ul><button class="las" type="button" data-las="Samhället, du och de andra. Demokrati eller diktatur. Minoriteter och mänskliga rättigheter. Lag och rätt. Medier och källkritik. Partier och ideologier. Så styrs Sverige, EU och Norden. Arbete, ekonomi och välfärd. En global värld">Läs upp</button></div>
+<div class="block"><h3>Välj själv</h3><p class="snart">Titta på en reel (ca 1 minut) och spela sen. Eller hoppa direkt till spelet.</p></div>
+<div class="block"><h3>Reels: titta först</h3><div class="videor">
+<figure class="video staende reel" id="sver-bana-1"><video controls playsinline preload="metadata" src="../videor/sver-bana-1.mp4?v=1d36fd7a#t=0.5"></video><figcaption>Bana 1: Samhället, du och de andra</figcaption><a class="spel nu" hidden href="../spel/sverigeresan.html"><b>Nu spelar vi →</b><span>Öppna Sverigeresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="sver-bana-2"><video controls playsinline preload="metadata" src="../videor/sver-bana-2.mp4?v=4917a97a#t=0.5"></video><figcaption>Bana 2: Demokrati eller diktatur</figcaption><a class="spel nu" hidden href="../spel/sverigeresan.html"><b>Nu spelar vi →</b><span>Öppna Sverigeresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="sver-bana-3"><video controls playsinline preload="metadata" src="../videor/sver-bana-3.mp4?v=fbf91df2#t=0.5"></video><figcaption>Bana 3: Minoriteter och mänskliga rättigheter</figcaption><a class="spel nu" hidden href="../spel/sverigeresan.html"><b>Nu spelar vi →</b><span>Öppna Sverigeresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="sver-bana-4"><video controls playsinline preload="metadata" src="../videor/sver-bana-4.mp4?v=fd4c9188#t=0.5"></video><figcaption>Bana 4: Lag och rätt</figcaption><a class="spel nu" hidden href="../spel/sverigeresan.html"><b>Nu spelar vi →</b><span>Öppna Sverigeresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="sver-bana-5"><video controls playsinline preload="metadata" src="../videor/sver-bana-5.mp4?v=b6a06724#t=0.5"></video><figcaption>Bana 5: Medier och källkritik</figcaption><a class="spel nu" hidden href="../spel/sverigeresan.html"><b>Nu spelar vi →</b><span>Öppna Sverigeresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="sver-bana-6"><video controls playsinline preload="metadata" src="../videor/sver-bana-6.mp4?v=1e2d9fbe#t=0.5"></video><figcaption>Bana 6: Partier och ideologier</figcaption><a class="spel nu" hidden href="../spel/sverigeresan.html"><b>Nu spelar vi →</b><span>Öppna Sverigeresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="sver-bana-7"><video controls playsinline preload="metadata" src="../videor/sver-bana-7.mp4?v=3305147f#t=0.5"></video><figcaption>Bana 7: Så styrs Sverige, EU och Norden</figcaption><a class="spel nu" hidden href="../spel/sverigeresan.html"><b>Nu spelar vi →</b><span>Öppna Sverigeresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="sver-bana-8"><video controls playsinline preload="metadata" src="../videor/sver-bana-8.mp4?v=92a2380c#t=0.5"></video><figcaption>Bana 8: Arbete, ekonomi och välfärd</figcaption><a class="spel nu" hidden href="../spel/sverigeresan.html"><b>Nu spelar vi →</b><span>Öppna Sverigeresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="sver-bana-9"><video controls playsinline preload="metadata" src="../videor/sver-bana-9.mp4?v=fc8d3af3#t=0.5"></video><figcaption>Bana 9: En global värld</figcaption><a class="spel nu" hidden href="../spel/sverigeresan.html"><b>Nu spelar vi →</b><span>Öppna Sverigeresan och testa det du just såg</span></a></figure>
+</div></div>
+<a class="spel" href="../spel/sverigeresan.html"><b>Spela Sverigeresan</b><span>Varje bana har sin film: tryck på Titta först</span></a>
+</section>
+<section class="avsnitt so" id="religion">
+<header class="avh"><p class="nar">Religion</p><h2>Religion: judendomen, en film per bana</h2>
+<button class="las" type="button" data-las="Religion: judendomen, en film per bana">Läs upp</button></header>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Där Abraham hörde Guds röst</li><li>Josef, Mose och flykten</li><li>Budorden och de heliga skrifterna</li><li>Kungar, tempel och läran om Gud</li><li>Synagogan, riktningar och vardag</li><li>Högtider och livet</li></ul><button class="las" type="button" data-las="Där Abraham hörde Guds röst. Josef, Mose och flykten. Budorden och de heliga skrifterna. Kungar, tempel och läran om Gud. Synagogan, riktningar och vardag. Högtider och livet">Läs upp</button></div>
+<div class="block"><h3>Välj själv</h3><p class="snart">Titta på en reel (ca 1 minut) och spela sen. Eller hoppa direkt till spelet.</p></div>
+<div class="block"><h3>Reels: titta först</h3><div class="videor">
+<figure class="video staende reel" id="jude-bana-1"><video controls playsinline preload="metadata" src="../videor/jude-bana-1.mp4?v=2bae122c#t=0.5"></video><figcaption>Bana 1: Där Abraham hörde Guds röst</figcaption><a class="spel nu" hidden href="../spel/judendomsresan.html"><b>Nu spelar vi →</b><span>Öppna Judendomsresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="jude-bana-2"><video controls playsinline preload="metadata" src="../videor/jude-bana-2.mp4?v=c3634969#t=0.5"></video><figcaption>Bana 2: Josef, Mose och flykten</figcaption><a class="spel nu" hidden href="../spel/judendomsresan.html"><b>Nu spelar vi →</b><span>Öppna Judendomsresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="jude-bana-3"><video controls playsinline preload="metadata" src="../videor/jude-bana-3.mp4?v=f5fe7d00#t=0.5"></video><figcaption>Bana 3: Budorden och de heliga skrifterna</figcaption><a class="spel nu" hidden href="../spel/judendomsresan.html"><b>Nu spelar vi →</b><span>Öppna Judendomsresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="jude-bana-4"><video controls playsinline preload="metadata" src="../videor/jude-bana-4.mp4?v=0f04e41c#t=0.5"></video><figcaption>Bana 4: Kungar, tempel och läran om Gud</figcaption><a class="spel nu" hidden href="../spel/judendomsresan.html"><b>Nu spelar vi →</b><span>Öppna Judendomsresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="jude-bana-5"><video controls playsinline preload="metadata" src="../videor/jude-bana-5.mp4?v=8c053bd0#t=0.5"></video><figcaption>Bana 5: Synagogan, riktningar och vardag</figcaption><a class="spel nu" hidden href="../spel/judendomsresan.html"><b>Nu spelar vi →</b><span>Öppna Judendomsresan och testa det du just såg</span></a></figure>
+<figure class="video staende reel" id="jude-bana-6"><video controls playsinline preload="metadata" src="../videor/jude-bana-6.mp4?v=1d1be575#t=0.5"></video><figcaption>Bana 6: Högtider och livet</figcaption><a class="spel nu" hidden href="../spel/judendomsresan.html"><b>Nu spelar vi →</b><span>Öppna Judendomsresan och testa det du just såg</span></a></figure>
+</div></div>
+<a class="spel" href="../spel/judendomsresan.html"><b>Spela Judendomsresan</b><span>Varje bana har sin film: tryck på Titta först</span></a>
+</section>
+<section class="avsnitt tk" id="teknik">
+<header class="avh"><p class="nar">Teknik</p><h2>Micro:bit-bilen</h2>
+<button class="las" type="button" data-las="Micro:bit-bilen">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="microbit-bilen"><video controls playsinline preload="metadata" src="../videor/microbit-bilen.mp4?v=55300cbf#t=0.5"></video><figcaption>Micro:bit-bilen steg för steg</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Bilen kan starta och stanna</li><li>Bilen kör framåt, bakåt, vänster och höger</li><li>LED-skärmen visar en bild för varje rörelse</li><li>Bygg en bil i Tinkercad</li></ul><button class="las" type="button" data-las="Bilen kan starta och stanna. Bilen kör framåt, bakåt, vänster och höger. LED-skärmen visar en bild för varje rörelse. Bygg en bil i Tinkercad">Läs upp</button></div>
+
+</section>
+<section class="avsnitt ma" id="matte">
+<header class="avh"><p class="nar">Matematik</p><h2>Koordinatsystem, tabeller och grafer</h2>
+<button class="las" type="button" data-las="Koordinatsystem, tabeller och grafer">Läs upp</button></header>
+<div class="videor">
+<figure class="video" id="koordinatsystem"><video controls playsinline preload="metadata" src="../videor/koordinatsystem.mp4?v=2018d2df#t=0.5"></video><figcaption>Koordinatsystem, tabeller och grafer</figcaption></figure>
+</div>
+<div class="block"><h3>Kan du det här är du klar</h3><ul class="kan"><li>Punkter i koordinatsystem</li><li>Tabeller och grafer</li></ul><button class="las" type="button" data-las="Punkter i koordinatsystem. Tabeller och grafer">Läs upp</button></div>
+
+</section>
+<div class="offline">
+<p class="snart">Ska du vara utan nät? Spara alla videor på enheten först (ca 502 MB).</p>
+<button type="button" id="sparaVideor">Spara videorna för offline</button>
+<button type="button" id="sparaRost">Spara uppläsningen för offline</button>
+<p class="snart" id="sparaStatus" role="status"></p>
+</div>
+<p class="fot">Uppdaterad 26 oktober 2026. Videorna är gjorda av skolmaterial.</p>
+</div>
+<script>
+(function(){
+  // uppläsning på svenska
+  var aktiv=null;
+  function rost(){ var v=(window.speechSynthesis&&speechSynthesis.getVoices())||[]; return v.find(function(x){return /^sv/i.test(x.lang)&&/premium|enhanced|förbättrad|alva/i.test(x.name)})||v.find(function(x){return /^sv/i.test(x.lang)})||null; }
+  document.querySelectorAll('.las').forEach(function(b){
+    if(!('speechSynthesis' in window)){ b.hidden=true; return; }
+    b.addEventListener('click',function(){
+      speechSynthesis.cancel();
+      if(aktiv===b){ b.classList.remove('pa'); aktiv=null; return; }
+      if(aktiv) aktiv.classList.remove('pa');
+      var u=new SpeechSynthesisUtterance(b.dataset.las); u.lang='sv-SE'; var r=rost(); if(r) u.voice=r; u.rate=.92;
+      u.onend=function(){ b.classList.remove('pa'); if(aktiv===b) aktiv=null; };
+      aktiv=b; b.classList.add('pa'); speechSynthesis.speak(u);
+    });
+  });
+  // reels: visa "Nu spelar vi" när reelen är slut
+  document.querySelectorAll('.reel video').forEach(function(v){ v.addEventListener('ended',function(){ var a=v.parentNode.querySelector('.nu'); if(a){ a.hidden=false; a.scrollIntoView({block:'nearest',behavior:'smooth'}); } }); });
+  // pausa andra videor när en startar
+  var vs=[].slice.call(document.querySelectorAll('video'));
+  vs.forEach(function(v){ v.addEventListener('play',function(){ vs.forEach(function(o){ if(o!==v) o.pause(); }); }); });
+  if(location.hash){ var m=document.getElementById(location.hash.slice(1)); if(m) m.scrollIntoView(); }
+  // offline: service worker och "spara videorna"
+  var knapp=document.getElementById('sparaVideor'), status=document.getElementById('sparaStatus');
+  if(!('serviceWorker' in navigator)){ knapp.parentNode.hidden=true; return; }
+  navigator.serviceWorker.register('../sw.js').catch(function(){});
+  navigator.serviceWorker.addEventListener('message',function(e){
+    if(e.data&&e.data.typ==='rost-sparad') status.textContent=e.data.klara+' av '+e.data.av+' ljudklipp sparade'+(e.data.klara===e.data.av?'. Klart!':' …');
+    if(e.data&&e.data.typ==='videor-sparade') status.textContent=e.data.klara+' av '+e.data.av+' videor sparade'+(e.data.klara===e.data.av?'. Klart!':' …');
+  });
+  document.getElementById('sparaRost').addEventListener('click',function(){
+    navigator.serviceWorker.ready.then(function(reg){ status.textContent='Sparar uppläsningen …'; reg.active.postMessage({typ:'spara-rost'}); });
+  });
+  knapp.addEventListener('click',function(){
+    navigator.serviceWorker.ready.then(function(reg){ status.textContent='Sparar …'; reg.active.postMessage({typ:'spara-videor'}); });
+  });
+})();
+</script>
+</body>
+</html>
